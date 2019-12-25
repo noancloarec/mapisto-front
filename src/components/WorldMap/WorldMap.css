@@ -1,0 +1,18 @@
+svg {
+    position: relative;
+    width: 97vw;
+    height: 97vh;
+    background-color: #d8e2eb;
+}
+
+#land-mass {
+    fill: white;
+}
+
+.state {
+    stroke-width: 0;
+}
+
+.state:hover {
+    opacity: .8;
+}
