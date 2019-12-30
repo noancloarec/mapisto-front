@@ -6,7 +6,8 @@ if (process.env.NODE_ENV === 'development') {
     api_path = 'https://api.mapisto.org'
 }
 export const config = {
-    api_path: api_path
+    api_path: api_path,
+    precision_levels : [1, 5, 10, 20, 50]
 }
 
 

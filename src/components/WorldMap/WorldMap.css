@@ -1,7 +1,9 @@
+#map {
+    width: 100%;
+    height: 100%;
+}
+
 svg {
-    position: relative;
-    width: 97vw;
-    height: 97vh;
     background-color: #d8e2eb;
 }
 
@@ -15,4 +17,5 @@ svg {
 
 .state:hover {
     opacity: .8;
+    transition: opacity ease-in .1s;
 }

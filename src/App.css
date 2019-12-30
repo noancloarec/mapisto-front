@@ -1,4 +1,29 @@
-#time-selector {
+#time-selector-row {
     position: fixed;
-    bottom: 0;
+    top: 0;
+    display: flex;
+    justify-content: center;
+    width: 100%;
+    pointer-events: none;
+}
+
+#time-selector {
+    opacity: .5;
+    pointer-events: all;
+    transition: opacity ease 1s;
+}
+
+#time-selector:hover {
+    opacity: 1;
+    transition: ease-out .1s;
+}
+
+body {
+    margin: 0;
+}
+
+section#world-map {
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
 }

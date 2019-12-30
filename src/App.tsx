@@ -5,11 +5,13 @@ import  {TimeSelectorConnected}  from './components/TimeSelector/TimeSelector';
 
 const App: React.FC = () => {
   return (
-    <section>
-      <WorldMapConnected/>
-      <div id="time-selector">
-        <TimeSelectorConnected></TimeSelectorConnected>
-      </div>
+    <section id="world-map">
+      <WorldMapConnected />
+      <section id="time-selector-row">
+        <div id="time-selector">
+          <TimeSelectorConnected></TimeSelectorConnected>
+        </div>
+      </section>
     </section>
   );
 }

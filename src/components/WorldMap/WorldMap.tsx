@@ -1,12 +1,14 @@
-import React, { MouseEvent } from "react";
-import axios from 'axios'
+import React from "react";
+import axios, { AxiosResponse } from 'axios'
 import { config } from '../../config';
 import { MapistoState } from "../../models/mapistoState";
 import './WorldMap.css'
-import { ViewBox } from "../../models/viewbox";
-import SVG from 'svg.js';
-import store from '../../store/store'
 import { connect } from "react-redux";
+import { Land } from "../../models/Land";
+import { MapDomManager } from "./MapDomManager";
+import {  debounceTime } from 'rxjs/operators'
+import { Observable, Subscription, from, Subject } from "rxjs";
+import { MapNavigator } from "./MapNavigator";
 
 interface State {
 }
@@ -15,141 +17,147 @@ interface Props {
     year: number
 }
 
-const scrollSpeed = 2;
 
 class WorldMap extends React.Component<Props, State>{
-    drawing: SVG.Doc
-    dragStartPoint: DOMPoint
-    dragging: boolean = false;
+    domManager: MapDomManager
+    currentPrecisionLevel: number;
+
+    serverMapSubscription :Subscription
+
+    mapNagivator: MapNavigator
+
+    yearChangeSubject : Subject<number>
+
 
     constructor(props: Props) {
         super(props)
+        this.domManager = new MapDomManager();
+        this.yearChangeSubject = new Subject<number>();
     }
 
     componentDidMount() {
-        this.drawing = SVG('map').viewbox(0, 0, 2269.4568, 1550.3625);
-        this.drawing.native().setAttribute("preserveAspectRatio", "xMinYMin slice");
+        this.domManager.initMap(0, 0, 2269.4568, 1550.3625);
+        this.mapNagivator = new MapNavigator(this.domManager);
+
+        this.mapNagivator.getDragListener().pipe(
+            debounceTime(100)
+        ).subscribe(
+            () => {
+                this.loadLand();
+                this.updateTerritories();
+            }
+        )
+
+        this.mapNagivator.getZoomListener().pipe(
+            debounceTime(100)
+        ).subscribe(
+            () => this.updatePrecisionLevel()
+        )
+        this.updatePrecisionLevel();
         this.loadLand();
+        this.yearChangeSubject.pipe(
+            debounceTime(100)
+        ).subscribe(year => this.updateTime(year))
     }
     shouldComponentUpdate(newProps: Props) {
         if (newProps.year !== this.props.year) {
-            this.updateTime(newProps.year)
+            this.yearChangeSubject.next(newProps.year)
         }
         return false;
     }
 
+    
+    updatePrecisionLevel() {
+        const closestPrecision = this.getClosestPrecision(3*this.getKilometersPerPixel());
+        if (closestPrecision !== this.currentPrecisionLevel) {
+            this.currentPrecisionLevel = closestPrecision;
+            this.loadLand()
+            this.updateTerritories()
+        }
+
+    }
+
+    getClosestPrecision(kmPerPX: number) {
+        return config.precision_levels.reduce(function (prev, curr) {
+            return (Math.abs(curr - kmPerPX) < Math.abs(prev - kmPerPX) ? curr : prev);
+        });
+    }
+
+    getKilometersPerPixel() {
+        const kmPerPoint = 40000/2269;
+
+        const visibleSVG = this.domManager.getVisibleSVG()
+        const width = visibleSVG.end.x - visibleSVG.origin.x
+        const pxWidth = this.domManager.getPixelWidth();
+        
+        return kmPerPoint* width/pxWidth
+    }
+
     async loadLand() {
-        const res = await axios.get<string[]>(`${config.api_path}/land`);
-        const land_container = this.drawing.group().id('land-mass');
-        for (const d_path of res.data) {
-            land_container.path(d_path)
-        }
-
-        this.updateTime(this.props.year)
-
-    }
-
-    async updateTime(year: number) {
-        const res = await axios.get<MapistoState[]>(`${config.api_path}/state`, {
+        const visibleSVG = this.domManager.getVisibleSVG()
+        const precisionLevel = this.currentPrecisionLevel
+        const res = await axios.get<Land[]>(`${config.api_path}/land`, {
             params: {
-                date: year + "-01-01"
+                precision_in_km: precisionLevel,
+                min_x: visibleSVG.origin.x,
+                max_x: visibleSVG.end.x,
+                min_y: visibleSVG.origin.y,
+                max_y: visibleSVG.end.y
             }
-        })
-        this.drawing.select('.state').each((_, members) => {
-            for (let member of members) {
-                member.remove()
+        });
+        this.domManager.updateLands(res.data, precisionLevel)
+    }
+
+    load_territories(year: number, precisionLevel: number) :Observable<AxiosResponse<MapistoState[]>>{
+        const visibleSVG = this.domManager.getVisibleSVG()
+        return from(
+            axios.get<MapistoState[]>(`${config.api_path}/map`, {
+                params: {
+                    date: year + "-01-01",
+                    precision_in_km: precisionLevel,
+                    min_x: visibleSVG.origin.x,
+                    max_x: visibleSVG.end.x,
+                    min_y: visibleSVG.origin.y,
+                    max_y: visibleSVG.end.y
+                }
+            })
+        ) 
+    }
+    updateTime(year: number) {
+        const precisionLevel = this.currentPrecisionLevel
+        if (this.serverMapSubscription){
+            this.serverMapSubscription.unsubscribe()
+        }
+        this.serverMapSubscription = this.load_territories(year, precisionLevel).subscribe(
+            res =>{
+                this.domManager.emptyStates()
+                for (const state of res.data) {
+                    this.domManager.updateTerritories(state.territories, state.state_id, state.color, precisionLevel)
+                }
             }
-        })
-
-        for (const mapistoState of res.data) {
-            this.addToMap(mapistoState.territories, mapistoState.state_id, '#' + mapistoState.color)
-        }
+        )
     }
 
-    addToMap(paths: string[], state_id: number, color: string) {
-        let group = this.drawing.group().id("" + state_id)
-        group.fill(color).stroke(color).attr('class', 'state');
-        for (let i = 0; i < paths.length; i++) {
-            group.path(paths[i])
-        }
-        group.native().addEventListener("click", () => {
-            this.selectState(state_id)
-        })
-    }
-
-    selectState(id : number){
-        alert('selected text with id'+id)
-    }
-
-    startDragging(event: MouseEvent) {
-        this.dragStartPoint = this.svgCoords(event);
-        this.dragging = true
-    }
-
-    endDragging() {
-        this.dragging = false;
-    }
-
-    handleZoom(event: React.WheelEvent<HTMLElement>) {
-        const minSideSize = 10; // the maps viewbox width or height cannot be inferior to 10 points
-
-        const parentDiv: HTMLElement = this.drawing.native().parentElement;
-        const vb = this.drawing.viewbox();
-
-        const drawWidth = parentDiv.clientWidth;
-        const drawHeight = parentDiv.clientHeight;
-
-        const xCoord = event.clientX - parentDiv.offsetLeft
-        const yCoord = event.clientY - parentDiv.offsetTop
-        const minSide = Math.min(vb.width, vb.height)
-        const dw = drawWidth * -event.deltaY * scrollSpeed * minSide / 1e6;
-        const dh = drawHeight * -event.deltaY * scrollSpeed * minSide / 1e6;
-        const dx = dw * xCoord / drawWidth
-        const dy = dh * yCoord / drawHeight
-        if (vb.width - dw >= minSideSize && vb.height - dh >= minSideSize) {
-
-            this.drawing.viewbox(
-                vb.x + dx,
-                vb.y + dy,
-                vb.width - dw,
-                vb.height - dh
-            )
-        } else {
-            console.log('zoom was forbidden')
-        }
-    }
-
-    svgCoords(event: MouseEvent): DOMPoint {
-        let pt = new DOMPoint(event.clientX, event.clientY);
-        return pt.matrixTransform(document.querySelector('svg').getScreenCTM().inverse())
-    }
-
-    handleDrag(event: MouseEvent) {
-        if (!this.dragging) {
-            return
-        }
-        let targetPoint = this.svgCoords(event);
-        this.shiftViewBox(this.dragStartPoint.x - targetPoint.x,
-            this.dragStartPoint.y - targetPoint.y);
+    updateTerritories() {
+        const precisionLevel = this.currentPrecisionLevel
+        this.load_territories(this.props.year, precisionLevel).subscribe(
+            res => {
+                for (const state of res.data) {
+                    this.domManager.updateTerritories(state.territories, state.state_id, state.color, precisionLevel)
+                }
+            }
+        )
     }
 
 
-    shiftViewBox(deltaX: number, deltaY: number) {
-        const viewbox = this.drawing.viewbox()
-        this.drawing.viewbox(viewbox.x + deltaX, viewbox.y + deltaY, viewbox.width, viewbox.height)
+    selectState(id: number) {
+        alert('selected text with id' + id)
     }
-
 
     render() {
         console.log('MAP RENDERING')
         return (
-            <div id="map"
-                onWheel={event => this.handleZoom(event)}
-                onMouseDown={event => this.startDragging(event)}
-                onMouseUp={() => this.endDragging()}
-                onMouseLeave={() => this.endDragging()}
-                onMouseMove={(event) => this.handleDrag(event)}
-            >
+            <div id="map">
             </div>
         )
     }

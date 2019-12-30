@@ -1,6 +1,8 @@
+import { MapistoTerritory } from "./mapistoTerritory";
+
 export interface MapistoState{
     state_id: number ;
     name: string ;
-    territories: string[] ;
+    territories: MapistoTerritory[] ;
     color: string;
 }
