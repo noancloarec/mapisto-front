@@ -25,7 +25,7 @@ input:focus {
     outline: none;
     border: 1px solid black;
     border-radius: 2px;
-    ;
+    max-width: 40vw;
 }
 
 input::-webkit-outer-spin-button,

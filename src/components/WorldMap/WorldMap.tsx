@@ -1,4 +1,4 @@
-import React from "react";
+import React, { RefObject } from "react";
 import axios, { AxiosResponse } from 'axios'
 import { config } from '../../config';
 import { MapistoState } from "../../models/mapistoState";
@@ -6,7 +6,7 @@ import './WorldMap.css'
 import { connect } from "react-redux";
 import { Land } from "../../models/Land";
 import { MapDomManager } from "./MapDomManager";
-import {  debounceTime } from 'rxjs/operators'
+import { debounceTime } from 'rxjs/operators'
 import { Observable, Subscription, from, Subject } from "rxjs";
 import { MapNavigator } from "./MapNavigator";
 
@@ -22,21 +22,25 @@ class WorldMap extends React.Component<Props, State>{
     domManager: MapDomManager
     currentPrecisionLevel: number;
 
-    serverMapSubscription :Subscription
+    serverMapSubscription: Subscription
 
     mapNagivator: MapNavigator
 
-    yearChangeSubject : Subject<number>
+    yearChangeSubject: Subject<number>
+    loading_lands = true;
+    loading_territories = true;
 
+    containerRef : RefObject<HTMLDivElement>
 
     constructor(props: Props) {
         super(props)
         this.domManager = new MapDomManager();
         this.yearChangeSubject = new Subject<number>();
+        this.containerRef = React.createRef<HTMLDivElement>()
     }
 
     componentDidMount() {
-        this.domManager.initMap(0, 0, 2269.4568, 1550.3625);
+        this.domManager.initMap(this.containerRef.current, 0, 0, 2269.4568, 1550.3625);
         this.mapNagivator = new MapNavigator(this.domManager);
 
         this.mapNagivator.getDragListener().pipe(
@@ -66,9 +70,9 @@ class WorldMap extends React.Component<Props, State>{
         return false;
     }
 
-    
+
     updatePrecisionLevel() {
-        const closestPrecision = this.getClosestPrecision(3*this.getKilometersPerPixel());
+        const closestPrecision = this.getClosestPrecision(3 * this.getKilometersPerPixel());
         if (closestPrecision !== this.currentPrecisionLevel) {
             this.currentPrecisionLevel = closestPrecision;
             this.loadLand()
@@ -84,18 +88,17 @@ class WorldMap extends React.Component<Props, State>{
     }
 
     getKilometersPerPixel() {
-        const kmPerPoint = 40000/2269;
+        const kmPerPoint = 40000 / 2269;
 
-        const visibleSVG = this.domManager.getVisibleSVG()
-        const width = visibleSVG.end.x - visibleSVG.origin.x
-        const pxWidth = this.domManager.getPixelWidth();
-        
-        return kmPerPoint* width/pxWidth
+        const pointPerPixels = this.domManager.howManyPointsPerPixel()
+
+        return kmPerPoint * pointPerPixels
     }
 
     async loadLand() {
         const visibleSVG = this.domManager.getVisibleSVG()
         const precisionLevel = this.currentPrecisionLevel
+        this.loading_lands = true;
         const res = await axios.get<Land[]>(`${config.api_path}/land`, {
             params: {
                 precision_in_km: precisionLevel,
@@ -105,11 +108,13 @@ class WorldMap extends React.Component<Props, State>{
                 max_y: visibleSVG.end.y
             }
         });
+        this.loading_lands = false;
         this.domManager.updateLands(res.data, precisionLevel)
     }
 
-    load_territories(year: number, precisionLevel: number) :Observable<AxiosResponse<MapistoState[]>>{
+    load_territories(year: number, precisionLevel: number): Observable<AxiosResponse<MapistoState[]>> {
         const visibleSVG = this.domManager.getVisibleSVG()
+
         return from(
             axios.get<MapistoState[]>(`${config.api_path}/map`, {
                 params: {
@@ -121,15 +126,16 @@ class WorldMap extends React.Component<Props, State>{
                     max_y: visibleSVG.end.y
                 }
             })
-        ) 
+        )
     }
     updateTime(year: number) {
         const precisionLevel = this.currentPrecisionLevel
-        if (this.serverMapSubscription){
+        if (this.serverMapSubscription) {
             this.serverMapSubscription.unsubscribe()
         }
+        this.loading_territories = true;
         this.serverMapSubscription = this.load_territories(year, precisionLevel).subscribe(
-            res =>{
+            res => {
                 this.domManager.emptyStates()
                 for (const state of res.data) {
                     this.domManager.updateTerritories(state.territories, state.state_id, state.color, precisionLevel)
@@ -140,6 +146,10 @@ class WorldMap extends React.Component<Props, State>{
 
     updateTerritories() {
         const precisionLevel = this.currentPrecisionLevel
+        if (this.serverMapSubscription) {
+            this.serverMapSubscription.unsubscribe()
+        }
+        this.loading_territories = true;
         this.load_territories(this.props.year, precisionLevel).subscribe(
             res => {
                 for (const state of res.data) {
@@ -157,7 +167,7 @@ class WorldMap extends React.Component<Props, State>{
     render() {
         console.log('MAP RENDERING')
         return (
-            <div id="map">
+            <div className="map" ref={this.containerRef}>
             </div>
         )
     }

@@ -14,6 +14,8 @@ interface State {
 }
 class TimeSelector extends Component<Props, State>{
 
+    targetForArrowNavigation : HTMLElement
+
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -22,10 +24,12 @@ class TimeSelector extends Component<Props, State>{
     }
 
     componentDidMount() {
-        document.addEventListener('keydown', (e) => this.handleKeyDown(e))
+        this.targetForArrowNavigation = document.querySelector('#world-map');
+        this.targetForArrowNavigation.setAttribute("tabindex", "0");
+        this.targetForArrowNavigation.addEventListener('keydown', (e) => this.handleKeyDown(e))
     }
     componentWillUnmount() {
-        document.removeEventListener('keydown', (e) => this.handleKeyDown(e))
+        this.targetForArrowNavigation.removeEventListener('keydown', (e) => this.handleKeyDown(e))
     }
     handleKeyDown(event: KeyboardEvent) {
         if (event.key === "ArrowLeft") {

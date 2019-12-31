@@ -1,6 +1,7 @@
-#map {
+.map {
     width: 100%;
     height: 100%;
+    touch-action: none;
 }
 
 svg {
@@ -18,4 +19,13 @@ svg {
 .state:hover {
     opacity: .8;
     transition: opacity ease-in .1s;
+}
+
+.loading-icon {
+    position: fixed;
+    bottom: 0;
+}
+
+.loading-icon>img {
+    width: 70px;
 }
