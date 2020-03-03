@@ -1,8 +1,9 @@
-FROM node:13.5.0-alpine3.10
+FROM node:13.5.0-alpine3.10 AS build_stage
 WORKDIR /app
-ADD package.json .
-RUN npm install
-ADD src src
-ADD public public
-ADD tsconfig.json .
+COPY package.json /app
+RUN npm install --silent
+COPY . /app
 RUN npm run build
+
+FROM nginx:1.17.6-alpine
+COPY --from=build_stage /app/build /usr/share/nginx/html
