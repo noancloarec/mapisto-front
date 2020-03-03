@@ -16,16 +16,34 @@ interface State {
 interface Props {
     year: number
 }
-
-
+/**
+ * Wrapper React Component for the WorldMap in mapisto.
+ * Its own DOM is updated via svg.js (not react)
+ */
 class WorldMap extends React.Component<Props, State>{
+    /**
+     * The domManager is in charge of managing HTML elements inside the world map.
+     */
     domManager: MapDomManager
+
+    /**
+     * Defines the zoom level of the map
+     */
     currentPrecisionLevel: number;
 
+    /**
+     * The subscription made to the server to load the map
+     */
     serverMapSubscription: Subscription
 
+    /**
+     * Handles the mouse events which will redefine the viewbox of the svg containing the map.
+     */
     mapNagivator: MapNavigator
 
+    /**
+     * Observable trigerred when the date of the map changes
+     */
     yearChangeSubject: Subject<number>
     loading_lands = true;
     loading_territories = true;
@@ -138,7 +156,7 @@ class WorldMap extends React.Component<Props, State>{
             res => {
                 this.domManager.emptyStates()
                 for (const state of res.data) {
-                    this.domManager.updateTerritories(state.territories, state.state_id, state.color, precisionLevel)
+                    this.domManager.updateTerritories(state, precisionLevel)
                 }
             }
         )
@@ -153,7 +171,7 @@ class WorldMap extends React.Component<Props, State>{
         this.load_territories(this.props.year, precisionLevel).subscribe(
             res => {
                 for (const state of res.data) {
-                    this.domManager.updateTerritories(state.territories, state.state_id, state.color, precisionLevel)
+                    this.domManager.updateTerritories(state, precisionLevel)
                 }
             }
         )
