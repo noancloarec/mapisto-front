@@ -255,8 +255,7 @@ export class MapDomManager {
                 x2: bbox.x2,
                 y2: bbox.y2
             }
-
-
+            // If visible & width > threshold
             if (this.intersect(visibleRectangle, bboxRect) && this.getPixelSize(bbox.width) > 100) {
                 const luminosity = this.getLuminosity(territory.color)
                 this.names_container.text((add) => {
@@ -273,7 +272,10 @@ export class MapDomManager {
 
         }
     }
-
+    /**
+     * Determines the size of a text label, as a compromise between the width, height of bbox, and map width
+     * @param bbox the territory's bbox
+     */
     private getNameSize(bbox: SVG.BBox) {
         return Math.max(Math.min(bbox.width, bbox.height) / 10, this.getActualViewedWidth() / 50)
     }
@@ -283,6 +285,11 @@ export class MapDomManager {
         return visible.end.x - visible.origin.x
     }
 
+    /**
+     * Tells if 2 rectangle have an intersecting area
+     * @param a Rectangle a
+     * @param b Rectangle
+     */
     private intersect(a: Rectangle, b: Rectangle): boolean {
         return !(
             a.x2 < b.x1
@@ -290,10 +297,12 @@ export class MapDomManager {
             || a.y2 < b.y1
             || b.y2 < a.y1
         )
-
-
     }
 
+    /**
+     * Given a size in point (svg frame), computes the on-screen size in pixels
+     * @param svgSize the size in points
+     */
     private getPixelSize(svgSize: number) {
         const svg = this.parentElement.querySelector('svg');
         const matrix = svg.getScreenCTM()
@@ -307,6 +316,11 @@ export class MapDomManager {
         return ptPX.x - originPx.x
     }
 
+    /**
+     * Add a state groupe to the DOM
+     * @param state_id The state's id
+     * @param color The state's color
+     */
     private addStateGroup(state_id: number, color: string): SVG.G {
         return this.states_container.group()
             .id('state_' + state_id)
@@ -315,24 +329,47 @@ export class MapDomManager {
             .attr('class', 'state');
     }
 
+    /**
+     * Returns a state group given the state id
+     * @param state_id The state's group
+     */
     private getStateGroup(state_id: number): SVG.G {
         return this.states_container.select(`#state_${state_id}`).first() as SVG.G
     }
 
+    /**
+     * Tells if a territory has been registered in the DOM checking its id
+     * @param territory The territory to search
+     */
     private isRegistered(territory: MapistoTerritory) {
         return this.registered_territories[territory.territory_id] !== undefined
     }
 
+    /**
+     * Add a territory to a state group in the DOM
+     * @param state_group The state group
+     * @param territory The territory to add
+     */
     private addTerritoryToDOM(state_group: SVG.G, territory: MapistoTerritory): SVG.Path {
         this.askForNameRefresh$.next()
         return state_group.path(territory.d_path).id('territory_' + territory.territory_id)
     }
 
+    /**
+     * Remove a territory from the DOM
+     * @param state_group The state group from which the territory should be removed
+     * @param territory_id The id of the territory to remove
+     */
     private removeTerritoryFomDOM(state_group: SVG.G, territory_id: number) {
         const territory_to_remove = state_group.select(`#territory_${territory_id}`).first()
         territory_to_remove.remove();
     }
 
+    /**
+     * Compute the L (luminosity) parameter of the LaB representation of an RGB pixel
+     * Used to determine if the name f the country should be written white (if territory color is dark) or  black (if territory color is light)
+     * @param color 
+     */
     private getLuminosity(color: string) {
         const rgb = this.hexToRgb(color.substr(1))
         var r = rgb[0] / 255,
@@ -349,6 +386,11 @@ export class MapDomManager {
 
         return (116 * y) - 16
     }
+
+    /**
+     * Computes the RGB representation of an hexadecimal color
+     * @param hex The hex representation of the color
+     */
     private hexToRgb(hex: string): number[] {
         var bigint = parseInt(hex, 16);
         var r = (bigint >> 16) & 255;

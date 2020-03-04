@@ -14,7 +14,7 @@ interface State {
 }
 class TimeSelector extends Component<Props, State>{
 
-    targetForArrowNavigation : HTMLElement
+    targetForArrowNavigation: HTMLElement
 
     constructor(props: Props) {
         super(props);
@@ -23,6 +23,9 @@ class TimeSelector extends Component<Props, State>{
         }
     }
 
+    /**
+     * Listen for arrow navigation on the world map
+     */
     componentDidMount() {
         this.targetForArrowNavigation = document.querySelector('#world-map');
         this.targetForArrowNavigation.setAttribute("tabindex", "0");
@@ -31,6 +34,11 @@ class TimeSelector extends Component<Props, State>{
     componentWillUnmount() {
         this.targetForArrowNavigation.removeEventListener('keydown', (e) => this.handleKeyDown(e))
     }
+
+    /**
+     * Increment or decrement the year on arrow left/right
+     * @param event 
+     */
     handleKeyDown(event: KeyboardEvent) {
         if (event.key === "ArrowLeft") {
             this.changeYear(this.state.year - 1)
@@ -39,8 +47,9 @@ class TimeSelector extends Component<Props, State>{
         }
     }
 
+
     changeYear(year: number) {
-        const equivalentDate  = new Date(new Date("0000-01-01").setFullYear(year))
+        const equivalentDate = new Date(new Date("0000-01-01").setFullYear(year))
         this.setState({
             year: year
         }, () => {
