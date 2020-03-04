@@ -1,6 +1,6 @@
 import { Component } from 'react'
 import React from 'react'
-import updateTime from '../../actions/actions'
+import { updateTime } from '../../store/actions'
 
 import './TimeSelector.css'
 import { connect } from 'react-redux'
@@ -66,5 +66,6 @@ class TimeSelector extends Component<Props, State>{
         )
     }
 }
+
 
 export const TimeSelectorConnected = connect(null, { updateTime })(TimeSelector)

@@ -1,9 +1,14 @@
 import React from 'react'
 import './LoadingIcon.css'
-export class LoadingIcon extends React.Component {
+import { RootState } from '../../store/reducer';
+import { connect } from 'react-redux';
+interface Props {
+    loading: boolean
+}
+class LoadingIcon extends React.Component<Props, {}> {
     render() {
         return (
-            <div className="lds-ring">
+            <div className={this.props.loading ? "lds-ring" : ""}>
                 <div></div>
                 <div></div>
                 <div></div>
@@ -12,3 +17,13 @@ export class LoadingIcon extends React.Component {
         )
     }
 }
+
+/**
+ * Maps the redux state to the props of the loading Icon
+ * @param state The redux state
+ */
+const mapStateToProps = (state: RootState): Props => ({
+    loading: state.lands_loading || state.territories_loading
+});
+
+export const LoadingIconConnected = connect(mapStateToProps)(LoadingIcon)

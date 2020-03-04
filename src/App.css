@@ -27,3 +27,8 @@ section#world-map {
     height: 100vh;
     overflow: hidden;
 }
+
+#loading-section {
+    position: fixed;
+    bottom: 0;
+}
