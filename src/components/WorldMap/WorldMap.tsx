@@ -18,7 +18,7 @@ interface Props {
 }
 /**
  * Wrapper React Component for the WorldMap in mapisto.
- * Its own DOM is updated via svg.js (not react)
+ * Its own DOM is updated via svg.js (not react, which is too slow to render the hundreds of svg elements with great interactivity)
  */
 class WorldMap extends React.Component<Props, State>{
     /**
@@ -45,9 +45,20 @@ class WorldMap extends React.Component<Props, State>{
      * Observable trigerred when the date of the map changes
      */
     yearChangeSubject: Subject<number>
+
+    /**
+     * True when the land maps are being loaded
+     */
     loading_lands = true;
+
+    /**
+     * True when territories border are being loaded
+     */
     loading_territories = true;
 
+    /**
+     * A reference to the parent of the SVG. To be given to mapDomManager so it can create the SVG map
+     */
     containerRef : RefObject<HTMLDivElement>
 
     constructor(props: Props) {
@@ -57,12 +68,17 @@ class WorldMap extends React.Component<Props, State>{
         this.containerRef = React.createRef<HTMLDivElement>()
     }
 
+    /**
+     * Does the first rendering of the map, initializes the listeners
+     */
     componentDidMount() {
+
+        // Coordinates of the map are hard-coded. They represents the bounds of the map on the server
         this.domManager.initMap(this.containerRef.current, 0, 0, 2269.4568, 1550.3625);
         this.mapNagivator = new MapNavigator(this.domManager);
 
         this.mapNagivator.getDragListener().pipe(
-            debounceTime(100)
+            debounceTime(100) // debounce time to reload the map only at the end of drag
         ).subscribe(
             () => {
                 this.loadLand();
@@ -71,16 +87,21 @@ class WorldMap extends React.Component<Props, State>{
         )
 
         this.mapNagivator.getZoomListener().pipe(
-            debounceTime(100)
+            debounceTime(100) // debounce time to reload only at the end of zoom
         ).subscribe(
             () => this.updatePrecisionLevel()
         )
         this.updatePrecisionLevel();
         this.loadLand();
         this.yearChangeSubject.pipe(
-            debounceTime(100)
+            debounceTime(100) // When the year changes, territories have to be reloaded 
         ).subscribe(year => this.updateTime(year))
     }
+
+    /**
+     * Forbids React to render the world map unless the year has changed
+     * @param newProps the new props provided by redux to the WorldMap
+     */
     shouldComponentUpdate(newProps: Props) {
         if (newProps.year !== this.props.year) {
             this.yearChangeSubject.next(newProps.year)
@@ -99,24 +120,38 @@ class WorldMap extends React.Component<Props, State>{
 
     }
 
-    getClosestPrecision(kmPerPX: number) {
+    /**
+     * Mapisto only has a few levels of precision (i.e. precision to ask to the server). Defined in config.precision_levels
+     * This function returns the first precision levels that satisfy the number of kilometers per pixels
+     * @param kmPerPX the number of kilometer per pixel on the map
+     */
+    getClosestPrecision(kmPerPX: number) : number{
         return config.precision_levels.reduce(function (prev, curr) {
             return (Math.abs(curr - kmPerPX) < Math.abs(prev - kmPerPX) ? curr : prev);
         });
     }
 
-    getKilometersPerPixel() {
+    /**
+     * Computes the number of kilometers represented in 1 pixel on the map.
+     */
+    getKilometersPerPixel() :number{
+        // the svg has a point-based coordinate system
         const kmPerPoint = 40000 / 2269;
 
+        // A pixel (on screen) represents a number of points
         const pointPerPixels = this.domManager.howManyPointsPerPixel()
 
         return kmPerPoint * pointPerPixels
     }
 
+    /**
+     * Loads the land-shapes from the server. Then makes the dommanager update the map
+     */
     async loadLand() {
         const visibleSVG = this.domManager.getVisibleSVG()
         const precisionLevel = this.currentPrecisionLevel
         this.loading_lands = true;
+        // TODO: Handle errors, make observable
         const res = await axios.get<Land[]>(`${config.api_path}/land`, {
             params: {
                 precision_in_km: precisionLevel,
@@ -130,7 +165,13 @@ class WorldMap extends React.Component<Props, State>{
         this.domManager.updateLands(res.data, precisionLevel)
     }
 
+    /**
+     * Loads the territories' borders from the server
+     * @param year The year to load
+     * @param precisionLevel The necessary precision level
+     */
     load_territories(year: number, precisionLevel: number): Observable<AxiosResponse<MapistoState[]>> {
+        // TODO: handle errors, make analogous to loadLand
         const visibleSVG = this.domManager.getVisibleSVG()
 
         return from(
@@ -146,14 +187,20 @@ class WorldMap extends React.Component<Props, State>{
             })
         )
     }
+    /**
+     * Updates the borders' map given a change in the date
+     * @param year The new year on the map
+     */
     updateTime(year: number) {
         const precisionLevel = this.currentPrecisionLevel
         if (this.serverMapSubscription) {
+            // If a previous year was being loaded, let's forget it so that it does not conflict with the new one
             this.serverMapSubscription.unsubscribe()
         }
         this.loading_territories = true;
         this.serverMapSubscription = this.load_territories(year, precisionLevel).subscribe(
             res => {
+                // The states representing the previous year are removed only once the request is done
                 this.domManager.emptyStates()
                 for (const state of res.data) {
                     this.domManager.updateTerritories(state, precisionLevel)
@@ -162,6 +209,10 @@ class WorldMap extends React.Component<Props, State>{
         )
     }
 
+    /**
+     * Update the territories' borders when the year hasn't changed (e.g. on drag)
+     * Basically Does the same as update time, but without removing the previous borders data
+     */
     updateTerritories() {
         const precisionLevel = this.currentPrecisionLevel
         if (this.serverMapSubscription) {
@@ -177,7 +228,10 @@ class WorldMap extends React.Component<Props, State>{
         )
     }
 
-
+    /**
+     * Selects a state to display further information
+     * @param id the id of the state to select
+     */
     selectState(id: number) {
         alert('selected text with id' + id)
     }
@@ -191,6 +245,10 @@ class WorldMap extends React.Component<Props, State>{
     }
 }
 
+/**
+ * Maps the redux state to the props of the world map
+ * @param state The redux state
+ */
 const mapStateToProps = (state: { current_date: Date }): Props => ({
     year: state.current_date.getFullYear()
 });
