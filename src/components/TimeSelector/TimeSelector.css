@@ -16,8 +16,8 @@ span {
     color: gray;
 }
 
-input,
-input:focus {
+.time-select,
+.time-select:focus {
     font-size: 3em;
     width: 200px;
     margin: 10px 15px;
@@ -28,15 +28,15 @@ input:focus {
     max-width: 40vw;
 }
 
-input::-webkit-outer-spin-button,
-input::-webkit-inner-spin-button {
+.time-select::-webkit-outer-spin-button,
+.time-select::-webkit-inner-spin-button {
     /* display: none; <- Crashes Chrome on hover */
     -webkit-appearance: none;
     margin: 0;
     /* <-- Apparently some margin are still there even though it's hidden */
 }
 
-input[type=number] {
+.time-select[type=number] {
     -moz-appearance: textfield;
     /* Firefox */
 }

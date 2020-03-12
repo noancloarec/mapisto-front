@@ -49,7 +49,7 @@ class TimeSelector extends Component<Props, State>{
 
 
     changeYear(year: number) {
-        const equivalentDate = new Date(new Date("0000-01-01").setFullYear(year))
+        const equivalentDate = new Date(new Date("0000-01-01Z").setFullYear(year))
         this.setState({
             year: year
         }, () => {
@@ -60,7 +60,7 @@ class TimeSelector extends Component<Props, State>{
         return (
             <div >
                 <span onClick={e => this.changeYear(this.state.year - 1)}>&#9664;</span>
-                <input type="number" value={this.state.year} onChange={e => this.changeYear(parseInt(e.target.value))} />
+                <input className="time-select" type="number" value={this.state.year} onChange={e => this.changeYear(parseInt(e.target.value))} />
                 <span onClick={e => this.changeYear(this.state.year + 1)}>&#9654;</span>
             </div>
         )
