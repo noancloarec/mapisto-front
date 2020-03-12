@@ -9,14 +9,16 @@ import { MapDomManager } from "./MapDomManager";
 import { debounceTime } from 'rxjs/operators'
 import { Observable, Subscription, from, Subject } from "rxjs";
 import { MapNavigator } from "./MapNavigator";
-import { updateLoadingLandStatus, updateLoadingTerritoryStatus } from '../../store/actions'
+import { updateLoadingLandStatus, updateLoadingTerritoryStatus,  selectTerritory} from '../../store/actions'
+import { MapistoTerritory } from "../../models/mapistoTerritory";
 
 interface StateProps {
     year: number,
 }
 interface DispatchProps {
     updateLoadingLandStatus: (loadingLand: boolean) => void,
-    updateLoadingTerritoryStatus: (loadingLand: boolean) => void
+    updateLoadingTerritoryStatus: (loadingLand: boolean) => void,
+    selectTerritory: (territory : MapistoTerritory) => void
 }
 
 type Props = StateProps & DispatchProps
@@ -85,6 +87,9 @@ class WorldMap extends React.Component<Props, {}>{
         ).subscribe(
             () => this.updatePrecisionLevel()
         )
+
+        this.domManager.getTerritorySelectionListener().subscribe(territory => this.props.selectTerritory(territory))
+
         this.updatePrecisionLevel();
         this.loadLand();
         this.yearChangeSubject.pipe(
@@ -249,4 +254,4 @@ const mapStateToProps = (state: { current_date: Date }): StateProps => ({
     year: state.current_date.getFullYear()
 });
 
-export const WorldMapConnected = connect(mapStateToProps, { updateLoadingLandStatus, updateLoadingTerritoryStatus })(WorldMap)
+export const WorldMapConnected = connect(mapStateToProps, { updateLoadingLandStatus, updateLoadingTerritoryStatus, selectTerritory })(WorldMap)

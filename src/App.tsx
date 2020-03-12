@@ -3,6 +3,7 @@ import './App.css';
 import { WorldMapConnected } from './components/WorldMap/WorldMap';
 import { TimeSelectorConnected } from './components/TimeSelector/TimeSelector';
 import { LoadingIconConnected } from './components/LoadingIcon/LoadingIcon';
+import { TerritoryPanelConnected } from './components/TerritoryPanel/TerritoryPanel';
 
 const App: React.FC = () => {
   return (
@@ -18,6 +19,9 @@ const App: React.FC = () => {
       </section>
       <section id="loading-section">
         <LoadingIconConnected></LoadingIconConnected>
+      </section>
+      <section id="territory-panel-section">
+        <TerritoryPanelConnected></TerritoryPanelConnected>
       </section>
     </div>
   );

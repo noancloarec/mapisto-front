@@ -1,0 +1,25 @@
+.territory-panel{
+    background-color: white;
+    height: 100%;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
+    display: none;
+    min-width: 300px;
+    padding: 10px;
+}
+.territory-panel h1, .territory-panel h2{
+    font-weight: normal;
+    color: #777;
+}
+
+.territory-panel>div{
+    height: 100%;
+}
+
+.territory-panel h1{
+    margin: 0;
+    text-align: center;
+}
+
+.opened{
+    display: block;
+}

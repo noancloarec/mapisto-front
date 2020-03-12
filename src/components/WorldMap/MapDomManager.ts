@@ -57,10 +57,14 @@ export class MapDomManager {
      */
     askForNameRefresh$: Subject<void>;
 
+    private territoryBeingClicked: MapistoTerritory;
+    private territorySelection$: Subject<MapistoTerritory>
+
     constructor() {
         this.registered_lands = {}
         this.registered_territories = {}
         this.askForNameRefresh$ = new Subject<void>();
+        this.territorySelection$ = new Subject<MapistoTerritory>();
     }
 
     /**
@@ -81,6 +85,10 @@ export class MapDomManager {
         this.askForNameRefresh$.pipe(
             debounceTime(100),
         ).subscribe(() => this.refreshNamesDisplay())
+    }
+
+    getTerritorySelectionListener() : Observable<MapistoTerritory>{
+        return this.territorySelection$.asObservable();
     }
 
     /**
@@ -352,7 +360,11 @@ export class MapDomManager {
      */
     private addTerritoryToDOM(state_group: SVG.G, territory: MapistoTerritory): SVG.Path {
         this.askForNameRefresh$.next()
-        return state_group.path(territory.d_path).id('territory_' + territory.territory_id)
+        const res = state_group.path(territory.d_path).id('territory_' + territory.territory_id)
+        res.on('mousedown', () => { this.territoryBeingClicked = territory });
+        res.on('mousemove', () => { this.territoryBeingClicked = null });
+        res.on('mouseup', () => { this.territoryBeingClicked && this.territorySelection$.next(territory) })
+        return res;
     }
 
     /**
