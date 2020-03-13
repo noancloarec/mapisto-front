@@ -212,6 +212,17 @@ export class MapDomManager {
         this.askForNameRefresh$.next()
     }
 
+    setStates(states : MapistoState[]){
+        this.emptyStates();
+        for(const state of states){
+            const group = this.addStateGroup(state.state_id, state.color);
+            for(const territory of state.territories){
+                this.addTerritoryToDOM(group, territory);
+            }
+        }
+        this.askForNameRefresh$.next()
+    }
+
     /**
      * Update the territories of a state on the map
      * @param state A state, usually obtained from the sever

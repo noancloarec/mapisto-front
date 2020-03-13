@@ -6,23 +6,23 @@ import './WorldMap.css'
 import { connect } from "react-redux";
 import { Land } from "@interfaces/Land";
 import { MapDomManager } from "./MapDomManager";
-import { debounceTime, tap } from 'rxjs/operators'
+import { debounceTime, tap, map } from 'rxjs/operators'
 import { Observable, Subscription, from, Subject } from "rxjs";
 import { MapNavigator } from "./MapNavigator";
-import { updateLoadingLandStatus, updateLoadingTerritoryStatus,  selectTerritory, updateMpStates} from '../../store/actions'
+import { updateLoadingLandStatus, updateLoadingTerritoryStatus, selectTerritory, updateMpStates } from '../../store/actions'
 import { MapistoTerritory } from "@interfaces/mapistoTerritory";
 import { RootState } from "store/reducer";
 
 interface StateProps {
     year: number,
-    selectedTerritory : MapistoTerritory,
-    mpStates : MapistoState[]
+    selectedTerritory: MapistoTerritory,
+    mpStates: MapistoState[]
 }
 interface DispatchProps {
     updateLoadingLandStatus: (loadingLand: boolean) => void,
     updateLoadingTerritoryStatus: (loadingLand: boolean) => void,
-    selectTerritory: (territory : MapistoTerritory) => void,
-    updateMpStates : (mpStates : MapistoState[]) => void
+    selectTerritory: (territory: MapistoTerritory) => void,
+    updateMpStates: (mpStates: MapistoState[]) => void
 }
 
 type Props = StateProps & DispatchProps
@@ -51,6 +51,8 @@ class WorldMap extends React.Component<Props, {}>{
      */
     mapNagivator: MapNavigator
 
+    precisionChange$: Subject<number>
+
     /**
      * A reference to the parent of the SVG. To be given to mapDomManager so it can create the SVG map
      */
@@ -60,6 +62,7 @@ class WorldMap extends React.Component<Props, {}>{
         super(props)
         this.domManager = new MapDomManager();
         this.containerRef = React.createRef<HTMLDivElement>()
+        this.precisionChange$ = new Subject<number>()
     }
 
     /**
@@ -75,21 +78,25 @@ class WorldMap extends React.Component<Props, {}>{
             debounceTime(100) // debounce time to reload the map only at the end of drag
         ).subscribe(
             () => {
-                this.loadLand();
-                this.updateTerritories();
+                // this.loadLand();
+                this.load_territories();
             }
         )
 
-        this.mapNagivator.getZoomListener().pipe(
-            debounceTime(100) // debounce time to reload only at the end of zoom
-        ).subscribe(
+
+
+        this.mapNagivator.getZoomListener().subscribe(
             () => this.updatePrecisionLevel()
+        )
+
+        this.precisionChange$.subscribe(
+            () => this.load_territories()
         )
 
         this.domManager.getTerritorySelectionListener().subscribe(territory => this.props.selectTerritory(territory))
 
         this.updatePrecisionLevel();
-        this.loadLand();
+        // this.loadLand();
     }
 
     /**
@@ -98,7 +105,10 @@ class WorldMap extends React.Component<Props, {}>{
      */
     shouldComponentUpdate(newProps: Props) {
         if (newProps.year !== this.props.year) {
-            this.updateTime(newProps.year)
+            this.load_territories(newProps.year)
+        } if (newProps.mpStates !== this.props.mpStates) {
+            console.log("trigger dommanaer setstate")
+            this.domManager.setStates(newProps.mpStates)
         }
         return false;
     }
@@ -108,8 +118,7 @@ class WorldMap extends React.Component<Props, {}>{
         const closestPrecision = this.getClosestPrecision(3 * this.getKilometersPerPixel());
         if (closestPrecision !== this.currentPrecisionLevel) {
             this.currentPrecisionLevel = closestPrecision;
-            this.loadLand()
-            this.updateTerritories()
+            this.precisionChange$.next(this.currentPrecisionLevel)
         }
 
     }
@@ -141,38 +150,51 @@ class WorldMap extends React.Component<Props, {}>{
     /**
      * Loads the land-shapes from the server. Then makes the dommanager update the map
      */
-    async loadLand() {
-        const visibleSVG = this.domManager.getVisibleSVG()
-        const precisionLevel = this.currentPrecisionLevel
-        this.props.updateLoadingLandStatus(true)
-        // TODO: Handle errors, make observable
-        const res = await axios.get<Land[]>(`${config.api_path}/land`, {
-            params: {
-                precision_in_km: precisionLevel,
-                min_x: visibleSVG.origin.x,
-                max_x: visibleSVG.end.x,
-                min_y: visibleSVG.origin.y,
-                max_y: visibleSVG.end.y
-            }
-        });
-        this.props.updateLoadingLandStatus(false);
-        this.domManager.updateLands(res.data, precisionLevel)
-    }
+    // async loadLand() {
+    //     const visibleSVG = this.domManager.getVisibleSVG()
+    //     const precisionLevel = this.currentPrecisionLevel
+    //     this.props.updateLoadingLandStatus(true)
+    //     // TODO: Handle errors, make observable
+    //     const res = await axios.get<Land[]>(`${config.api_path}/land`, {
+    //         params: {
+    //             precision_in_km: precisionLevel,
+    //             min_x: visibleSVG.origin.x,
+    //             max_x: visibleSVG.end.x,
+    //             min_y: visibleSVG.origin.y,
+    //             max_y: visibleSVG.end.y
+    //         }
+    //     });
+    //     this.props.updateLoadingLandStatus(false);
+    //     this.domManager.updateLands(res.data, precisionLevel)
+    // }
 
     /**
      * Loads the territories' borders from the server
      * @param year The year to load
      * @param precisionLevel The necessary precision level
      */
-    load_territories(year: number, precisionLevel: number): Observable<AxiosResponse<MapistoState[]>> {
+    load_territories(year = this.props.year): void {
         // TODO: handle errors, make analogous to loadLand
         const visibleSVG = this.domManager.getVisibleSVG()
-
-        return from(
-            axios.get<MapistoState[]>(`${config.api_path}/map`, {
+        type MapistoTerritoryRaw = {
+            validity_start: string,
+            validity_end: string,
+            d_path: string,
+            territory_id: number
+        }
+        type MapistoStateRaw = {
+            state_id: number,
+            name: string,
+            color: string,
+            validity_start: string,
+            validity_end: string,
+            territories: MapistoTerritoryRaw[]
+        };
+        const query: Observable<MapistoState[]> = from(
+            axios.get<MapistoStateRaw[]>(`${config.api_path}/map`, {
                 params: {
                     date: year + "-01-01",
-                    precision_in_km: precisionLevel,
+                    precision_in_km: this.currentPrecisionLevel,
                     min_x: visibleSVG.origin.x,
                     max_x: visibleSVG.end.x,
                     min_y: visibleSVG.origin.y,
@@ -180,59 +202,73 @@ class WorldMap extends React.Component<Props, {}>{
                 }
             })
         ).pipe(
-            tap(res => this.props.updateMpStates(res.data))
-        )
-    }
-    /**
-     * Updates the borders' map given a change in the date
-     * @param year The new year on the map
-     */
-    updateTime(year: number) {
-        const precisionLevel = this.currentPrecisionLevel
-        if (this.serverMapSubscription) {
-            // If a previous year was being loaded, let's forget it so that it does not conflict with the new one
-            this.serverMapSubscription.unsubscribe()
-        }
-        this.props.updateLoadingTerritoryStatus(true);
-        this.serverMapSubscription = this.load_territories(year, precisionLevel).subscribe(
-            res => {
-                this.props.updateLoadingTerritoryStatus(false)
-                // The states representing the previous year are removed only once the request is done
-                this.domManager.emptyStates()
-                for (const state of res.data) {
-                    this.domManager.updateTerritories(state, precisionLevel)
+            map(res => res.data),
+            map(res => res.map(mpState => ({
+                ...mpState,
+                validity_start: new Date(mpState.validity_start + "Z"),
+                validity_end: new Date(mpState.validity_end + "Z"),
+                territories: mpState.territories.map(
+                    territory => {
+                        if(!territory.validity_start || !territory.validity_end){
+                            console.error("Missing validity on territory")
+                            console.error(territory)
+                        }
+                        const res:MapistoTerritory = {
+                        ...territory,
+                        validity_start: new Date(territory.validity_start + "Z"),
+                        validity_end: new Date(territory.validity_end + "Z"),
+                        precision_level : this.currentPrecisionLevel
+                    }
+                    return res
                 }
-            }
+                )
+            }))),
+            tap(res => this.props.updateMpStates(res))
         )
+        query.subscribe()
     }
+    // /**
+    //  * Updates the borders' map given a change in the date
+    //  * @param year The new year on the map
+    //  */
+    // updateTime(year: number) {
+    //     const precisionLevel = this.currentPrecisionLevel
+    //     if (this.serverMapSubscription) {
+    //         // If a previous year was being loaded, let's forget it so that it does not conflict with the new one
+    //         this.serverMapSubscription.unsubscribe()
+    //     }
+    //     this.props.updateLoadingTerritoryStatus(true);
+    //     this.serverMapSubscription = this.load_territories(year, precisionLevel).subscribe(
+    //         res => {
+    //             this.props.updateLoadingTerritoryStatus(false)
+    //             // The states representing the previous year are removed only once the request is done
+    //             this.domManager.emptyStates()
+    //             for (const state of res) {
+    //                 this.domManager.updateTerritories(state, precisionLevel)
+    //             }
+    //         }
+    //     )
+    // }
 
     /**
      * Update the territories' borders when the year hasn't changed (e.g. on drag)
      * Basically Does the same as update time, but without removing the previous borders data
      */
-    updateTerritories() {
-        const precisionLevel = this.currentPrecisionLevel
-        if (this.serverMapSubscription) {
-            this.serverMapSubscription.unsubscribe()
-        }
-        this.props.updateLoadingTerritoryStatus(true);
-        this.load_territories(this.props.year, precisionLevel).subscribe(
-            res => {
-                this.props.updateLoadingTerritoryStatus(false)
-                for (const state of res.data) {
-                    this.domManager.updateTerritories(state, precisionLevel)
-                }
-            }
-        )
-    }
-
-    /**
-     * Selects a state to display further information
-     * @param id the id of the state to select
-     */
-    selectState(id: number) {
-        alert('selected text with id' + id)
-    }
+    // updateTerritories() {
+    //     const precisionLevel = this.currentPrecisionLevel
+    //     if (this.serverMapSubscription) {
+    //         this.serverMapSubscription.unsubscribe()
+    //     }
+    //     this.props.updateLoadingTerritoryStatus(true);
+    //     this.load_territories(this.props.year, precisionLevel).subscribe(
+    //         res => {
+    //             this.props.updateLoadingTerritoryStatus(false)
+    //             for (const state of res) {
+    //                 this.domManager.updateTerritories(state, precisionLevel)
+    //             }
+    //         }
+    //     )
+    // }
 
     render() {
         console.log('MAP RENDERING')
@@ -249,8 +285,8 @@ class WorldMap extends React.Component<Props, {}>{
  */
 const mapStateToProps = (state: RootState): StateProps => ({
     year: state.current_date.getFullYear(),
-    selectedTerritory : state.selectedTerritory,
-    mpStates : state.mpStates
+    selectedTerritory: state.selectedTerritory,
+    mpStates: state.mpStates
 });
 
-export const WorldMapConnected = connect(mapStateToProps, { updateLoadingLandStatus, updateLoadingTerritoryStatus, selectTerritory , updateMpStates})(WorldMap)
+export const WorldMapConnected = connect(mapStateToProps, { updateLoadingLandStatus, updateLoadingTerritoryStatus, selectTerritory, updateMpStates })(WorldMap)

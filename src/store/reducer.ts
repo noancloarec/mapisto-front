@@ -66,7 +66,7 @@ function rootReducer(state = initialState, action: ActionTypes): RootState {
     case UPDATE_MPSTATES:
       return {
         ...state,
-        mpStates : action.payload
+        mpStates : reduceMPStates(state, action.payload)
       }
   }
   return state;
@@ -83,5 +83,47 @@ function selectTerritory(state : RootState, territory : MapistoTerritory) : Root
     selectedTerritory : territory,
     selectedState : mpState
   }
+}
+
+function reduceMPStates(state : RootState, newMpStates : MapistoState[]): MapistoState[]{
+  let res = filterOutdatedStateAndTerritories(state.current_date, state.mpStates)
+  for(const mpState of newMpStates){
+    const existingRepresentation = res.find(s => s.state_id===mpState.state_id)
+    if(existingRepresentation){
+      const mergedRepresentation = mergeStateRepresentation(mpState, existingRepresentation)
+      res[res.indexOf(existingRepresentation)] = mergedRepresentation
+    }else{
+      res.push(mpState);
+    }
+  }
+  return res;
+}
+
+function mergeStateRepresentation(state_a:MapistoState, state_b:MapistoState) : MapistoState{
+  const res = [...state_a.territories]
+  for(const territory of state_b.territories){
+    const concurrent = res.find(t => t.territory_id===territory.territory_id)
+    if(concurrent && territory.precision_level < concurrent.precision_level){
+      // if territory is more precisie
+      res[res.indexOf(concurrent)] = territory
+    }else if(!concurrent){
+      res.push(territory)
+    }
+  }
+  return {
+    ...state_a,
+    territories : res
+  }
+
+}
+
+function filterOutdatedStateAndTerritories(time : Date, mpStates : MapistoState[]) : MapistoState[]{
+  let without_outdated_states = mpStates.filter(mpState => mpState.validity_start <= time && mpState.validity_end > time)
+  return without_outdated_states.map(
+    valid_state => ({
+      ...valid_state,
+      territories : valid_state.territories.filter(territory => territory.validity_start <= time && territory.validity_end >= time)
+    })
+  )
 }
 export default rootReducer;
