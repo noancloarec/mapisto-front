@@ -52,11 +52,6 @@ class WorldMap extends React.Component<Props, {}>{
     mapNagivator: MapNavigator
 
     /**
-     * Observable trigerred when the date of the map changes
-     */
-    yearChangeSubject: Subject<number>
-
-    /**
      * A reference to the parent of the SVG. To be given to mapDomManager so it can create the SVG map
      */
     containerRef: RefObject<HTMLDivElement>
@@ -64,7 +59,6 @@ class WorldMap extends React.Component<Props, {}>{
     constructor(props: Props) {
         super(props)
         this.domManager = new MapDomManager();
-        this.yearChangeSubject = new Subject<number>();
         this.containerRef = React.createRef<HTMLDivElement>()
     }
 
@@ -96,9 +90,6 @@ class WorldMap extends React.Component<Props, {}>{
 
         this.updatePrecisionLevel();
         this.loadLand();
-        this.yearChangeSubject.pipe(
-            debounceTime(100) // When the year changes, territories have to be reloaded 
-        ).subscribe(year => this.updateTime(year))
     }
 
     /**
@@ -107,7 +98,7 @@ class WorldMap extends React.Component<Props, {}>{
      */
     shouldComponentUpdate(newProps: Props) {
         if (newProps.year !== this.props.year) {
-            this.yearChangeSubject.next(newProps.year)
+            this.updateTime(newProps.year)
         }
         return false;
     }
