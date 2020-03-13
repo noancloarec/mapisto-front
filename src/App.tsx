@@ -4,6 +4,7 @@ import { WorldMapConnected } from './components/WorldMap/WorldMap';
 import { TimeSelectorConnected } from './components/TimeSelector/TimeSelector';
 import { LoadingIconConnected } from './components/LoadingIcon/LoadingIcon';
 import { TerritoryPanelConnected } from './components/TerritoryPanel/TerritoryPanel';
+import { EditingPanelConnected } from './components/EditingPanel/EditingPanel';
 
 const App: React.FC = () => {
   return (
@@ -22,6 +23,9 @@ const App: React.FC = () => {
       </section>
       <section id="territory-panel-section">
         <TerritoryPanelConnected></TerritoryPanelConnected>
+      </section>
+      <section id="editing-panel-section">
+        <EditingPanelConnected></EditingPanelConnected>
       </section>
     </div>
   );

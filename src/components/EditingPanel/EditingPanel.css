@@ -1,0 +1,21 @@
+.black-overlay, .popup-container{
+    position: fixed;
+    top:0;
+}
+
+.black-overlay{
+    right: 0;
+    left: 0;
+    bottom: 0;
+    background-color: #333;
+    opacity: .5;
+}
+
+.popup-container{
+    margin-top: 10%;
+    left: 50%;
+    transform: translate(-50%, 0);
+    background-color: white;
+    min-height: 200px;
+    padding: 10px;
+}

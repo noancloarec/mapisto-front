@@ -20,7 +20,7 @@ svg {
     stroke-width: 0;
 }
 
-.state:hover {
+.state:hover path:not(.selected){
     opacity: .8;
     transition: opacity ease-in .1s;
 }
@@ -32,4 +32,12 @@ svg {
 
 .loading-icon>img {
     width: 70px;
+}
+
+path.selected{
+    opacity: .7;
+}
+
+svg:focus{
+    outline:none
 }

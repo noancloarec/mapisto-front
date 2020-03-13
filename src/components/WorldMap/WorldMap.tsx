@@ -1,24 +1,28 @@
 import React, { RefObject } from "react";
 import axios, { AxiosResponse } from 'axios'
 import { config } from '../../config';
-import { MapistoState } from "../../models/mapistoState";
+import { MapistoState } from "@interfaces/mapistoState";
 import './WorldMap.css'
 import { connect } from "react-redux";
-import { Land } from "../../models/Land";
+import { Land } from "@interfaces/Land";
 import { MapDomManager } from "./MapDomManager";
-import { debounceTime } from 'rxjs/operators'
+import { debounceTime, tap } from 'rxjs/operators'
 import { Observable, Subscription, from, Subject } from "rxjs";
 import { MapNavigator } from "./MapNavigator";
-import { updateLoadingLandStatus, updateLoadingTerritoryStatus,  selectTerritory} from '../../store/actions'
-import { MapistoTerritory } from "../../models/mapistoTerritory";
+import { updateLoadingLandStatus, updateLoadingTerritoryStatus,  selectTerritory, updateMpStates} from '../../store/actions'
+import { MapistoTerritory } from "@interfaces/mapistoTerritory";
+import { RootState } from "store/reducer";
 
 interface StateProps {
     year: number,
+    selectedTerritory : MapistoTerritory,
+    mpStates : MapistoState[]
 }
 interface DispatchProps {
     updateLoadingLandStatus: (loadingLand: boolean) => void,
     updateLoadingTerritoryStatus: (loadingLand: boolean) => void,
-    selectTerritory: (territory : MapistoTerritory) => void
+    selectTerritory: (territory : MapistoTerritory) => void,
+    updateMpStates : (mpStates : MapistoState[]) => void
 }
 
 type Props = StateProps & DispatchProps
@@ -184,6 +188,8 @@ class WorldMap extends React.Component<Props, {}>{
                     max_y: visibleSVG.end.y
                 }
             })
+        ).pipe(
+            tap(res => this.props.updateMpStates(res.data))
         )
     }
     /**
@@ -250,8 +256,10 @@ class WorldMap extends React.Component<Props, {}>{
  * Maps the redux state to the props of the world map
  * @param state The redux state
  */
-const mapStateToProps = (state: { current_date: Date }): StateProps => ({
-    year: state.current_date.getFullYear()
+const mapStateToProps = (state: RootState): StateProps => ({
+    year: state.current_date.getFullYear(),
+    selectedTerritory : state.selectedTerritory,
+    mpStates : state.mpStates
 });
 
-export const WorldMapConnected = connect(mapStateToProps, { updateLoadingLandStatus, updateLoadingTerritoryStatus, selectTerritory })(WorldMap)
+export const WorldMapConnected = connect(mapStateToProps, { updateLoadingLandStatus, updateLoadingTerritoryStatus, selectTerritory , updateMpStates})(WorldMap)

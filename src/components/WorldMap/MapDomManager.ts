@@ -1,8 +1,8 @@
 import SVG from 'svg.js';
-import { Land } from '../../models/Land';
-import { MapistoTerritory } from '../../models/mapistoTerritory';
+import { Land } from '../../interfaces/Land';
+import { MapistoTerritory } from '../../interfaces/mapistoTerritory';
 import { fromEvent, Observable, Subject } from 'rxjs'
-import { MapistoState } from '../../models/mapistoState';
+import { MapistoState } from '../../interfaces/mapistoState';
 import { debounceTime } from 'rxjs/operators';
 
 // Interface to perform some homemade geometry in the map
@@ -57,6 +57,8 @@ export class MapDomManager {
      */
     askForNameRefresh$: Subject<void>;
 
+    private selectedTerritory: MapistoTerritory;
+
     private territoryBeingClicked: MapistoTerritory;
     private territorySelection$: Subject<MapistoTerritory>
 
@@ -87,7 +89,7 @@ export class MapDomManager {
         ).subscribe(() => this.refreshNamesDisplay())
     }
 
-    getTerritorySelectionListener() : Observable<MapistoTerritory>{
+    getTerritorySelectionListener(): Observable<MapistoTerritory> {
         return this.territorySelection$.asObservable();
     }
 
@@ -275,7 +277,6 @@ export class MapDomManager {
                     anchor: 'middle',
                     size: this.getNameSize(bbox)
                 }).fill(luminosity > 70 ? 'black' : 'white')
-                // console.log('display', territory.name)
             }
 
         }
@@ -361,10 +362,20 @@ export class MapDomManager {
     private addTerritoryToDOM(state_group: SVG.G, territory: MapistoTerritory): SVG.Path {
         this.askForNameRefresh$.next()
         const res = state_group.path(territory.d_path).id('territory_' + territory.territory_id)
+        if (this.selectedTerritory && territory.territory_id === this.selectedTerritory.territory_id) {
+            res.addClass("selected");
+        }
         res.on('mousedown', () => { this.territoryBeingClicked = territory });
         res.on('mousemove', () => { this.territoryBeingClicked = null });
-        res.on('mouseup', () => { this.territoryBeingClicked && this.territorySelection$.next(territory) })
+        res.on('mouseup', () => { this.territoryBeingClicked && this.selectTerritory(territory)  })
         return res;
+    }
+
+    private selectTerritory(territory: MapistoTerritory): void {
+        this.states_container.select(`path.selected`).each((_, elemArray) => elemArray.forEach(e => e.removeClass('selected')))
+        this.selectedTerritory=territory;
+        this.territorySelection$.next(territory)
+        this.states_container.select(`#territory_${territory.territory_id}`).first().addClass("selected")
     }
 
     /**

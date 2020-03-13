@@ -58,9 +58,9 @@ class TimeSelector extends Component<Props, State>{
     }
     render() {
         return (
-            <div >
+            <div className="time-select">
                 <span onClick={e => this.changeYear(this.state.year - 1)}>&#9664;</span>
-                <input className="time-select" type="number" value={this.state.year} onChange={e => this.changeYear(parseInt(e.target.value))} />
+                <input  type="number" value={this.state.year} onChange={e => this.changeYear(parseInt(e.target.value))} />
                 <span onClick={e => this.changeYear(this.state.year + 1)}>&#9654;</span>
             </div>
         )
