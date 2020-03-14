@@ -33,5 +33,5 @@
 .opened{
     transform: translate(0);
     opacity: 1;
-    transition: transform ease-out.1s, opacity ease-in .3s;
+    transition: transform ease-out.1s, opacity ease-out .3s;
 }

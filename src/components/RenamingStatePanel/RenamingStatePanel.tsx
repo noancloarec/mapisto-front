@@ -2,7 +2,7 @@ import React, { FormEvent } from "react";
 import { RootState } from "store/reducer";
 import { finishEdition } from "store/actions";
 import { connect } from "react-redux";
-import { MapistoState } from "@interfaces/mapistoState";
+import { MapistoState } from "interfaces/mapistoState";
 import Axios from "axios";
 import { from, of } from "rxjs";
 import { config } from "../../config";

@@ -205,6 +205,13 @@ export class MapDomManager {
         this.askForNameRefresh$.next()
     }
 
+    setLands(lands : Land[]){
+        this.land_container.clear()
+        for(const land of lands){
+            this.land_container.path(land.d_path)
+        }
+    }
+
     /**
      * Display the names of countries on the svg.
      * Only if they are visible on the screen, and are wider than a defined threshold

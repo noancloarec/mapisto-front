@@ -1,28 +1,31 @@
 import React, { RefObject } from "react";
-import axios, { AxiosResponse } from 'axios'
 import { config } from '../../config';
-import { MapistoState } from "@interfaces/mapistoState";
+import { ajax } from 'rxjs/ajax'
+import { MapistoState } from "interfaces/mapistoState";
 import './WorldMap.css'
 import { connect } from "react-redux";
-import { Land } from "@interfaces/Land";
 import { MapDomManager } from "./MapDomManager";
 import { debounceTime, tap, map } from 'rxjs/operators'
 import { Observable, Subscription, from, Subject } from "rxjs";
 import { MapNavigator } from "./MapNavigator";
-import { updateLoadingLandStatus, updateLoadingTerritoryStatus, selectTerritory, updateMpStates } from '../../store/actions'
-import { MapistoTerritory } from "@interfaces/mapistoTerritory";
+import { updateLoadingLandStatus, updateLoadingTerritoryStatus, selectTerritory, updateMpStates, updateLands } from 'store/actions'
+import { MapistoTerritory } from "interfaces/mapistoTerritory";
 import { RootState } from "store/reducer";
+import { loadStates, loadLands } from "api/MapistoApi";
+import { Land } from "interfaces/Land";
 
 interface StateProps {
     year: number,
     selectedTerritory: MapistoTerritory,
-    mpStates: MapistoState[]
+    mpStates: MapistoState[],
+    lands : Land[]
 }
 interface DispatchProps {
     updateLoadingLandStatus: (loadingLand: boolean) => void,
     updateLoadingTerritoryStatus: (loadingLand: boolean) => void,
     selectTerritory: (territory: MapistoTerritory) => void,
-    updateMpStates: (mpStates: MapistoState[]) => void
+    updateMpStates: (mpStates: MapistoState[]) => void,
+    updateLands: (lands : Land[]) => void
 }
 
 type Props = StateProps & DispatchProps
@@ -78,8 +81,8 @@ class WorldMap extends React.Component<Props, {}>{
             debounceTime(100) // debounce time to reload the map only at the end of drag
         ).subscribe(
             () => {
-                // this.loadLand();
-                this.load_territories();
+                this.updateLands();
+                this.updateTerritories();
             }
         )
 
@@ -90,24 +93,30 @@ class WorldMap extends React.Component<Props, {}>{
         )
 
         this.precisionChange$.subscribe(
-            () => this.load_territories()
+            () => {
+                this.updateTerritories();
+                this.updateLands();
+
+            }
         )
 
         this.domManager.getTerritorySelectionListener().subscribe(territory => this.props.selectTerritory(territory))
 
         this.updatePrecisionLevel();
-        // this.loadLand();
+        this.updateLands();
     }
 
     /**
-     * Forbids React to render the world map unless the year has changed
+     * Forbids React to re-render the world map
      * @param newProps the new props provided by redux to the WorldMap
      */
     shouldComponentUpdate(newProps: Props) {
         if (newProps.year !== this.props.year) {
-            this.load_territories(newProps.year)
+            this.updateTerritories(newProps.year)
         } if (newProps.mpStates !== this.props.mpStates) {
             this.domManager.setStates(newProps.mpStates)
+        } if(newProps.lands !== (this.props.lands)){
+            this.domManager.setLands(newProps.lands)
         }
         return false;
     }
@@ -119,7 +128,6 @@ class WorldMap extends React.Component<Props, {}>{
             this.currentPrecisionLevel = closestPrecision;
             this.precisionChange$.next(this.currentPrecisionLevel)
         }
-
     }
 
     /**
@@ -167,66 +175,46 @@ class WorldMap extends React.Component<Props, {}>{
     //     this.domManager.updateLands(res.data, precisionLevel)
     // }
 
+    updateLands():void{
+        const visibleSVG = this.domManager.getVisibleSVG()
+        this.props.updateLoadingLandStatus(true);
+        loadLands(
+            this.currentPrecisionLevel,
+            visibleSVG.origin.x,
+            visibleSVG.end.x,
+            visibleSVG.origin.y,
+            visibleSVG.end.y
+        ).pipe(
+            tap(() => this.props.updateLoadingLandStatus(false))
+        )
+        .subscribe(
+            lands => this.props.updateLands(lands)
+        )
+    }
+
     /**
      * Loads the territories' borders from the server
      * @param year The year to load
      * @param precisionLevel The necessary precision level
      */
-    load_territories(year = this.props.year): void {
-        // TODO: handle errors, make analogous to loadLand
+    updateTerritories(year = this.props.year): void {
         const visibleSVG = this.domManager.getVisibleSVG()
-        type MapistoTerritoryRaw = {
-            validity_start: string,
-            validity_end: string,
-            d_path: string,
-            territory_id: number
-        }
-        type MapistoStateRaw = {
-            state_id: number,
-            name: string,
-            color: string,
-            validity_start: string,
-            validity_end: string,
-            territories: MapistoTerritoryRaw[]
-        };
-        const query: Observable<MapistoState[]> = from(
-            axios.get<MapistoStateRaw[]>(`${config.api_path}/map`, {
-                params: {
-                    date: year + "-01-01",
-                    precision_in_km: this.currentPrecisionLevel,
-                    min_x: visibleSVG.origin.x,
-                    max_x: visibleSVG.end.x,
-                    min_y: visibleSVG.origin.y,
-                    max_y: visibleSVG.end.y
-                }
-            })
+        this.props.updateLoadingTerritoryStatus(true);
+        loadStates(
+            year,
+            this.currentPrecisionLevel,
+            visibleSVG.origin.x,
+            visibleSVG.end.x,
+            visibleSVG.origin.y,
+            visibleSVG.end.y
         ).pipe(
-            map(res => res.data),
-            map(res => res.map(mpState => ({
-                ...mpState,
-                validity_start: new Date(mpState.validity_start + "Z"),
-                validity_end: new Date(mpState.validity_end + "Z"),
-                territories: mpState.territories.map(
-                    territory => {
-                        if(!territory.validity_start || !territory.validity_end){
-                            console.error("Missing validity on territory")
-                            console.error(territory)
-                        }
-                        const res:MapistoTerritory = {
-                        ...territory,
-                        validity_start: new Date(territory.validity_start + "Z"),
-                        validity_end: new Date(territory.validity_end + "Z"),
-                        precision_level : this.currentPrecisionLevel
-                    }
-                    return res
-                }
-                )
-            }))),
-            tap(res => this.props.updateMpStates(res))
+            tap(() => this.props.updateLoadingTerritoryStatus(false))
         )
-        query.subscribe()
+        .subscribe(
+            states => this.props.updateMpStates(states)
+        )
     }
-    // /**
+    // /** 
     //  * Updates the borders' map given a change in the date
     //  * @param year The new year on the map
     //  */
@@ -285,7 +273,8 @@ class WorldMap extends React.Component<Props, {}>{
 const mapStateToProps = (state: RootState): StateProps => ({
     year: state.current_date.getFullYear(),
     selectedTerritory: state.selectedTerritory,
-    mpStates: state.mpStates
+    mpStates: state.mpStates,
+    lands : state.lands
 });
 
-export const WorldMapConnected = connect(mapStateToProps, { updateLoadingLandStatus, updateLoadingTerritoryStatus, selectTerritory, updateMpStates })(WorldMap)
+export const WorldMapConnected = connect(mapStateToProps, { updateLoadingLandStatus, updateLoadingTerritoryStatus, selectTerritory, updateMpStates, updateLands })(WorldMap)

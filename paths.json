@@ -1,9 +1,1 @@
-{
-    "compilerOptions": {
-    "paths": {
-      "@interfaces/*": [ "interfaces/*"],
-      "@store/*": [ "store/*"],
-      "@components/*": [ "components/*"]
-      }
-    }
-  }
+
