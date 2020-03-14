@@ -4,7 +4,7 @@ import { MapistoState } from "interfaces/mapistoState";
 import axios from 'axios'
 import { config } from "config";
 import { MapistoStateRaw } from "./MapistoStateRaw";
-import { map, tap } from "rxjs/operators";
+import { map } from "rxjs/operators";
 import { MapistoTerritoryRaw } from "./MapistoTerritoryRaw";
 import { Land } from "interfaces/Land";
 import { LandRaw } from "./LandRaw";

@@ -2,6 +2,7 @@ import { MapDomManager } from "./MapDomManager";
 import { Subject } from "rxjs";
 import Hammer from 'hammerjs'
 import { Observable } from "rxjs";
+import { svgCoords, getVisibleSVG } from "./displayUtilities";
 
 /**
  * Handles the mouse event (desktop & mobile) to perform a zoom or drag on the map
@@ -69,11 +70,11 @@ export class MapNavigator {
     private handlePan(event: HammerInput): void {
         if (!this.dragging) {
             this.dragging = true;
-            this.svgDragStartPoint = this.domManager.svgCoords(event.center.x, event.center.y)
+            this.svgDragStartPoint = svgCoords(event.center.x, event.center.y, this.domManager.parentElement)
             this.absoluteDragStartPoint = new DOMPoint(event.center.x, event.center.y)
         }
         const targetPoint = new DOMPoint(this.absoluteDragStartPoint.x + event.deltaX, this.absoluteDragStartPoint.y + event.deltaY);
-        const targetOnMap = this.domManager.svgCoords(targetPoint.x, targetPoint.y)
+        const targetOnMap = svgCoords(targetPoint.x, targetPoint.y, this.domManager.parentElement)
         const svgDeltaX = this.svgDragStartPoint.x - targetOnMap.x
         const svgDeltaY = this.svgDragStartPoint.y - targetOnMap.y
         this.domManager.shiftViewBox(svgDeltaX, svgDeltaY)
@@ -105,11 +106,11 @@ export class MapNavigator {
         const scrollSpeed = 2;
         const vb = this.domManager.getViewBox()
 
-        const visibleSVG = this.domManager.getVisibleSVG()
+        const visibleSVG = getVisibleSVG(this.domManager.parentElement)
 
         const width = visibleSVG.end.x - visibleSVG.origin.x
         const height = visibleSVG.end.y - visibleSVG.origin.y
-        const target = this.domManager.svgCoords(targetX, targetY);
+        const target = svgCoords(targetX, targetY, this.domManager.parentElement);
 
         const scrollFactor = -this.getNormalizedDelta(direction) * scrollSpeed / 100
 

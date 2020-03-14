@@ -7,6 +7,7 @@
 
 #land-mass {
     fill: white;
+    pointer-events: none;
 }
 
 .state {

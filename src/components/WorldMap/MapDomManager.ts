@@ -6,6 +6,7 @@ import { MapistoState } from '../../interfaces/mapistoState';
 import { debounceTime } from 'rxjs/operators';
 import { getLabelColor } from 'utils/color_harmony';
 import { Rectangle, intersect } from 'utils/svg_geometry';
+import { getVisibleSVG, getActualViewedWidth, translateSVGDistanceToPixel } from './displayUtilities';
 
 
 
@@ -64,43 +65,16 @@ export class MapDomManager {
         return this.territorySelection$.asObservable();
     }
 
-    /**
-     * Tells how many points lie in 1 pixel on the map
-     */
-    howManyPointsPerPixel(): number {
-        const visibleSVG = this.getVisibleSVG()
-        const width = visibleSVG.end.x - visibleSVG.origin.x
-        const pxWidth = this.parentElement.clientWidth;
-        return width / pxWidth;
-    }
 
     /**
      * Returns the coord of the event within the svg point-based frame
      * @param event The mouse event
      */
-    getEventCoords(event: MouseEvent): DOMPoint {
-        return this.svgCoords(event.clientX, event.clientY);
-    }
+    // getEventCoords(event: MouseEvent): DOMPoint {
+    //     return this.svgCoords(event.clientX, event.clientY);
+    // }
 
-    /**
-     * Given a point in a pixel-based frame (within the window), gives the corresponding svg coordinate
-     * @param x The x coordinate (in pixel, within the window) of the point
-     * @param y The y coordinate (in pixel, within the window) of the point
-     */
-    svgCoords(x: number, y: number): DOMPoint {
-        const pt = new DOMPoint(x, y);
-        return pt.matrixTransform(this.parentElement.querySelector('svg').getScreenCTM().inverse())
-    }
 
-    /**
-    * Computes the top-left and right-bottom point of the visible svg (the viewbox actually does not represent what is viewed on screen)
-    */
-    getVisibleSVG() {
-        return {
-            origin: this.svgCoords(this.parentElement.offsetLeft, this.parentElement.offsetTop),
-            end: this.svgCoords(this.parentElement.offsetLeft + this.parentElement.clientWidth, this.parentElement.offsetTop + this.parentElement.clientHeight)
-        }
-    }
     /**
      * Translates the viewbox by a given vector (x, y)
      * @param deltaX X translation in point
@@ -181,7 +155,7 @@ export class MapDomManager {
             const name=st.attr('state-name')
             for(const terr of st.children() as SVG.Path[]){
                 // If visible & width > threshold
-                if ( this.isVisible(terr) && this.getPixelSize(terr.bbox().width) > 100) {
+                if ( this.isVisible(terr) && translateSVGDistanceToPixel(terr.bbox().width, this.parentElement) > 100) {
                     this.names_container.text((add) => {
                         add.tspan(name)
                     }).attr({
@@ -189,7 +163,7 @@ export class MapDomManager {
                         y: terr.bbox().y + terr.bbox().height / 2
                     }).font({
                         anchor: 'middle',
-                        size: this.getNameSize(terr.bbox())
+                        size: this.computeTerritoryNameSize(terr.bbox())
                     }).fill(getLabelColor(st.attr('fill')))
                 }
     
@@ -198,7 +172,7 @@ export class MapDomManager {
     }
 
     private  isVisible(polygon:SVG.Path):boolean{
-        const visible = this.getVisibleSVG()
+        const visible = getVisibleSVG(this.parentElement)
         const visibleRectangle = {
             x1: visible.origin.x,
             y1: visible.origin.y,
@@ -220,32 +194,13 @@ export class MapDomManager {
      * Determines the size of a text label, as a compromise between the width, height of bbox, and map width
      * @param bbox the territory's bbox
      */
-    private getNameSize(bbox: SVG.BBox) {
-        return Math.max(Math.min(bbox.width, bbox.height) / 10, this.getActualViewedWidth() / 50)
-    }
-
-    private getActualViewedWidth(): number {
-        const visible = this.getVisibleSVG()
-        return visible.end.x - visible.origin.x
+    private computeTerritoryNameSize(bbox: SVG.BBox) {
+        return Math.max(Math.min(bbox.width, bbox.height) / 10, getActualViewedWidth(this.parentElement) / 50)
     }
 
 
-    /**
-     * Given a size in point (svg frame), computes the on-screen size in pixels
-     * @param svgSize the size in points
-     */
-    private getPixelSize(svgSize: number) {
-        const svg = this.parentElement.querySelector('svg');
-        const matrix = svg.getScreenCTM()
 
-        const origin = svg.createSVGPoint()
-        const distant = svg.createSVGPoint()
-        distant.x = svgSize
 
-        const originPx = origin.matrixTransform(matrix)
-        const ptPX = distant.matrixTransform(matrix)
-        return ptPX.x - originPx.x
-    }
 
     /**
      * Add a state groupe to the DOM
@@ -289,7 +244,4 @@ export class MapDomManager {
             this.states_container.select(`#territory_${territory.territory_id}`).first().addClass("selected")
         }
     }
-
-
-
 }

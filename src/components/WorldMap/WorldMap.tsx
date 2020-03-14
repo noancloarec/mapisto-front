@@ -11,6 +11,7 @@ import { MapistoTerritory } from "interfaces/mapistoTerritory";
 import { RootState } from "store/reducer";
 import { loadStates, loadLands } from "api/MapistoApi";
 import { Land } from "interfaces/Land";
+import { getVisibleSVG, howManyPointsPerPixel } from "./displayUtilities";
 
 interface StateProps {
     year: number,
@@ -131,14 +132,14 @@ class WorldMap extends React.Component<Props, {}>{
         const kmPerPoint = 40000 / 2269;
 
         // A pixel (on screen) represents a number of points
-        const pointPerPixels = this.domManager.howManyPointsPerPixel()
+        const pointPerPixels = howManyPointsPerPixel(this.domManager.parentElement)
 
         return kmPerPoint * pointPerPixels
     }
 
 
     private updateLands(): void {
-        const visibleSVG = this.domManager.getVisibleSVG()
+        const visibleSVG = getVisibleSVG(this.domManager.parentElement)
         this.props.updateLoadingLandStatus(true);
         loadLands(
             this.currentPrecisionLevel,
@@ -160,7 +161,7 @@ class WorldMap extends React.Component<Props, {}>{
      * @param precisionLevel The necessary precision level
      */
     private updateTerritories(year = this.props.year): void {
-        const visibleSVG = this.domManager.getVisibleSVG()
+        const visibleSVG = getVisibleSVG(this.domManager.parentElement)
         this.props.updateLoadingTerritoryStatus(true);
         loadStates(
             year,
