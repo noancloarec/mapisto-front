@@ -6,64 +6,67 @@ import { MapistoState } from "src/interfaces/mapistoState";
 import Axios from "axios";
 import { from, of } from "rxjs";
 import { config } from "../../config";
-import {  catchError, delay, tap } from "rxjs/operators";
-import './RenamingStatePanel.css'
+import { catchError, delay, tap } from "rxjs/operators";
+import './RenamingStatePanel.css';
 
 interface StateProps {
-    mpState: MapistoState
+    mpState: MapistoState;
 }
 
 interface DispatchProps {
-    finishEdition: (modifiedState : MapistoState) => void
+    finishEdition: (modifiedState: MapistoState) => void;
 }
 
 interface State {
     loading: boolean;
     newName: string;
-    nameChanged: boolean
+    nameChanged: boolean;
 }
-type Props = StateProps & DispatchProps
+type Props = StateProps & DispatchProps;
 class RenamingPanel extends React.Component<Props, State>{
 
     constructor(props: Props) {
-        super(props)
+        super(props);
         this.state = {
             loading: false,
             newName: props.mpState.name,
             nameChanged: false
-        }
+        };
     }
 
-    renameState(event : FormEvent) {
-        event.preventDefault()
+    renameState(event: FormEvent) {
+        event.preventDefault();
         this.setState({
             loading: true
-        })
+        });
         const modifiedState: MapistoState = {
             ...this.props.mpState,
             name: this.state.newName
-        }
-        from(Axios.put<string>(`${config.api_path}/state`, {state_id: modifiedState.state_id, name:modifiedState.name}, {
-            params : {
-                validity_start : modifiedState.validity_start,
-                validity_end : modifiedState.validity_end
-            }
-        })).pipe(
-            tap(res => {
-                this.setState({ loading: false, nameChanged: true })
-            }),
-            delay(1000),
-            tap(() => {
-                
-                this.props.finishEdition(modifiedState)
-            }),
-            catchError((error) => {
-                console.error("trouve lerreur");
-                console.error(error)
-                return of(undefined)
-            })
+        };
+        from(
+            Axios.put<string>(
+                `${config.api_path}/state`,
+                { state_id: modifiedState.state_id, name: modifiedState.name },
+                {
+                    params: {
+                        validity_start: modifiedState.validity_start,
+                        validity_end: modifiedState.validity_end
+                    }
+                })).pipe(
+                    tap(res => {
+                        this.setState({ loading: false, nameChanged: true });
+                    }),
+                    delay(1000),
+                    tap(() => {
+                        this.props.finishEdition(modifiedState);
+                    }),
+                    catchError((error) => {
+                        console.error("trouve lerreur");
+                        console.error(error);
+                        return of(undefined);
+                    })
 
-        ).subscribe()
+                ).subscribe();
     }
 
 
@@ -73,16 +76,21 @@ class RenamingPanel extends React.Component<Props, State>{
                 <div className="form-group">
                     <label htmlFor="state_name">Name of the state</label>
                     <input autoFocus type="text" className="form-control" id="state_name" value={this.state.newName}
-                        onChange={event => this.setState({ newName: (event.target as HTMLInputElement).value })} placeholder="The state's name"></input>
+                        onChange={
+                            event => this.setState({ newName: (event.target as HTMLInputElement).value })
+                        } placeholder="The state's name"></input>
                 </div>
                 <button type="submit" className="btn btn-primary" disabled={this.state.loading}>
-                    {this.state.loading && (<span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>)}
+                    {
+                        this.state.loading &&
+                        (<span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span>)
+                    }
                     {this.state.nameChanged && (<i className="fas fa-check"></i>)}
                     Submit
                 </button>
             </form>
 
-        )
+        );
     }
 }
 
@@ -94,4 +102,4 @@ const mapStateToProps = (state: RootState): StateProps => ({
     mpState: state.selectedState
 });
 
-export const RenamingPanelConnected = connect(mapStateToProps, { finishEdition })(RenamingPanel)
+export const RenamingPanelConnected = connect(mapStateToProps, { finishEdition })(RenamingPanel);

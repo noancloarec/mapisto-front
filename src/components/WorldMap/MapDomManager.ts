@@ -26,7 +26,7 @@ export class MapDomManager {
     parentElement: HTMLDivElement;
 
     /**
-     * As rendering text on svg is a time-costly operation, an intermediate subject is used 
+     * As rendering text on svg is a time-costly operation, an intermediate subject is used
      * Every operation requiring to update countries' names (drag, zoom..) trigger the subject
      * Once the flow of triggering is over (debonceTime=100ms), the actual text rendering starts
      */

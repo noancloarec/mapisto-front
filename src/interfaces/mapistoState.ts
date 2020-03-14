@@ -1,10 +1,10 @@
 import { MapistoTerritory } from "./mapistoTerritory";
 
-export interface MapistoState{
-    state_id: number ;
-    name: string ;
-    territories?: MapistoTerritory[] ;
+export interface MapistoState {
+    state_id: number;
+    name: string;
+    territories?: MapistoTerritory[];
     color?: string;
-    validity_start? : Date,
-    validity_end? : Date
+    validity_start?: Date;
+    validity_end?: Date;
 }

@@ -115,13 +115,13 @@ class WorldMap extends React.Component<Props, {}>{
     }
 
     /**
-     * Mapisto only has a few levels of precision 
+     * Mapisto only has a few levels of precision
      * (i.e. precision to ask to the server). Defined in config.precision_levels
      * This function returns the first precision levels that satisfy the number of kilometers per pixels
      * @param kmPerPX the number of kilometer per pixel on the map
      */
     private getClosestPrecision(kmPerPX: number): number {
-        return config.precision_levels.reduce(function (prev, curr) {
+        return config.precision_levels.reduce( (prev, curr) => {
             return (Math.abs(curr - kmPerPX) < Math.abs(prev - kmPerPX) ? curr : prev);
         });
     }

@@ -1,13 +1,12 @@
-console.log(process.env.NODE_ENV);
-let api_path
+let apiPath;
 if (process.env.NODE_ENV === 'development') {
-    api_path = 'http://localhost:8080'
+    apiPath = 'http://localhost:8080';
 } else {
-    api_path = 'https://api.mapisto.org'
+    apiPath = 'https://api.mapisto.org';
 }
 export const config = {
-    api_path: api_path,
-    precision_levels : [1, 5, 10, 20, 50]
-}
+    api_path: apiPath,
+    precision_levels: [1, 5, 10, 20, 50]
+};
 
 

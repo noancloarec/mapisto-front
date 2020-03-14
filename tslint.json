@@ -35,5 +35,11 @@
                 120
             ]
         }
+    },
+    "linterOptions": {
+        "exclude": [
+            "src/serviceWorker.ts"
+        ]
     }
+  
 }

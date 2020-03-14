@@ -32,38 +32,38 @@ export function loadStates(
     ).pipe(
         map(res => res.data),
         map(res => res.map(stateRaw => parseState(stateRaw, precisionLevel)))
-    )
+    );
 }
 
 export function loadLands(
     precisionLevel: number,
-    min_x: number,
-    max_x: number,
-    min_y: number,
-    max_y: number
+    minX: number,
+    maxX: number,
+    minY: number,
+    maxY: number
 ): Observable<Land[]> {
     return from(
         axios.get<LandRaw[]>(`${config.api_path}/land`, {
             params: {
                 precision_in_km: precisionLevel,
-                min_x: min_x,
-                max_x: max_x,
-                min_y: min_y,
-                max_y: max_y
+                min_x: minX,
+                max_x: maxX,
+                min_y: minY,
+                max_y: maxY
 
             }
         })
     ).pipe(
         map(res => res.data),
         map(lands => lands.map(raw => parseLand(raw, precisionLevel)))
-    )
+    );
 }
 
 function parseLand(raw: LandRaw, precisionLevel: number): Land {
     return {
         ...raw,
         precision_level: precisionLevel
-    }
+    };
 }
 
 function parseState(raw: MapistoStateRaw, precisionLevel: number): MapistoState {
@@ -72,19 +72,19 @@ function parseState(raw: MapistoStateRaw, precisionLevel: number): MapistoState 
         validity_start: new Date(raw.validity_start + "Z"),
         validity_end: new Date(raw.validity_end + "Z"),
         territories: raw.territories.map(territoryRaw => parseTerritory(territoryRaw, precisionLevel))
-    }
+    };
 }
 
 function parseTerritory(raw: MapistoTerritoryRaw, precisionLevel: number): MapistoTerritory {
     if (!raw.validity_start || !raw.validity_end) {
-        console.error("Missing validity on territory")
-        console.error(raw)
+        console.error("Missing validity on territory");
+        console.error(raw);
     }
     return {
         ...raw,
         validity_start: new Date(raw.validity_start + "Z"),
         validity_end: new Date(raw.validity_end + "Z"),
         precision_level: precisionLevel
-    }
+    };
 }
 

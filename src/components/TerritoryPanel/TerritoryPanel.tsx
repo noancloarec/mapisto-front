@@ -1,5 +1,5 @@
-import React from 'react'
-import './TerritoryPanel.css'
+import React from 'react';
+import './TerritoryPanel.css';
 import { RootState } from '../../store/reducer';
 import { connect } from 'react-redux';
 import { MapistoTerritory } from '../../interfaces/mapistoTerritory';
@@ -8,44 +8,27 @@ import { Observable } from 'rxjs';
 import { from } from 'rxjs';
 import Axios from 'axios';
 import { config } from '../../config';
-import Moment from 'react-moment'
+import Moment from 'react-moment';
 import { map } from 'rxjs/operators';
-import {startRenaming, askForEditingType} from '../../store/actions'
+import {startRenaming, askForEditingType} from '../../store/actions';
 interface StateProps {
-    selectedTerritory: MapistoTerritory,
-    currentDate: Date,
-    selectedState : MapistoState
+    selectedTerritory: MapistoTerritory;
+    currentDate: Date;
+    selectedState : MapistoState;
 }
 interface DispatchProps {
-    startRenaming: (state: MapistoState) => void,
-    askForEditingType: (state: MapistoState) => void
+    startRenaming: (state: MapistoState) => void;
+    askForEditingType: (state: MapistoState) => void;
 }
-type Props = StateProps & DispatchProps
+type Props = StateProps & DispatchProps;
 
-interface State {
-    // selectedState: MapistoState
-}
-class TerritoryPanel extends React.Component<Props, State> {
+class TerritoryPanel extends React.Component<Props, {}> {
 
     constructor(props: Props) {
-        super(props)
+        super(props);
         this.state = {
             selectedState: undefined
-        }
-    }
-
-    componentDidUpdate(prevProps: Props) {
-        // if (this.props.selectedTerritory && (!prevProps.selectedTerritory || this.props.selectedTerritory.territory_id !== prevProps.selectedTerritory.territory_id)) {
-        //     this.loadState();
-        // }
-    }
-
-    private loadState() {
-        this.getState().subscribe(
-            mapistoState => this.setState({
-                selectedState: mapistoState
-            })
-        )
+        };
     }
 
     private getState(): Observable<MapistoState> {
@@ -57,22 +40,26 @@ class TerritoryPanel extends React.Component<Props, State> {
         }
         )).pipe(
             map(response => response.data)
-        )
+        );
     }
 
     renderActionButtons() {
-        const stateDetails = this.props.selectedState
+        const stateDetails = this.props.selectedState;
         return (
             <div className="action-buttons d-flex justify-content-center">
                 <button className="btn btn-outline-danger"
-                onClick={() => stateDetails.name?this.props.askForEditingType(stateDetails):this.props.startRenaming(stateDetails)}
+                onClick={
+                    () =>
+                    stateDetails.name?
+                    this.props.askForEditingType(stateDetails) : this.props.startRenaming(stateDetails)
+                }
                 >{stateDetails.name ? "This is not " + stateDetails.name : "I know the name"}</button>
             </div>
-        )
+        );
     }
 
     renderStateDetails() {
-        const stateDetails = this.props.selectedState
+        const stateDetails = this.props.selectedState;
         return (
             <div className="d-flex flex-column justify-content-between">
                 <div>
@@ -87,13 +74,13 @@ class TerritoryPanel extends React.Component<Props, State> {
                 </div>
                 {this.renderActionButtons()}
             </div>
-        )
+        );
     }
 
     renderLoading() {
         return (
             <p>Loading</p>
-        )
+        );
     }
 
     render() {
@@ -101,7 +88,7 @@ class TerritoryPanel extends React.Component<Props, State> {
             <div className={"territory-panel " + (this.props.selectedTerritory ? "opened" : "")}>
                 {this.props.selectedState ? this.renderStateDetails() : this.renderLoading()}
             </div>
-        )
+        );
     }
 }
 
@@ -115,4 +102,4 @@ const mapStateToProps = (state: RootState): StateProps => ({
     selectedState : state.selectedState
 });
 
-export const TerritoryPanelConnected = connect(mapStateToProps, { startRenaming, askForEditingType })(TerritoryPanel)
+export const TerritoryPanelConnected = connect(mapStateToProps, { startRenaming, askForEditingType })(TerritoryPanel);

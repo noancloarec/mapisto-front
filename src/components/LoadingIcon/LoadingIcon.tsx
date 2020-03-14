@@ -1,9 +1,9 @@
-import React from 'react'
-import './LoadingIcon.css'
+import React from 'react';
+import './LoadingIcon.css';
 import { RootState } from '../../store/reducer';
 import { connect } from 'react-redux';
 interface Props {
-    loading: boolean
+    loading: boolean;
 }
 class LoadingIcon extends React.Component<Props, {}> {
     render() {
@@ -14,7 +14,7 @@ class LoadingIcon extends React.Component<Props, {}> {
                 <div></div>
                 <div></div>
             </div>
-        )
+        );
     }
 }
 
@@ -26,4 +26,4 @@ const mapStateToProps = (state: RootState): Props => ({
     loading: state.lands_loading || state.territories_loading
 });
 
-export const LoadingIconConnected = connect(mapStateToProps)(LoadingIcon)
+export const LoadingIconConnected = connect(mapStateToProps)(LoadingIcon);

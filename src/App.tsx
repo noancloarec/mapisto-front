@@ -29,6 +29,6 @@ const App: React.FC = () => {
       </section>
     </div>
   );
-}
+};
 
 export default App;

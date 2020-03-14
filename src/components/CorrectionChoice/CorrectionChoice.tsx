@@ -3,27 +3,27 @@ import { RootState } from "src/store/reducer";
 import { startRenaming } from "src/store/actions";
 import { connect } from "react-redux";
 import { MapistoState } from "src/interfaces/mapistoState";
-import './CorrectionChoice.css'
+import './CorrectionChoice.css';
 
 interface StateProps {
-    mpState: MapistoState
+    mpState: MapistoState;
 }
 
 interface DispatchProps {
-    startRenaming: (toRename: MapistoState) => void
+    startRenaming: (toRename: MapistoState) => void;
 }
 
-interface State {
-}
-type Props = StateProps & DispatchProps
-class CorrectionChoice extends React.Component<Props, State>{
+type Props = StateProps & DispatchProps;
+class CorrectionChoice extends React.Component<Props, {}>{
 
 
     render() {
         return (
             <div className="correction-choice d-flex flex-column">
                 <h1>What is wrong?</h1>
-                <button className="btn btn-outline-primary" onClick={() => this.props.startRenaming(this.props.mpState)}>
+                <button className="btn btn-outline-primary" onClick={
+                    () => this.props.startRenaming(this.props.mpState)
+                    }>
                     {this.props.mpState.name} does not exist
                     </button>
                 <button className="btn btn-outline-primary">
@@ -31,7 +31,7 @@ class CorrectionChoice extends React.Component<Props, State>{
                     </button>
             </div>
 
-        )
+        );
     }
 }
 
@@ -43,4 +43,4 @@ const mapStateToProps = (state: RootState): StateProps => ({
     mpState: state.selectedState
 });
 
-export const CorrectionChoiceConnected = connect(mapStateToProps, { startRenaming })(CorrectionChoice)
+export const CorrectionChoiceConnected = connect(mapStateToProps, { startRenaming })(CorrectionChoice);
