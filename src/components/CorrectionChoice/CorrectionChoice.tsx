@@ -1,8 +1,8 @@
 import React from "react";
-import { RootState } from "store/reducer";
-import { startRenaming } from "store/actions";
+import { RootState } from "src/store/reducer";
+import { startRenaming } from "src/store/actions";
 import { connect } from "react-redux";
-import { MapistoState } from "interfaces/mapistoState";
+import { MapistoState } from "src/interfaces/mapistoState";
 import './CorrectionChoice.css'
 
 interface StateProps {

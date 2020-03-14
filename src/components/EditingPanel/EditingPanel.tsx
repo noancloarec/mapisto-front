@@ -1,10 +1,10 @@
 import React from "react";
-import { RootState }  from "store/reducer";
-import { cancelEdition }  from "store/actions";
+import { RootState }  from "src/store/reducer";
+import { cancelEdition }  from "src/store/actions";
 import { connect } from "react-redux";
-import { RenamingPanelConnected } from "components/RenamingStatePanel/RenamingStatePanel";
+import { RenamingPanelConnected } from "src/components/RenamingStatePanel/RenamingStatePanel";
 import { CorrectionChoiceConnected } from "../CorrectionChoice/CorrectionChoice";
-import './EditingPanel.css'
+import './EditingPanel.css';
 
 export enum EditionState {
     RenamingMapistoState = 1,
@@ -12,21 +12,21 @@ export enum EditionState {
 }
 
 interface StateProps {
-    editingState: EditionState
+    editingState: EditionState;
 }
 
 interface DispatchProps {
-    cancelEdition: () => void
+    cancelEdition: () => void;
 }
-type Props = StateProps & DispatchProps
+type Props = StateProps & DispatchProps;
 class EditingPanel extends React.Component<Props, {}>{
     renderEditionComponent(){
         switch(this.props.editingState){
             case EditionState.RenamingMapistoState :
-                return <RenamingPanelConnected></RenamingPanelConnected>
+                return <RenamingPanelConnected></RenamingPanelConnected>;
             case EditionState.AskingForEditionType :
-                return <CorrectionChoiceConnected></CorrectionChoiceConnected>
-        } 
+                return <CorrectionChoiceConnected></CorrectionChoiceConnected>;
+        }
 
     }
     render() {
@@ -36,7 +36,7 @@ class EditingPanel extends React.Component<Props, {}>{
                 <div className="popup-container">
                     {this.renderEditionComponent()}
                 </div>
-            </div>
+            </div>;
         } else {
             return null;
         }
@@ -51,4 +51,4 @@ const mapStateToProps = (state: RootState): StateProps => ({
     editingState: state.editionType
 });
 
-export const EditingPanelConnected = connect(mapStateToProps, { cancelEdition })(EditingPanel)
+export const EditingPanelConnected = connect(mapStateToProps, { cancelEdition })(EditingPanel);

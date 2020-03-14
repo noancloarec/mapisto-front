@@ -1,32 +1,32 @@
 import { Observable, from } from "rxjs";
-import { MapistoTerritory } from "interfaces/mapistoTerritory";
-import { MapistoState } from "interfaces/mapistoState";
-import axios from 'axios'
-import { config } from "config";
+import { MapistoTerritory } from "src/interfaces/mapistoTerritory";
+import { MapistoState } from "src/interfaces/mapistoState";
+import axios from 'axios';
+import { config } from "src/config";
 import { MapistoStateRaw } from "./MapistoStateRaw";
 import { map } from "rxjs/operators";
 import { MapistoTerritoryRaw } from "./MapistoTerritoryRaw";
-import { Land } from "interfaces/Land";
+import { Land } from "src/interfaces/Land";
 import { LandRaw } from "./LandRaw";
 
 
 export function loadStates(
     year: number,
     precisionLevel: number,
-    min_x: number,
-    max_x: number,
-    min_y: number,
-    max_y: number
+    minX: number,
+    maxX: number,
+    minY: number,
+    maxY: number
 ): Observable<MapistoState[]> {
     return from(
         axios.get<MapistoStateRaw[]>(`${config.api_path}/map`, {
             params: {
                 date: year + "-01-01",
                 precision_in_km: precisionLevel,
-                min_x: min_x,
-                max_x: max_x,
-                min_y: min_y,
-                max_y: max_y
+                min_x: minX,
+                max_x: maxX,
+                min_y: minY,
+                max_y: maxY
             }
         })
     ).pipe(
@@ -59,23 +59,23 @@ export function loadLands(
     )
 }
 
-function parseLand(raw : LandRaw, precision_level : number) : Land{
+function parseLand(raw: LandRaw, precisionLevel: number): Land {
     return {
         ...raw,
-        precision_level : precision_level
+        precision_level: precisionLevel
     }
 }
 
-function parseState(raw: MapistoStateRaw, precision_level: number): MapistoState {
+function parseState(raw: MapistoStateRaw, precisionLevel: number): MapistoState {
     return {
         ...raw,
         validity_start: new Date(raw.validity_start + "Z"),
         validity_end: new Date(raw.validity_end + "Z"),
-        territories: raw.territories.map(territoryRaw => parseTerritory(territoryRaw, precision_level))
+        territories: raw.territories.map(territoryRaw => parseTerritory(territoryRaw, precisionLevel))
     }
 }
 
-function parseTerritory(raw: MapistoTerritoryRaw, precision_level: number): MapistoTerritory {
+function parseTerritory(raw: MapistoTerritoryRaw, precisionLevel: number): MapistoTerritory {
     if (!raw.validity_start || !raw.validity_end) {
         console.error("Missing validity on territory")
         console.error(raw)
@@ -84,7 +84,7 @@ function parseTerritory(raw: MapistoTerritoryRaw, precision_level: number): Mapi
         ...raw,
         validity_start: new Date(raw.validity_start + "Z"),
         validity_end: new Date(raw.validity_end + "Z"),
-        precision_level: precision_level
+        precision_level: precisionLevel
     }
 }
 

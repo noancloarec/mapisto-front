@@ -1,42 +1,43 @@
 import React, { RefObject } from "react";
-import { config } from '../../config';
-import { MapistoState } from "interfaces/mapistoState";
-import './WorldMap.css'
+import { config } from 'src/config';
+import { MapistoState } from "src/interfaces/mapistoState";
+import './WorldMap.css';
 import { connect } from "react-redux";
 import { MapDomManager } from "./MapDomManager";
-import { debounceTime, tap } from 'rxjs/operators'
+import { debounceTime, tap } from 'rxjs/operators';
 import { MapNavigator } from "./MapNavigator";
-import { updateLoadingLandStatus, updateLoadingTerritoryStatus, selectTerritory, updateMpStates, updateLands } from 'store/actions'
-import { MapistoTerritory } from "interfaces/mapistoTerritory";
-import { RootState } from "store/reducer";
-import { loadStates, loadLands } from "api/MapistoApi";
-import { Land } from "interfaces/Land";
+import { updateLoadingLandStatus, updateLoadingTerritoryStatus, selectTerritory, updateMpStates, updateLands } from "src/store/actions";
+import { MapistoTerritory } from "src/interfaces/mapistoTerritory";
+import { RootState } from "src/store/reducer";
+import { loadStates, loadLands } from "../../api/MapistoApi";
+import { Land } from "src/interfaces/Land";
 import { getVisibleSVG, howManyPointsPerPixel } from "./displayUtilities";
 
 interface StateProps {
-    year: number,
-    selectedTerritory: MapistoTerritory,
-    mpStates: MapistoState[],
-    lands: Land[]
+    year: number;
+    selectedTerritory: MapistoTerritory;
+    mpStates: MapistoState[];
+    lands: Land[];
 }
 interface DispatchProps {
-    updateLoadingLandStatus: (loadingLand: boolean) => void,
-    updateLoadingTerritoryStatus: (loadingLand: boolean) => void,
-    selectTerritory: (territory: MapistoTerritory) => void,
-    updateMpStates: (mpStates: MapistoState[]) => void,
-    updateLands: (lands: Land[]) => void
+    updateLoadingLandStatus: (loadingLand: boolean) => void;
+    updateLoadingTerritoryStatus: (loadingLand: boolean) => void;
+    selectTerritory: (territory: MapistoTerritory) => void;
+    updateMpStates: (mpStates: MapistoState[]) => void;
+    updateLands: (lands: Land[]) => void;
 }
 
-type Props = StateProps & DispatchProps
+type Props = StateProps & DispatchProps;
 /**
  * Wrapper React Component for the WorldMap in mapisto.
- * Its own DOM is updated via svg.js (not react, which is too slow to render the hundreds of svg elements with great interactivity)
+ * Its own DOM is updated via svg.js (not react, which is too slow to
+ * render the hundreds of svg elements with great interactivity)
  */
 class WorldMap extends React.Component<Props, {}>{
     /**
      * The domManager is in charge of managing HTML elements inside the world map.
      */
-    domManager: MapDomManager
+    domManager: MapDomManager;
 
     /**
      * Defines the zoom level of the map
@@ -46,18 +47,18 @@ class WorldMap extends React.Component<Props, {}>{
     /**
      * Handles the mouse events which will redefine the viewbox of the svg containing the map.
      */
-    mapNagivator: MapNavigator
+    mapNagivator: MapNavigator;
 
 
     /**
      * A reference to the parent of the SVG. To be given to mapDomManager so it can create the SVG map
      */
-    containerRef: RefObject<HTMLDivElement>
+    containerRef: RefObject<HTMLDivElement>;
 
     constructor(props: Props) {
-        super(props)
+        super(props);
         this.domManager = new MapDomManager();
-        this.containerRef = React.createRef<HTMLDivElement>()
+        this.containerRef = React.createRef<HTMLDivElement>();
     }
 
     /**
@@ -74,13 +75,13 @@ class WorldMap extends React.Component<Props, {}>{
             debounceTime(100) // debounce time to reload the map only at the end of drag
         ).subscribe(
             () => this.updateMap()
-        )
+        );
 
         this.mapNagivator.getZoomListener().subscribe(
             () => this.adaptMapToPrecision()
-        )
+        );
 
-        this.domManager.getTerritorySelectionListener().subscribe(territory => this.props.selectTerritory(territory))
+        this.domManager.getTerritorySelectionListener().subscribe(territory => this.props.selectTerritory(territory));
 
     }
 
@@ -90,11 +91,11 @@ class WorldMap extends React.Component<Props, {}>{
      */
     shouldComponentUpdate(newProps: Props) {
         if (newProps.year !== this.props.year) {
-            this.updateTerritories(newProps.year)
+            this.updateTerritories(newProps.year);
         } if (newProps.mpStates !== this.props.mpStates) {
-            this.domManager.setStates(newProps.mpStates)
+            this.domManager.setStates(newProps.mpStates);
         } if (newProps.lands !== (this.props.lands)) {
-            this.domManager.setLands(newProps.lands)
+            this.domManager.setLands(newProps.lands);
         }
         return false;
     }
@@ -109,12 +110,13 @@ class WorldMap extends React.Component<Props, {}>{
         const closestPrecision = this.getClosestPrecision(3 * this.getKilometersPerPixel());
         if (closestPrecision !== this.currentPrecisionLevel) {
             this.currentPrecisionLevel = closestPrecision;
-            this.updateMap()
+            this.updateMap();
         }
     }
 
     /**
-     * Mapisto only has a few levels of precision (i.e. precision to ask to the server). Defined in config.precision_levels
+     * Mapisto only has a few levels of precision 
+     * (i.e. precision to ask to the server). Defined in config.precision_levels
      * This function returns the first precision levels that satisfy the number of kilometers per pixels
      * @param kmPerPX the number of kilometer per pixel on the map
      */
@@ -132,14 +134,14 @@ class WorldMap extends React.Component<Props, {}>{
         const kmPerPoint = 40000 / 2269;
 
         // A pixel (on screen) represents a number of points
-        const pointPerPixels = howManyPointsPerPixel(this.domManager.parentElement)
+        const pointPerPixels = howManyPointsPerPixel(this.domManager.parentElement);
 
-        return kmPerPoint * pointPerPixels
+        return kmPerPoint * pointPerPixels;
     }
 
 
     private updateLands(): void {
-        const visibleSVG = getVisibleSVG(this.domManager.parentElement)
+        const visibleSVG = getVisibleSVG(this.domManager.parentElement);
         this.props.updateLoadingLandStatus(true);
         loadLands(
             this.currentPrecisionLevel,
@@ -152,7 +154,7 @@ class WorldMap extends React.Component<Props, {}>{
         )
             .subscribe(
                 lands => this.props.updateLands(lands)
-            )
+            );
     }
 
     /**
@@ -161,7 +163,7 @@ class WorldMap extends React.Component<Props, {}>{
      * @param precisionLevel The necessary precision level
      */
     private updateTerritories(year = this.props.year): void {
-        const visibleSVG = getVisibleSVG(this.domManager.parentElement)
+        const visibleSVG = getVisibleSVG(this.domManager.parentElement);
         this.props.updateLoadingTerritoryStatus(true);
         loadStates(
             year,
@@ -175,14 +177,14 @@ class WorldMap extends React.Component<Props, {}>{
         )
             .subscribe(
                 states => this.props.updateMpStates(states)
-            )
+            );
     }
 
     render() {
         return (
             <div className="map" ref={this.containerRef}>
             </div>
-        )
+        );
     }
 }
 
@@ -197,4 +199,6 @@ const mapStateToProps = (state: RootState): StateProps => ({
     lands: state.lands
 });
 
-export const WorldMapConnected = connect(mapStateToProps, { updateLoadingLandStatus, updateLoadingTerritoryStatus, selectTerritory, updateMpStates, updateLands })(WorldMap)
+export const WorldMapConnected = connect(mapStateToProps, {
+    updateLoadingLandStatus, updateLoadingTerritoryStatus, selectTerritory, updateMpStates, updateLands
+ })(WorldMap);

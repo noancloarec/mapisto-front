@@ -1,11 +1,11 @@
 import { UPDATE_TIME, ActionTypes, UPDATE_LOADING_LAND_STATUS, UPDATE_LOADING_TERRITORY_STATUS, SELECT_TERRITORY, START_RENAMING, ASK_FOR_EDITION_TYPE, CANCEL_EDITION, FINISH_EDITION, UPDATE_MPSTATES, UPDATE_LANDS } from "./types";
-import { MapistoTerritory } from "interfaces/mapistoTerritory";
-import { MapistoState } from "interfaces/mapistoState";
-import { EditionState } from "components/EditingPanel/EditingPanel";
-import { Land } from "interfaces/Land";
+import { MapistoTerritory } from "src/interfaces/mapistoTerritory";
+import { MapistoState } from "src/interfaces/mapistoState";
+import { EditionState } from "src/components/EditingPanel/EditingPanel";
+import { Land } from "src/interfaces/Land";
 export interface RootState {
   mpStates: MapistoState[],
-  lands : Land[],
+  lands: Land[],
   current_date: Date,
   lands_loading: boolean,
   territories_loading: boolean,
@@ -15,7 +15,7 @@ export interface RootState {
 }
 const initialState: RootState = {
   mpStates: [],
-  lands : [],
+  lands: [],
   current_date: new Date('1918-01-01'),
   lands_loading: false,
   territories_loading: false,
@@ -75,18 +75,18 @@ function rootReducer(state = initialState, action: ActionTypes): RootState {
     case UPDATE_LANDS:
       return {
         ...state,
-        lands : reduceLands(state, action.payload)
+        lands: reduceLands(state, action.payload)
       }
   }
   return state;
 }
 
 function selectTerritory(state: RootState, territory: MapistoTerritory): RootState {
-  if(!territory){
+  if (!territory) {
     return {
       ...state,
-      selectedState : null,
-      selectedTerritory : null
+      selectedState: null,
+      selectedTerritory: null
     }
   }
   const mpState = state.mpStates.find(mpState => mpState.territories.find(t => t.territory_id === territory.territory_id) !== undefined)
@@ -143,7 +143,7 @@ function filterOutdatedStateAndTerritories(time: Date, mpStates: MapistoState[])
   )
 }
 
-function reduceLands(state : RootState, lands: Land[]) : Land[]{
+function reduceLands(state: RootState, lands: Land[]): Land[] {
   const res = [...state.lands]
   for (const land of lands) {
     const concurrent = res.find(l => l.land_id === land.land_id)

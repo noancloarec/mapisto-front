@@ -11,9 +11,9 @@ import {
   UPDATE_MPSTATES,
   UPDATE_LANDS
 } from "./types";
-import { MapistoTerritory } from "interfaces/mapistoTerritory";
-import { MapistoState } from "interfaces/mapistoState";
-import { Land } from "interfaces/Land";
+import { MapistoTerritory } from "src/interfaces/mapistoTerritory";
+import { MapistoState } from "src/interfaces/mapistoState";
+import { Land } from "src/interfaces/Land";
 
 export function updateTime(newDate: Date): ActionTypes {
   return { type: UPDATE_TIME, payload: newDate }

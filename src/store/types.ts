@@ -1,6 +1,6 @@
-import { MapistoTerritory } from "interfaces/mapistoTerritory"
-import { MapistoState } from "interfaces/mapistoState"
-import { Land } from "interfaces/Land"
+import { MapistoTerritory } from "src/interfaces/mapistoTerritory"
+import { MapistoState } from "src/interfaces/mapistoState"
+import { Land } from "src/interfaces/Land"
 
 export const UPDATE_TIME = 'UPDATE_TIME'
 export const UPDATE_LOADING_LAND_STATUS = 'UPDATE_LOADING_LAND_STATUS'
@@ -17,14 +17,14 @@ interface UpdateTimeAction {
     payload: Date
 }
 
-interface UpdateLandsAction{
-    type : typeof UPDATE_LANDS,
-    payload : Land[]
+interface UpdateLandsAction {
+    type: typeof UPDATE_LANDS,
+    payload: Land[]
 }
 
-interface UpdateMPStatesAction{
+interface UpdateMPStatesAction {
     type: typeof UPDATE_MPSTATES,
-    payload : MapistoState[]
+    payload: MapistoState[]
 }
 interface UpdateLoadingLandStatusAction {
     type: typeof UPDATE_LOADING_LAND_STATUS,
@@ -42,18 +42,18 @@ interface SelectTerritoryAction {
 
 interface StartRenamingAction {
     type: typeof START_RENAMING,
-    payload : MapistoState
+    payload: MapistoState
 }
 interface AskForEditionTypeAction {
     type: typeof ASK_FOR_EDITION_TYPE,
-    payload : MapistoState
+    payload: MapistoState
 }
-interface CancelEdition{
+interface CancelEdition {
     type: typeof CANCEL_EDITION
 }
-interface FinishEdition{
+interface FinishEdition {
     type: typeof FINISH_EDITION,
-    payload : MapistoState
+    payload: MapistoState
 }
 export type ActionTypes =
     UpdateTimeAction |

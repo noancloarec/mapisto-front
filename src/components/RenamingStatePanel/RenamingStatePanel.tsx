@@ -1,8 +1,8 @@
 import React, { FormEvent } from "react";
-import { RootState } from "store/reducer";
-import { finishEdition } from "store/actions";
+import { RootState } from "src/store/reducer";
+import { finishEdition } from "src/store/actions";
 import { connect } from "react-redux";
-import { MapistoState } from "interfaces/mapistoState";
+import { MapistoState } from "src/interfaces/mapistoState";
 import Axios from "axios";
 import { from, of } from "rxjs";
 import { config } from "../../config";
