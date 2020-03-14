@@ -4,14 +4,10 @@ import { MapistoTerritory } from '../../interfaces/mapistoTerritory';
 import { fromEvent, Observable, Subject } from 'rxjs'
 import { MapistoState } from '../../interfaces/mapistoState';
 import { debounceTime } from 'rxjs/operators';
+import { getLabelColor } from 'utils/color_harmony';
+import { Rectangle, intersect } from 'utils/svg_geometry';
 
-// Interface to perform some homemade geometry in the map
-interface Rectangle {
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number
-}
+
 
 export class MapDomManager {
     /** The reference to the svg provided by svg.js */
@@ -33,19 +29,6 @@ export class MapDomManager {
         }
     }
 
-    /**
-     * A reference collection for all territory shapes
-     * Somehow a duplicate of what is in the DOM (to be removed?), it was made to ease 
-     */
-    registered_territories: {
-        [id: number]: {
-            precision: number,
-            territory: MapistoTerritory,
-            domElement: SVG.Path, // Used to perform geometry when positioning the countries' name labels
-            name: string, // actually the states'name
-            color: string
-        }
-    }
 
     /** A reference to the parent HTML element, used to compare svg coords with in-window pixel coords (e.g. to determine which part of the map should be loaded) */
     parentElement: HTMLDivElement
@@ -64,7 +47,6 @@ export class MapDomManager {
 
     constructor() {
         this.registered_lands = {}
-        this.registered_territories = {}
         this.askForNameRefresh$ = new Subject<void>();
         this.territorySelection$ = new Subject<MapistoTerritory>();
     }
@@ -81,6 +63,7 @@ export class MapDomManager {
         this.parentElement = svgParent
         this.drawing = SVG(svgParent).viewbox(x, y, width, height);
         this.drawing.native().setAttribute("preserveAspectRatio", "xMinYMin slice");
+        this.drawing.rect(1e5, 1e5).move(-5e4, -5e4).fill("#d8e2eb").click(()=> this.selectTerritory(null))
         this.land_container = this.drawing.group().id('land-mass');
         this.states_container = this.drawing.group().id('states-container');
         this.names_container = this.drawing.group().id('names_container');
@@ -196,8 +179,7 @@ export class MapDomManager {
      */
     emptyStates() {
         this.states_container.clear()
-        this.names_container.clear();
-        this.registered_territories = {}
+        // this.names_container.clear();
     }
 
     /**
@@ -215,7 +197,7 @@ export class MapDomManager {
     setStates(states : MapistoState[]){
         this.emptyStates();
         for(const state of states){
-            const group = this.addStateGroup(state.state_id, state.color);
+            const group = this.addStateGroup(state.state_id, state.name,  state.color);
             for(const territory of state.territories){
                 this.addTerritoryToDOM(group, territory);
             }
@@ -224,41 +206,32 @@ export class MapDomManager {
     }
 
     /**
-     * Update the territories of a state on the map
-     * @param state A state, usually obtained from the sever
-     * @param precision the associated precision with the state
-     */
-    updateTerritories(state: MapistoState, precision: number) {
-        let state_group = this.getStateGroup(state.state_id);
-        if (state_group === undefined) {
-            state_group = this.addStateGroup(state.state_id, state.color);
-        }
-        for (const territory of state.territories) {
-            if (!this.isRegistered(territory)) {
-                const path = this.addTerritoryToDOM(state_group, territory)
-                this.registered_territories[territory.territory_id] = {
-                    territory: territory,
-                    precision: precision,
-                    domElement: path,
-                    name: state.name,
-                    color: state.color
-                }
-            } else if (precision < this.registered_territories[territory.territory_id].precision) {
-                // If precision smaller (so more accurate)
-                this.removeTerritoryFomDOM(state_group, territory.territory_id) // remove the old, worse precision territory
-                const precisePath = this.addTerritoryToDOM(state_group, territory); // add the more precise one
-                this.registered_territories[territory.territory_id].precision = precision
-                this.registered_territories[territory.territory_id].domElement = precisePath
-            }
-        }
-    }
-
-    /**
      * Display the names of countries on the svg.
      * Only if they are visible on the screen, and are wider than a defined threshold
      */
     private refreshNamesDisplay() {
         this.names_container.clear()
+        for(const st of this.states_container.children() as SVG.G[]){
+            const name=st.attr('state-name')
+            for(const terr of st.children() as SVG.Path[]){
+                // If visible & width > threshold
+                if ( this.isVisible(terr) && this.getPixelSize(terr.bbox().width) > 100) {
+                    this.names_container.text((add) => {
+                        add.tspan(name)
+                    }).attr({
+                        x: terr.bbox().x + terr.bbox().width / 2,
+                        y: terr.bbox().y + terr.bbox().height / 2
+                    }).font({
+                        anchor: 'middle',
+                        size: this.getNameSize(terr.bbox())
+                    }).fill(getLabelColor(st.attr('fill')))
+                }
+    
+            }
+        }
+    }
+
+    private  isVisible(polygon:SVG.Path):boolean{
         const visible = this.getVisibleSVG()
         const visibleRectangle = {
             x1: visible.origin.x,
@@ -266,32 +239,17 @@ export class MapDomManager {
             x2: visible.end.x,
             y2: visible.end.y
         }
-        for (const id in this.registered_territories) {
-            // Displaying the name on each territory if visible and wide enough 
-            const territory = this.registered_territories[id];
-            const bbox = territory.domElement.bbox()
-            const bboxRect: Rectangle = {
-                x1: bbox.x,
-                y1: bbox.y,
-                x2: bbox.x2,
-                y2: bbox.y2
-            }
-            // If visible & width > threshold
-            if (this.intersect(visibleRectangle, bboxRect) && this.getPixelSize(bbox.width) > 100) {
-                const luminosity = this.getLuminosity(territory.color)
-                this.names_container.text((add) => {
-                    add.tspan(territory.name)
-                }).attr({
-                    x: bbox.x + bbox.width / 2,
-                    y: bbox.y + bbox.height / 2
-                }).font({
-                    anchor: 'middle',
-                    size: this.getNameSize(bbox)
-                }).fill(luminosity > 70 ? 'black' : 'white')
-            }
-
+        const bbox = polygon.bbox()
+        const bboxRect: Rectangle = {
+            x1: bbox.x,
+            y1: bbox.y,
+            x2: bbox.x2,
+            y2: bbox.y2
         }
+        return intersect(visibleRectangle, bboxRect)
     }
+
+
     /**
      * Determines the size of a text label, as a compromise between the width, height of bbox, and map width
      * @param bbox the territory's bbox
@@ -305,19 +263,6 @@ export class MapDomManager {
         return visible.end.x - visible.origin.x
     }
 
-    /**
-     * Tells if 2 rectangle have an intersecting area
-     * @param a Rectangle a
-     * @param b Rectangle
-     */
-    private intersect(a: Rectangle, b: Rectangle): boolean {
-        return !(
-            a.x2 < b.x1
-            || b.x2 < a.x1
-            || a.y2 < b.y1
-            || b.y2 < a.y1
-        )
-    }
 
     /**
      * Given a size in point (svg frame), computes the on-screen size in pixels
@@ -341,28 +286,13 @@ export class MapDomManager {
      * @param state_id The state's id
      * @param color The state's color
      */
-    private addStateGroup(state_id: number, color: string): SVG.G {
+    private addStateGroup(state_id: number, name : string,  color: string): SVG.G {
         return this.states_container.group()
             .id('state_' + state_id)
             .fill(color)
             .stroke(color)
-            .attr('class', 'state');
-    }
-
-    /**
-     * Returns a state group given the state id
-     * @param state_id The state's group
-     */
-    private getStateGroup(state_id: number): SVG.G {
-        return this.states_container.select(`#state_${state_id}`).first() as SVG.G
-    }
-
-    /**
-     * Tells if a territory has been registered in the DOM checking its id
-     * @param territory The territory to search
-     */
-    private isRegistered(territory: MapistoTerritory) {
-        return this.registered_territories[territory.territory_id] !== undefined
+            .attr('class', 'state')
+            .attr('state-name', name );
     }
 
     /**
@@ -386,52 +316,9 @@ export class MapDomManager {
         this.states_container.select(`path.selected`).each((_, elemArray) => elemArray.forEach(e => e.removeClass('selected')))
         this.selectedTerritory=territory;
         this.territorySelection$.next(territory)
-        this.states_container.select(`#territory_${territory.territory_id}`).first().addClass("selected")
-    }
-
-    /**
-     * Remove a territory from the DOM
-     * @param state_group The state group from which the territory should be removed
-     * @param territory_id The id of the territory to remove
-     */
-    private removeTerritoryFomDOM(state_group: SVG.G, territory_id: number) {
-        const territory_to_remove = state_group.select(`#territory_${territory_id}`).first()
-        territory_to_remove.remove();
-    }
-
-    /**
-     * Compute the L (luminosity) parameter of the LaB representation of an RGB pixel
-     * Used to determine if the name f the country should be written white (if territory color is dark) or  black (if territory color is light)
-     * @param color 
-     */
-    private getLuminosity(color: string) {
-        const rgb = this.hexToRgb(color.substr(1))
-        var r = rgb[0] / 255,
-            g = rgb[1] / 255,
-            b = rgb[2] / 255,
-            y;
-
-        r = (r > 0.04045) ? Math.pow((r + 0.055) / 1.055, 2.4) : r / 12.92;
-        g = (g > 0.04045) ? Math.pow((g + 0.055) / 1.055, 2.4) : g / 12.92;
-        b = (b > 0.04045) ? Math.pow((b + 0.055) / 1.055, 2.4) : b / 12.92;
-        y = (r * 0.2126 + g * 0.7152 + b * 0.0722) / 1.00000;
-
-        y = (y > 0.008856) ? Math.pow(y, 1 / 3) : (7.787 * y) + 16 / 116;
-
-        return (116 * y) - 16
-    }
-
-    /**
-     * Computes the RGB representation of an hexadecimal color
-     * @param hex The hex representation of the color
-     */
-    private hexToRgb(hex: string): number[] {
-        var bigint = parseInt(hex, 16);
-        var r = (bigint >> 16) & 255;
-        var g = (bigint >> 8) & 255;
-        var b = bigint & 255;
-
-        return [r, g, b];
+        if(territory){
+            this.states_container.select(`#territory_${territory.territory_id}`).first().addClass("selected")
+        }
     }
 
 

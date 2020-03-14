@@ -76,9 +76,14 @@ class TerritoryPanel extends React.Component<Props, State> {
         return (
             <div className="d-flex flex-column justify-content-between">
                 <div>
-
-                    <h1>{stateDetails.name ? stateDetails.name : "Unknown state"}</h1>
-                    <h2>From <Moment format="YYYY">{stateDetails.validity_start}</Moment> to <Moment format="YYYY">{stateDetails.validity_end}</Moment> </h2>
+                    <h1>A part of {stateDetails.name ? stateDetails.name : "Unknown state"}</h1>
+                    <p>Le dessin ici</p>
+                    {stateDetails.name &&
+                    <h3>Remained in {stateDetails.name} and had these borders from&nbsp;
+                    <Moment format="YYYY">{this.props.selectedTerritory.validity_start}</Moment>&nbsp;to&nbsp;
+                    <Moment format="YYYY">{this.props.selectedTerritory.validity_end}</Moment>
+                     </h3>
+                    }
                 </div>
                 {this.renderActionButtons()}
             </div>

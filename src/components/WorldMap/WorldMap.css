@@ -4,9 +4,6 @@
     touch-action: none;
 }
 
-svg {
-    background-color: #d8e2eb;
-}
 
 #names_container {
     pointer-events: none;

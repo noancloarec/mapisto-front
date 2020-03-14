@@ -3,22 +3,22 @@ import { MapistoTerritory } from "@interfaces/mapistoTerritory";
 import { MapistoState } from "@interfaces/mapistoState";
 import { EditionState } from "components/EditingPanel/EditingPanel";
 export interface RootState {
-  mpStates : MapistoState[],
+  mpStates: MapistoState[],
   current_date: Date,
   lands_loading: boolean,
   territories_loading: boolean,
-  selectedTerritory : MapistoTerritory,
-  editionType : EditionState
-  selectedState : MapistoState
+  selectedTerritory: MapistoTerritory,
+  editionType: EditionState
+  selectedState: MapistoState
 }
 const initialState: RootState = {
-  mpStates : [],
+  mpStates: [],
   current_date: new Date('1918-01-01'),
   lands_loading: false,
   territories_loading: false,
-  selectedTerritory : null,
-  selectedState : null,
-  editionType : null
+  selectedTerritory: null,
+  selectedState: null,
+  editionType: null
 };
 function rootReducer(state = initialState, action: ActionTypes): RootState {
   switch (action.type) {
@@ -43,86 +43,94 @@ function rootReducer(state = initialState, action: ActionTypes): RootState {
     case START_RENAMING:
       return {
         ...state,
-        selectedState : action.payload,
-        editionType : EditionState.RenamingMapistoState
+        selectedState: action.payload,
+        editionType: EditionState.RenamingMapistoState
       }
     case ASK_FOR_EDITION_TYPE:
       return {
         ...state,
-        selectedState : action.payload,
-        editionType : EditionState.AskingForEditionType
+        selectedState: action.payload,
+        editionType: EditionState.AskingForEditionType
       }
     case CANCEL_EDITION:
       return {
         ...state,
-        editionType : null,
+        editionType: null,
       }
-    case FINISH_EDITION :
-        return {
-          ...state,
-          editionType : null,
-          selectedState : action.payload
-        }
+    case FINISH_EDITION:
+      return {
+        ...state,
+        editionType: null,
+        selectedState: action.payload,
+        mpStates: [...state.mpStates.filter(s => s.state_id !== action.payload.state_id), action.payload]
+      }
     case UPDATE_MPSTATES:
       return {
         ...state,
-        mpStates : reduceMPStates(state, action.payload)
+        mpStates: reduceMPStates(state, action.payload)
       }
   }
   return state;
 }
 
-function selectTerritory(state : RootState, territory : MapistoTerritory) : RootState{
+function selectTerritory(state: RootState, territory: MapistoTerritory): RootState {
+  if(!territory){
+    return {
+      ...state,
+      selectedState : null,
+      selectedTerritory : null
+    }
+  }
   const mpState = state.mpStates.find(mpState => mpState.territories.find(t => t.territory_id === territory.territory_id) !== undefined)
-  if(!mpState){
+  if (!mpState) {
     console.error(`Could not find a state which contains the territory ${territory.territory_id}`)
     return state;
   }
-  return{
+  return {
     ...state,
-    selectedTerritory : territory,
-    selectedState : mpState
+    selectedTerritory: territory,
+    selectedState: mpState
   }
 }
 
-function reduceMPStates(state : RootState, newMpStates : MapistoState[]): MapistoState[]{
+function reduceMPStates(state: RootState, newMpStates: MapistoState[]): MapistoState[] {
   let res = filterOutdatedStateAndTerritories(state.current_date, state.mpStates)
-  for(const mpState of newMpStates){
-    const existingRepresentation = res.find(s => s.state_id===mpState.state_id)
-    if(existingRepresentation){
+  for (const mpState of newMpStates) {
+    const existingRepresentation = res.find(s => s.state_id === mpState.state_id)
+    if (existingRepresentation) {
       const mergedRepresentation = mergeStateRepresentation(mpState, existingRepresentation)
       res[res.indexOf(existingRepresentation)] = mergedRepresentation
-    }else{
+    } else {
       res.push(mpState);
     }
   }
   return res;
 }
 
-function mergeStateRepresentation(state_a:MapistoState, state_b:MapistoState) : MapistoState{
+function mergeStateRepresentation(state_a: MapistoState, state_b: MapistoState): MapistoState {
   const res = [...state_a.territories]
-  for(const territory of state_b.territories){
-    const concurrent = res.find(t => t.territory_id===territory.territory_id)
-    if(concurrent && territory.precision_level < concurrent.precision_level){
+  for (const territory of state_b.territories) {
+    const concurrent = res.find(t => t.territory_id === territory.territory_id)
+    if (concurrent && territory.precision_level < concurrent.precision_level) {
       // if territory is more precisie
       res[res.indexOf(concurrent)] = territory
-    }else if(!concurrent){
+    } else if (!concurrent) {
       res.push(territory)
     }
   }
   return {
     ...state_a,
-    territories : res
+    territories: res
   }
 
 }
 
-function filterOutdatedStateAndTerritories(time : Date, mpStates : MapistoState[]) : MapistoState[]{
+function filterOutdatedStateAndTerritories(time: Date, mpStates: MapistoState[]): MapistoState[] {
   let without_outdated_states = mpStates.filter(mpState => mpState.validity_start <= time && mpState.validity_end > time)
   return without_outdated_states.map(
     valid_state => ({
       ...valid_state,
-      territories : valid_state.territories.filter(territory => territory.validity_start <= time && territory.validity_end >= time)
+      territories: valid_state.territories.filter(territory => territory.validity_start <= time && territory.validity_end >= time)
     })
   )
 }

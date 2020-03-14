@@ -21,10 +21,13 @@ class CorrectionChoice extends React.Component<Props, State>{
 
     render() {
         return (
-            <div className="correction-choice">
+            <div className="correction-choice d-flex flex-column">
                 <h1>What is wrong?</h1>
                 <button className="btn btn-outline-primary" onClick={() => this.props.startRenaming(this.props.mpState)}>
-                    There is no state such as {this.props.mpState.name}, it's mispelled
+                    {this.props.mpState.name} does not exist
+                    </button>
+                <button className="btn btn-outline-primary">
+                    It's not part of {this.props.mpState.name}
                     </button>
             </div>
 

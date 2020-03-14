@@ -107,7 +107,6 @@ class WorldMap extends React.Component<Props, {}>{
         if (newProps.year !== this.props.year) {
             this.load_territories(newProps.year)
         } if (newProps.mpStates !== this.props.mpStates) {
-            console.log("trigger dommanaer setstate")
             this.domManager.setStates(newProps.mpStates)
         }
         return false;
