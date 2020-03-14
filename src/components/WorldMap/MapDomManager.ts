@@ -19,17 +19,6 @@ export class MapDomManager {
     /** The G tag which contains every name TEXT tag */
     names_container: SVG.G
 
-    /** 
-     * A reference collection for all land mass shape
-     */
-    registered_lands: {
-        [id: number]: {
-            precision: number,
-            land: Land
-        }
-    }
-
-
     /** A reference to the parent HTML element, used to compare svg coords with in-window pixel coords (e.g. to determine which part of the map should be loaded) */
     parentElement: HTMLDivElement
 
@@ -46,7 +35,6 @@ export class MapDomManager {
     private territorySelection$: Subject<MapistoTerritory>
 
     constructor() {
-        this.registered_lands = {}
         this.askForNameRefresh$ = new Subject<void>();
         this.territorySelection$ = new Subject<MapistoTerritory>();
     }
@@ -136,35 +124,6 @@ export class MapDomManager {
      */
     getListener(eventName: string): Observable<Event> {
         return fromEvent(this.drawing.native().parentElement, eventName)
-    }
-
-    /**
-     * Updates the land data with the new informations
-     * @param lands The lands to add to the map
-     * @param precision The associated precision
-     */
-    updateLands(lands: Land[], precision: number) {
-        for (const land of lands) {
-            /**
-             * Either
-             * 1. The Land to add is new to the map --> it is added
-             * 2. The Land is known, but the new representation has a better precision --> it is redrawn, and the precision is updated
-             * 3. The Land is known, but the new representation has a worse precision --> Nothing is done
-             */
-            if (this.registered_lands[land.land_id] === undefined) {
-                this.land_container.path(land.d_path).id('land_' + land.land_id)
-                this.registered_lands[land.land_id] = {
-                    land: land,
-                    precision: precision
-                }
-            } else if (precision < this.registered_lands[land.land_id].precision) {
-                // If precision smaller (so more accurate)
-                const req = this.land_container.select(`#land_${land.land_id}`)
-                req.first().remove();
-                this.land_container.path(land.d_path).id('land_' + land.land_id)
-                this.registered_lands[land.land_id].precision = precision
-            }
-        }
     }
 
     /**
@@ -320,7 +279,10 @@ export class MapDomManager {
     }
 
     private selectTerritory(territory: MapistoTerritory): void {
-        this.states_container.select(`path.selected`).each((_, elemArray) => elemArray.forEach(e => e.removeClass('selected')))
+        const selected = this.parentElement.querySelector(`path.selected`)
+        if (selected){
+            selected.classList.remove('selected')
+        }
         this.selectedTerritory=territory;
         this.territorySelection$.next(territory)
         if(territory){
