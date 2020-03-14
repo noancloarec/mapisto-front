@@ -65,16 +65,6 @@ export class MapDomManager {
         return this.territorySelection$.asObservable();
     }
 
-
-    /**
-     * Returns the coord of the event within the svg point-based frame
-     * @param event The mouse event
-     */
-    // getEventCoords(event: MouseEvent): DOMPoint {
-    //     return this.svgCoords(event.clientX, event.clientY);
-    // }
-
-
     /**
      * Translates the viewbox by a given vector (x, y)
      * @param deltaX X translation in point
@@ -189,7 +179,6 @@ export class MapDomManager {
         return intersect(visibleRectangle, bboxRect)
     }
 
-
     /**
      * Determines the size of a text label, as a compromise between the width, height of bbox, and map width
      * @param bbox the territory's bbox
@@ -197,10 +186,6 @@ export class MapDomManager {
     private computeTerritoryNameSize(bbox: SVG.BBox) {
         return Math.max(Math.min(bbox.width, bbox.height) / 10, getActualViewedWidth(this.parentElement) / 50)
     }
-
-
-
-
 
     /**
      * Add a state groupe to the DOM
