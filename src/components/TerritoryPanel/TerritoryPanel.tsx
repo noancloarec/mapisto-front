@@ -10,11 +10,12 @@ import Axios from 'axios';
 import { config } from '../../config';
 import Moment from 'react-moment';
 import { map } from 'rxjs/operators';
-import {startRenaming, askForEditingType} from '../../store/actions';
+import { startRenaming, askForEditingType } from '../../store/actions';
+import { TerritoryThumbnail } from '../TerritoryThumbnail/TerritoryThumbnail';
 interface StateProps {
     selectedTerritory: MapistoTerritory;
     currentDate: Date;
-    selectedState : MapistoState;
+    selectedState: MapistoState;
 }
 interface DispatchProps {
     startRenaming: (state: MapistoState) => void;
@@ -31,28 +32,16 @@ class TerritoryPanel extends React.Component<Props, {}> {
         };
     }
 
-    private getState(): Observable<MapistoState> {
-        return from(Axios.get<MapistoState>(
-            `${config.api_path}/state_from_territory/${this.props.selectedTerritory.territory_id}`, {
-            params: {
-                date: this.props.currentDate
-            }
-        }
-        )).pipe(
-            map(response => response.data)
-        );
-    }
-
     renderActionButtons() {
         const stateDetails = this.props.selectedState;
         return (
             <div className="action-buttons d-flex justify-content-center">
                 <button className="btn btn-outline-danger"
-                onClick={
-                    () =>
-                    stateDetails.name?
-                    this.props.askForEditingType(stateDetails) : this.props.startRenaming(stateDetails)
-                }
+                    onClick={
+                        () =>
+                            stateDetails.name ?
+                                this.props.askForEditingType(stateDetails) : this.props.startRenaming(stateDetails)
+                    }
                 >{stateDetails.name ? "This is not " + stateDetails.name : "I know the name"}</button>
             </div>
         );
@@ -64,12 +53,17 @@ class TerritoryPanel extends React.Component<Props, {}> {
             <div className="d-flex flex-column justify-content-between">
                 <div>
                     <h1>A part of {stateDetails.name ? stateDetails.name : "Unknown state"}</h1>
-                    <p>Le dessin ici</p>
+                    <div className="thumbnail-in-panel">
+                        <TerritoryThumbnail
+                            territory={this.props.selectedTerritory} color={this.props.selectedState.color}
+                        >
+                        </TerritoryThumbnail>
+                    </div>
                     {stateDetails.name &&
-                    <h3>Remained in {stateDetails.name} and had these borders from&nbsp;
+                        <h3>Remained in {stateDetails.name} and had these borders from&nbsp;
                     <Moment format="YYYY">{this.props.selectedTerritory.validity_start}</Moment>&nbsp;to&nbsp;
                     <Moment format="YYYY">{this.props.selectedTerritory.validity_end}</Moment>
-                     </h3>
+                        </h3>
                     }
                 </div>
                 {this.renderActionButtons()}
@@ -99,7 +93,7 @@ class TerritoryPanel extends React.Component<Props, {}> {
 const mapStateToProps = (state: RootState): StateProps => ({
     selectedTerritory: state.selectedTerritory,
     currentDate: state.current_date,
-    selectedState : state.selectedState
+    selectedState: state.selectedState
 });
 
 export const TerritoryPanelConnected = connect(mapStateToProps, { startRenaming, askForEditingType })(TerritoryPanel);
