@@ -1,4 +1,4 @@
-import { MapDomManager } from "./MapDomManager";
+import { MainMapDomManager } from "./MainMapDomManager";
 import { Subject } from "rxjs";
 import Hammer from 'hammerjs';
 import { Observable } from "rxjs";
@@ -7,11 +7,11 @@ import { svgCoords, getVisibleSVG } from "./displayUtilities";
 /**
  * Handles the mouse event (desktop & mobile) to perform a zoom or drag on the map
  */
-export class MapNavigator {
+export class MainMapNavigator {
     /**
      * A reference to the domManager to attach Listener and change the svg viewbox
      */
-    private domManager: MapDomManager;
+    private domManager: MainMapDomManager;
 
     /**
      * Notify observers when drag or zoom is performed
@@ -27,7 +27,7 @@ export class MapNavigator {
     private dragging: boolean;
 
 
-    constructor(domManager: MapDomManager) {
+    constructor(domManager: MainMapDomManager) {
         this.domManager = domManager;
         this.draggingSubject = new Subject<void>();
         this.zoomSubject = new Subject<void>();

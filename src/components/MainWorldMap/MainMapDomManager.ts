@@ -10,7 +10,7 @@ import { debounceTime } from 'rxjs/operators';
 
 
 
-export class MapDomManager {
+export class MainMapDomManager {
     /** The reference to the svg provided by svg.js */
     drawing: SVG.Doc;
     /** The G tag which contains every land PATH tags */

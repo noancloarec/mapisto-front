@@ -1,11 +1,11 @@
 import React, { RefObject } from "react";
 import { config } from 'src/config';
 import { MapistoState } from "src/interfaces/mapistoState";
-import './WorldMap.css';
+import './MainWorldMap.css';
 import { connect } from "react-redux";
-import { MapDomManager } from "./MapDomManager";
+import { MainMapDomManager } from "./MainMapDomManager";
 import { debounceTime, tap } from 'rxjs/operators';
-import { MapNavigator } from "./MapNavigator";
+import { MainMapNavigator } from "./MainMapNavigator";
 import { updateLoadingLandStatus, updateLoadingTerritoryStatus, selectTerritory, updateMpStates, updateLands } from "src/store/actions";
 import { MapistoTerritory } from "src/interfaces/mapistoTerritory";
 import { RootState } from "src/store/reducer";
@@ -33,11 +33,11 @@ type Props = StateProps & DispatchProps;
  * Its own DOM is updated via svg.js (not react, which is too slow to
  * render the hundreds of svg elements with great interactivity)
  */
-class WorldMap extends React.Component<Props, {}>{
+class MainWorldMap extends React.Component<Props, {}>{
     /**
      * The domManager is in charge of managing HTML elements inside the world map.
      */
-    domManager: MapDomManager;
+    domManager: MainMapDomManager;
 
     /**
      * Defines the zoom level of the map
@@ -47,7 +47,7 @@ class WorldMap extends React.Component<Props, {}>{
     /**
      * Handles the mouse events which will redefine the viewbox of the svg containing the map.
      */
-    mapNagivator: MapNavigator;
+    mapNagivator: MainMapNavigator;
 
 
     /**
@@ -57,7 +57,7 @@ class WorldMap extends React.Component<Props, {}>{
 
     constructor(props: Props) {
         super(props);
-        this.domManager = new MapDomManager();
+        this.domManager = new MainMapDomManager();
         this.containerRef = React.createRef<HTMLDivElement>();
     }
 
@@ -68,7 +68,7 @@ class WorldMap extends React.Component<Props, {}>{
 
         // Coordinates of the map are hard-coded. They represents the bounds of the map on the server
         this.domManager.initMap(this.containerRef.current, 0, 0, 2269.4568, 1550.3625);
-        this.mapNagivator = new MapNavigator(this.domManager);
+        this.mapNagivator = new MainMapNavigator(this.domManager);
         this.adaptMapToPrecision();
 
         this.mapNagivator.getDragListener().pipe(
@@ -201,4 +201,4 @@ const mapStateToProps = (state: RootState): StateProps => ({
 
 export const WorldMapConnected = connect(mapStateToProps, {
     updateLoadingLandStatus, updateLoadingTerritoryStatus, selectTerritory, updateMpStates, updateLands
- })(WorldMap);
+ })(MainWorldMap);

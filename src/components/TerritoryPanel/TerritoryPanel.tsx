@@ -4,12 +4,7 @@ import { RootState } from '../../store/reducer';
 import { connect } from 'react-redux';
 import { MapistoTerritory } from '../../interfaces/mapistoTerritory';
 import { MapistoState } from '../../interfaces/mapistoState';
-import { Observable } from 'rxjs';
-import { from } from 'rxjs';
-import Axios from 'axios';
-import { config } from '../../config';
 import Moment from 'react-moment';
-import { map } from 'rxjs/operators';
 import { startRenaming, askForEditingType } from '../../store/actions';
 import { TerritoryThumbnail } from '../TerritoryThumbnail/TerritoryThumbnail';
 interface StateProps {

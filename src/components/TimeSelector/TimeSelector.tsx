@@ -32,31 +32,6 @@ class TimeSelector extends Component<Props, State>{
         );
     }
 
-    /**
-     * Listen for arrow navigation on the world map
-     */
-    // componentDidMount() {
-    //     this.targetForArrowNavigation = document.querySelector('#world-map');
-    //     this.targetForArrowNavigation.setAttribute("tabindex", "0");
-    //     this.targetForArrowNavigation.addEventListener('keydown', (e) => this.handleKeyDown(e))
-    // }
-    componentWillUnmount() {
-        this.targetForArrowNavigation.removeEventListener('keydown', (e) => this.handleKeyDown(e));
-    }
-
-    /**
-     * Increment or decrement the year on arrow left/right
-     * @param event
-     */
-    handleKeyDown(event: KeyboardEvent) {
-        if (event.key === "ArrowLeft") {
-            this.changeYear(this.state.year - 1);
-        } else if (event.key === "ArrowRight") {
-            this.changeYear(this.state.year + 1);
-        }
-    }
-
-
     changeYear(year: number) {
         this.setState({
             year

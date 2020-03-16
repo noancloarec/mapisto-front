@@ -1,6 +1,6 @@
 import React from 'react';
 import './App.css';
-import { WorldMapConnected } from './components/WorldMap/WorldMap';
+import { WorldMapConnected } from './components/MainWorldMap/MainWorldMap';
 import { TimeSelectorConnected } from './components/TimeSelector/TimeSelector';
 import { LoadingIconConnected } from './components/LoadingIcon/LoadingIcon';
 import { TerritoryPanelConnected } from './components/TerritoryPanel/TerritoryPanel';
