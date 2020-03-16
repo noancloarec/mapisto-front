@@ -9,7 +9,8 @@ import {
   CANCEL_EDITION,
   FINISH_EDITION,
   UPDATE_MPSTATES,
-  UPDATE_LANDS
+  UPDATE_LANDS,
+  SHOW_SELECTED_STATE
 } from "./types";
 import { MapistoTerritory } from "src/interfaces/mapistoTerritory";
 import { MapistoState } from "src/interfaces/mapistoState";
@@ -76,5 +77,10 @@ export function updateLands(newLands: Land[]): ActionTypes {
   return {
     type: UPDATE_LANDS,
     payload: newLands
+  };
+}
+export function showSelectedState(): ActionTypes {
+  return {
+    type: SHOW_SELECTED_STATE
   };
 }

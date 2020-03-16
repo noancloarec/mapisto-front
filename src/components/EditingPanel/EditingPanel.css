@@ -12,7 +12,10 @@
 }
 
 .popup-container{
-    margin-top: 10%;
+    margin-top: 10vh;
+    max-height: 85vh;
+    overflow-y: auto;
+    overflow-x: hidden;
     left: 50%;
     transform: translate(-50%, 0);
     background-color: white;

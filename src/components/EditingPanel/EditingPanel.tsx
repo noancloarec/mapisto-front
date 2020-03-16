@@ -1,14 +1,16 @@
 import React from "react";
-import { RootState }  from "src/store/reducer";
-import { cancelEdition }  from "src/store/actions";
+import { RootState } from "src/store/reducer";
+import { cancelEdition } from "src/store/actions";
 import { connect } from "react-redux";
 import { RenamingPanelConnected } from "src/components/RenamingStatePanel/RenamingStatePanel";
 import { CorrectionChoiceConnected } from "../CorrectionChoice/CorrectionChoice";
 import './EditingPanel.css';
+import { StateDisplayConnected } from "../StateDisplay/StateDisplay";
 
 export enum EditionState {
     RenamingMapistoState = 1,
-    AskingForEditionType
+    AskingForEditionType,
+    DisplayingState,
 }
 
 interface StateProps {
@@ -20,12 +22,14 @@ interface DispatchProps {
 }
 type Props = StateProps & DispatchProps;
 class EditingPanel extends React.Component<Props, {}>{
-    renderEditionComponent(){
-        switch(this.props.editingState){
-            case EditionState.RenamingMapistoState :
+    renderEditionComponent() {
+        switch (this.props.editingState) {
+            case EditionState.RenamingMapistoState:
                 return <RenamingPanelConnected></RenamingPanelConnected>;
-            case EditionState.AskingForEditionType :
+            case EditionState.AskingForEditionType:
                 return <CorrectionChoiceConnected></CorrectionChoiceConnected>;
+            case EditionState.DisplayingState:
+                return <StateDisplayConnected></StateDisplayConnected>;
         }
 
     }

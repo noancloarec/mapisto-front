@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { MapistoTerritory } from '../../interfaces/mapistoTerritory';
 import { MapistoState } from '../../interfaces/mapistoState';
 import Moment from 'react-moment';
-import { startRenaming, askForEditingType } from '../../store/actions';
+import { startRenaming, askForEditingType, showSelectedState } from '../../store/actions';
 import { TerritoryThumbnail } from '../TerritoryThumbnail/TerritoryThumbnail';
 interface StateProps {
     selectedTerritory: MapistoTerritory;
@@ -15,6 +15,7 @@ interface StateProps {
 interface DispatchProps {
     startRenaming: (state: MapistoState) => void;
     askForEditingType: (state: MapistoState) => void;
+    showSelectedState: () => void;
 }
 type Props = StateProps & DispatchProps;
 
@@ -42,12 +43,21 @@ class TerritoryPanel extends React.Component<Props, {}> {
         );
     }
 
+    showState(event: React.MouseEvent) {
+        event.preventDefault();
+        this.props.showSelectedState();
+    }
+
     renderStateDetails() {
         const stateDetails = this.props.selectedState;
         return (
             <div className="d-flex flex-column justify-content-between">
                 <div>
-                    <h1>A part of {stateDetails.name ? stateDetails.name : "Unknown state"}</h1>
+                    <h1>A part of&nbsp;
+                        <button className="dotted-button" onClick={e => this.showState(e)}>
+                            {stateDetails.name ? stateDetails.name : "Unknown state"}
+                        </button>
+                    </h1>
                     <div className="thumbnail-in-panel">
                         <TerritoryThumbnail
                             territory={this.props.selectedTerritory} color={this.props.selectedState.color}
@@ -91,4 +101,7 @@ const mapStateToProps = (state: RootState): StateProps => ({
     selectedState: state.selectedState
 });
 
-export const TerritoryPanelConnected = connect(mapStateToProps, { startRenaming, askForEditingType })(TerritoryPanel);
+export const TerritoryPanelConnected = connect(
+    mapStateToProps,
+    { startRenaming, askForEditingType, showSelectedState }
+)(TerritoryPanel);

@@ -9,7 +9,8 @@ import {
   CANCEL_EDITION,
   FINISH_EDITION,
   UPDATE_MPSTATES,
-  UPDATE_LANDS
+  UPDATE_LANDS,
+  SHOW_SELECTED_STATE
 } from "./types";
 import { MapistoTerritory } from "src/interfaces/mapistoTerritory";
 import { MapistoState } from "src/interfaces/mapistoState";
@@ -88,6 +89,11 @@ function rootReducer(state = initialState, action: ActionTypes): RootState {
       return {
         ...state,
         lands: reduceLands(state, action.payload)
+      };
+    case SHOW_SELECTED_STATE:
+      return {
+        ...state,
+        editionType: EditionState.DisplayingState
       };
   }
   return state;

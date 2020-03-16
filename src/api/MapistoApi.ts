@@ -35,6 +35,18 @@ export function loadStates(
     );
 }
 
+export function loadState(stateId: number, year: number): Observable<MapistoState> {
+    return from(
+        axios.get<MapistoStateRaw>(`${config.api_path}/state/${stateId}`, {
+            params: {
+                date: year + "-01-01"
+            }
+        })
+    ).pipe(
+        map(res => parseState(res.data, Math.min(...config.precision_levels))),
+    );
+}
+
 export function loadLands(
     precisionLevel: number,
     minX: number,
@@ -71,7 +83,8 @@ function parseState(raw: MapistoStateRaw, precisionLevel: number): MapistoState 
         ...raw,
         validity_start: new Date(raw.validity_start + "Z"),
         validity_end: new Date(raw.validity_end + "Z"),
-        territories: raw.territories.map(territoryRaw => parseTerritory(territoryRaw, precisionLevel))
+        territories: raw.territories ?
+            raw.territories.map(territoryRaw => parseTerritory(territoryRaw, precisionLevel)) : undefined
     };
 }
 

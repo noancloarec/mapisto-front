@@ -40,3 +40,14 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
 }
+
+button.dotted-button{
+  color: inherit;
+  font-weight: 200;
+  background: none!important;
+  border: none;
+  padding: 0!important;
+  /*input has OS specific font-family*/
+  cursor: pointer;
+  text-decoration: underline dotted;
+}

@@ -12,9 +12,14 @@ export const ASK_FOR_EDITION_TYPE = 'ASK_FOR_EDITION_TYPE';
 export const FINISH_EDITION = 'FINISH_EDITION';
 export const UPDATE_MPSTATES = 'UPDATE_MPSTATES';
 export const UPDATE_LANDS = 'UPDATE_LANDS';
+export const SHOW_SELECTED_STATE = 'SHOW_SELECTED_STATE';
 interface UpdateTimeAction {
     type: typeof UPDATE_TIME;
     payload: Date;
+}
+
+interface ShowSelectedStateAction {
+    type: typeof SHOW_SELECTED_STATE;
 }
 
 interface UpdateLandsAction {
@@ -65,4 +70,5 @@ export type ActionTypes =
     CancelEdition |
     FinishEdition |
     UpdateMPStatesAction |
-    UpdateLandsAction;
+    UpdateLandsAction |
+    ShowSelectedStateAction;
