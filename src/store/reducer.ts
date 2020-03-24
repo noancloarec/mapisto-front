@@ -10,7 +10,10 @@ import {
   FINISH_EDITION,
   UPDATE_MPSTATES,
   UPDATE_LANDS,
-  SHOW_SELECTED_STATE
+  SHOW_SELECTED_STATE,
+  CHANGE_STATE_PERIOD,
+  EDIT_ASK_FOR_CAPITAL,
+  START_TERRITORY_EXTEND
 } from "./types";
 import { MapistoTerritory } from "src/interfaces/mapistoTerritory";
 import { MapistoState } from "src/interfaces/mapistoState";
@@ -25,6 +28,7 @@ export interface RootState {
   selectedTerritory: MapistoTerritory;
   editionType: EditionState;
   selectedState: MapistoState;
+  capitalOfSelectedTerritory: DOMPoint;
 }
 const initialState: RootState = {
   mpStates: [],
@@ -34,7 +38,8 @@ const initialState: RootState = {
   territories_loading: false,
   selectedTerritory: null,
   selectedState: null,
-  editionType: null
+  editionType: null,
+  capitalOfSelectedTerritory: null
 };
 function rootReducer(state = initialState, action: ActionTypes): RootState {
   switch (action.type) {
@@ -95,6 +100,22 @@ function rootReducer(state = initialState, action: ActionTypes): RootState {
         ...state,
         editionType: EditionState.DisplayingState
       };
+    case CHANGE_STATE_PERIOD:
+      return {
+        ...state,
+        editionType: EditionState.ExtendingStatePeriod
+      };
+    case EDIT_ASK_FOR_CAPITAL:
+      return {
+        ...state,
+        editionType: EditionState.AskForClickOnTerritoryCapital
+      };
+    case START_TERRITORY_EXTEND:
+      return {
+        ...state,
+        editionType: EditionState.ExtendingTerritoryPeriod,
+        capitalOfSelectedTerritory: action.payload,
+      };
   }
   return state;
 }
@@ -123,6 +144,10 @@ function selectTerritory(state: RootState, territory: MapistoTerritory): RootSta
 
 function reduceMPStates(state: RootState, newMpStates: MapistoState[]): MapistoState[] {
   const res = filterOutdatedStateAndTerritories(state.current_date, state.mpStates);
+  console.log('without outdated');
+  console.log(res);
+
+  // console.log(res.map(s => ({ name: s.name, debut: s.validity_start })))
   for (const mpState of newMpStates) {
     const existingRepresentation = res.find(s => s.state_id === mpState.state_id);
     if (existingRepresentation) {
@@ -161,7 +186,7 @@ function filterOutdatedStateAndTerritories(time: Date, mpStates: MapistoState[])
     validState => ({
       ...validState,
       territories: validState.territories.filter(
-        territory => territory.validity_start <= time && territory.validity_end >= time
+        territory => territory.validity_start <= time && territory.validity_end > time
       )
     })
   );

@@ -5,7 +5,7 @@ import { connect } from 'react-redux';
 import { MapistoTerritory } from '../../interfaces/mapistoTerritory';
 import { MapistoState } from '../../interfaces/mapistoState';
 import Moment from 'react-moment';
-import { startRenaming, askForEditingType, showSelectedState } from '../../store/actions';
+import { startRenaming, askForEditingType, showSelectedState, askForCapital } from '../../store/actions';
 import { TerritoryThumbnail } from '../TerritoryThumbnail/TerritoryThumbnail';
 interface StateProps {
     selectedTerritory: MapistoTerritory;
@@ -16,6 +16,7 @@ interface DispatchProps {
     startRenaming: (state: MapistoState) => void;
     askForEditingType: (state: MapistoState) => void;
     showSelectedState: () => void;
+    askForCapital: () => void;
 }
 type Props = StateProps & DispatchProps;
 
@@ -48,6 +49,10 @@ class TerritoryPanel extends React.Component<Props, {}> {
         this.props.showSelectedState();
     }
 
+    startTerritoryExtend() {
+        this.props.askForCapital();
+    }
+
     renderStateDetails() {
         const stateDetails = this.props.selectedState;
         return (
@@ -66,8 +71,11 @@ class TerritoryPanel extends React.Component<Props, {}> {
                     </div>
                     {stateDetails.name &&
                         <h3>Remained in {stateDetails.name} and had these borders from&nbsp;
-                    <Moment format="YYYY">{this.props.selectedTerritory.validity_start}</Moment>&nbsp;to&nbsp;
-                    <Moment format="YYYY">{this.props.selectedTerritory.validity_end}</Moment>
+                        <button className="dotted-button" onClick={() => this.startTerritoryExtend()}>
+                                <Moment format="YYYY">{this.props.selectedTerritory.validity_start}</Moment>
+                                &nbsp;to&nbsp;
+                                <Moment format="YYYY">{this.props.selectedTerritory.validity_end}</Moment>
+                            </button>
                         </h3>
                     }
                 </div>
@@ -103,5 +111,5 @@ const mapStateToProps = (state: RootState): StateProps => ({
 
 export const TerritoryPanelConnected = connect(
     mapStateToProps,
-    { startRenaming, askForEditingType, showSelectedState }
+    { startRenaming, askForEditingType, showSelectedState, askForCapital }
 )(TerritoryPanel);

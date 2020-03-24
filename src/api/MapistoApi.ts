@@ -21,7 +21,7 @@ export function loadStates(
     return from(
         axios.get<MapistoStateRaw[]>(`${config.api_path}/map`, {
             params: {
-                date: year + "-01-01",
+                date: yearToDate(year),
                 precision_in_km: precisionLevel,
                 min_x: minX,
                 max_x: maxX,
@@ -36,10 +36,11 @@ export function loadStates(
 }
 
 export function loadState(stateId: number, year: number): Observable<MapistoState> {
+    console.log(`Load state called with ${year}`);
     return from(
         axios.get<MapistoStateRaw>(`${config.api_path}/state/${stateId}`, {
             params: {
-                date: year + "-01-01"
+                date: yearToDate(year)
             }
         })
     ).pipe(
@@ -71,6 +72,45 @@ export function loadLands(
     );
 }
 
+export function getConcurrentStates(stateId: number, startYear: number, endYear: number): Observable<MapistoState[]> {
+    return from(
+        axios.get<MapistoStateRaw[]>(`${config.api_path}/state/${stateId}/concurrent_states`, {
+            params: {
+                newStart: yearToDate(startYear),
+                newEnd: yearToDate(endYear)
+            }
+        })
+    ).pipe(
+        map(res => res.data),
+        map(states => states.map(raw => parseState(raw, null))),
+        map(states => states.sort((a, b) => a.validity_start > b.validity_start ? 1 : -1))
+    );
+}
+
+export function extendState(
+    stateId: number,
+    newStart: number,
+    newEnd: number,
+    statesToReassign: number[]
+): Observable<MapistoState[]> {
+    type servResponse =
+        {
+            removed_states: MapistoStateRaw[]
+        };
+
+    return from(
+        axios.put<servResponse>(`${config.api_path}/state/${stateId}/extend`, statesToReassign, {
+            params: {
+                newStart: yearToDate(newStart),
+                newEnd: yearToDate(newEnd)
+            }
+        }))
+        .pipe(
+            map(res => res.data.removed_states.map(r => parseState(r, null)))
+        );
+
+}
+
 function parseLand(raw: LandRaw, precisionLevel: number): Land {
     return {
         ...raw,
@@ -99,5 +139,10 @@ function parseTerritory(raw: MapistoTerritoryRaw, precisionLevel: number): Mapis
         validity_end: new Date(raw.validity_end + "Z"),
         precision_level: precisionLevel
     };
+}
+
+function yearToDate(year: number) {
+    const longyear = "0000" + year;
+    return longyear.substr(longyear.length - 4) + "-01-01";
 }
 

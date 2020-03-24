@@ -6,10 +6,11 @@ import './TimeSelector.css';
 import { connect } from 'react-redux';
 import { Subject } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
+import { dateFromYear } from 'src/utils/date_utils';
 
 
 interface Props {
-    updateTime: (newTime : Date) => void;
+    updateTime: (newTime: Date) => void;
 }
 interface State {
     year: number;
@@ -28,7 +29,7 @@ class TimeSelector extends Component<Props, State>{
         this.change$.pipe(
             debounceTime(100)
         ).subscribe(
-            () => this.props.updateTime(this.dateFromYear(this.state.year))
+            () => this.props.updateTime(dateFromYear(this.state.year))
         );
     }
 
@@ -40,17 +41,13 @@ class TimeSelector extends Component<Props, State>{
         });
     }
 
-    private dateFromYear(year: number): Date {
-        return new Date(new Date("0000-01-01Z").setFullYear(year));
-
-    }
     render() {
         return (
             <div className="time-select">
                 <span onClick={e => this.changeYear(this.state.year - 1)}>&#9664;</span>
                 <input type="number" value={this.state.year} onChange={
                     e => this.changeYear(parseInt(e.target.value, 10))
-                    } />
+                } />
                 <span onClick={e => this.changeYear(this.state.year + 1)}>&#9654;</span>
             </div>
         );

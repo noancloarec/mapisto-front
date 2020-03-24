@@ -10,7 +10,10 @@ import {
   FINISH_EDITION,
   UPDATE_MPSTATES,
   UPDATE_LANDS,
-  SHOW_SELECTED_STATE
+  SHOW_SELECTED_STATE,
+  CHANGE_STATE_PERIOD,
+  EDIT_ASK_FOR_CAPITAL,
+  START_TERRITORY_EXTEND
 } from "./types";
 import { MapistoTerritory } from "src/interfaces/mapistoTerritory";
 import { MapistoState } from "src/interfaces/mapistoState";
@@ -82,5 +85,24 @@ export function updateLands(newLands: Land[]): ActionTypes {
 export function showSelectedState(): ActionTypes {
   return {
     type: SHOW_SELECTED_STATE
+  };
+}
+
+export function changeStatePeriod(): ActionTypes {
+  return {
+    type: CHANGE_STATE_PERIOD
+  };
+}
+
+export function askForCapital(): ActionTypes {
+  return {
+    type: EDIT_ASK_FOR_CAPITAL
+  };
+}
+
+export function startExtendTerritory(capital: DOMPoint): ActionTypes {
+  return {
+    type: START_TERRITORY_EXTEND,
+    payload: capital
   };
 }

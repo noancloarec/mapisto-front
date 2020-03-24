@@ -5,7 +5,7 @@ import { fromEvent, Observable, Subject } from 'rxjs';
 import { MapistoState } from '../../interfaces/mapistoState';
 import { getLabelColor } from 'src/utils/color_harmony';
 import { Rectangle, intersect } from 'src/utils/svg_geometry';
-import { getVisibleSVG, getActualViewedWidth, translateSVGDistanceToPixel, svgCoords } from './displayUtilities';
+import { getVisibleSVG, getActualViewedWidth, translateSVGDistanceToPixel, svgCoords } from './OlddisplayUtilities';
 import { debounceTime } from 'rxjs/operators';
 
 

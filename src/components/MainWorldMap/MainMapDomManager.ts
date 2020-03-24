@@ -7,6 +7,7 @@ import { getLabelColor } from 'src/utils/color_harmony';
 import { Rectangle, intersect } from 'src/utils/svg_geometry';
 import { getVisibleSVG, getActualViewedWidth, translateSVGDistanceToPixel } from './displayUtilities';
 import { debounceTime } from 'rxjs/operators';
+import { svgCoords } from '../OldWorldMap/OlddisplayUtilities';
 
 
 
@@ -58,6 +59,8 @@ export class MainMapDomManager {
         this.landContainer = this.drawing.group().id('land-mass');
         this.statesContainer = this.drawing.group().id('states-container');
         this.namesContainer = this.drawing.group().id('names_container');
+        // this.drawing.mousemove((e: MouseEvent) => console.log(svgCoords(e.clientX, e.clientY, this.parentElement)));
+
         this.askForNameRefresh$.pipe(
             debounceTime(100),
         ).subscribe(() => this.refreshNamesDisplay());

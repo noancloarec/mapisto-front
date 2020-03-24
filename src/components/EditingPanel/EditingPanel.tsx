@@ -6,11 +6,16 @@ import { RenamingPanelConnected } from "src/components/RenamingStatePanel/Renami
 import { CorrectionChoiceConnected } from "../CorrectionChoice/CorrectionChoice";
 import './EditingPanel.css';
 import { StateDisplayConnected } from "../StateDisplay/StateDisplay";
+import { ExtendStatePeriodConnected } from "../ExtendStatePeriod/ExtendStatePeriod";
+import { ClickOnTerritoryCapitalConnected } from "../ClickOnTerritoryCapital/ClickOnTerritoryCapital";
 
 export enum EditionState {
     RenamingMapistoState = 1,
     AskingForEditionType,
     DisplayingState,
+    ExtendingStatePeriod,
+    AskForClickOnTerritoryCapital,
+    ExtendingTerritoryPeriod
 }
 
 interface StateProps {
@@ -23,6 +28,7 @@ interface DispatchProps {
 type Props = StateProps & DispatchProps;
 class EditingPanel extends React.Component<Props, {}>{
     renderEditionComponent() {
+        console.log("RENDEREDITIONCOMPONENT")
         switch (this.props.editingState) {
             case EditionState.RenamingMapistoState:
                 return <RenamingPanelConnected></RenamingPanelConnected>;
@@ -30,6 +36,12 @@ class EditingPanel extends React.Component<Props, {}>{
                 return <CorrectionChoiceConnected></CorrectionChoiceConnected>;
             case EditionState.DisplayingState:
                 return <StateDisplayConnected></StateDisplayConnected>;
+            case EditionState.ExtendingStatePeriod:
+                return <ExtendStatePeriodConnected></ExtendStatePeriodConnected>;
+            case EditionState.AskForClickOnTerritoryCapital:
+                return <ClickOnTerritoryCapitalConnected></ClickOnTerritoryCapitalConnected>;
+            default:
+                return <p>Rien trouve</p>;
         }
 
     }

@@ -1,16 +1,12 @@
 import React from 'react';
 import './App.css';
-import { WorldMapConnected } from './components/MainWorldMap/MainWorldMap';
-import { TimeSelectorConnected } from './components/TimeSelector/TimeSelector';
-import { LoadingIconConnected } from './components/LoadingIcon/LoadingIcon';
-import { TerritoryPanelConnected } from './components/TerritoryPanel/TerritoryPanel';
-import { EditingPanelConnected } from './components/EditingPanel/EditingPanel';
-
+import { MapistoMap } from './components/map-components/WorldMap/WorldMap';
+import { MapistoState } from './interfaces/mapistoState';
+import { ViewBoxLike } from '@svgdotjs/svg.js';
 const App: React.FC = () => {
   return (
     <div>
-
-      <section id="world-map">
+      {/* <section id="world-map">
         <WorldMapConnected />
       </section>
       <section id="time-selector-row">
@@ -26,7 +22,7 @@ const App: React.FC = () => {
       </section>
       <section id="editing-panel-section">
         <EditingPanelConnected></EditingPanelConnected>
-      </section>
+      </section> */}
     </div>
   );
 };

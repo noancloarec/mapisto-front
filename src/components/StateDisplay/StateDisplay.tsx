@@ -1,19 +1,24 @@
 import { RootState } from "src/store/reducer";
 import { connect } from "react-redux";
-import React, { Props } from "react";
+import React from "react";
 import { MapistoState } from "src/interfaces/mapistoState";
-import { WorldMap } from "src/components/WorldMap/WorldMap";
+import { WorldMap } from "src/components/OldWorldMap/OldWorldMap";
 import { loadState } from "src/api/MapistoApi";
-import './StateDisplay.css'
+import { changeStatePeriod } from 'src/store/actions';
+import './StateDisplay.css';
 interface StateProps {
     selectedState: MapistoState;
     year: number;
 }
+interface DispatchProps {
+    changeStatePeriod: () => void;
+}
 interface State {
     detailedState: MapistoState;
 }
-class StateDisplay extends React.Component<StateProps, State>{
-    constructor(props: StateProps) {
+type Props = StateProps & DispatchProps;
+class StateDisplay extends React.Component<Props, State>{
+    constructor(props: Props) {
         super(props);
         this.state = {
             detailedState: undefined
@@ -37,10 +42,6 @@ class StateDisplay extends React.Component<StateProps, State>{
         }
     }
 
-    changeStatePeriod() {
-        alert("C partiii")
-    }
-
     render() {
         return (
             <section id="state-display">
@@ -50,23 +51,29 @@ class StateDisplay extends React.Component<StateProps, State>{
                     {this.renderMap()}
                 </div>
                 <h3>Existed between&nbsp;
-                    <button className="dotted-button" onClick={() => this.changeStatePeriod()}>
-                        {this.props.selectedState.validity_start.getFullYear()}
+                    <button className="dotted-button" onClick={() => this.props.changeStatePeriod()}>
+                        {this.props.selectedState.validity_start.getUTCFullYear()}
                     </button>
                     &nbsp;and&nbsp;
-                    <button className="dotted-button" onClick={() => this.changeStatePeriod()}>
-                        {this.props.selectedState.validity_end.getFullYear()}
+                    <button className="dotted-button" onClick={() => this.props.changeStatePeriod()}>
+                        {this.props.selectedState.validity_end.getUTCFullYear()}
                     </button>
                 </h3>
             </section >
         );
     }
 }
-const mapStateToProps = (state: RootState): StateProps => ({
-    selectedState: state.selectedState,
-    year: state.current_date.getUTCFullYear()
-});
+const mapStateToProps = (state: RootState): StateProps => {
+    // console.log(`Setting component state with ${state.current_date.getUTCFullYear()}, from`);
+    // console.log(state.current_date);
+
+    return {
+        selectedState: state.selectedState,
+        year: state.current_date.getUTCFullYear()
+    };
+};
 
 export const StateDisplayConnected = connect(
-    mapStateToProps
+    mapStateToProps,
+    { changeStatePeriod }
 )(StateDisplay);

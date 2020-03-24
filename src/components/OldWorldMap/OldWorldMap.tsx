@@ -1,10 +1,10 @@
 import React, { RefObject } from "react";
 import { config } from 'src/config';
-import { DomManager } from "./DomManager";
+import { DomManager } from "./OldDomManager";
 import { loadStates, loadLands } from "../../api/MapistoApi";
-import { getVisibleSVG, howManyPointsPerPixel } from "./displayUtilities";
+import { getVisibleSVG, howManyPointsPerPixel } from "./OlddisplayUtilities";
 import { MapistoState } from "src/interfaces/mapistoState";
-import './WorldMap.css';
+import './OldWorldMap.css';
 import { MapistoViewBox } from "src/interfaces/mapistoViewBox";
 
 

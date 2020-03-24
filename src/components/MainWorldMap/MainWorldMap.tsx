@@ -81,7 +81,15 @@ class MainWorldMap extends React.Component<Props, {}>{
             () => this.adaptMapToPrecision()
         );
 
-        this.domManager.getTerritorySelectionListener().subscribe(territory => this.props.selectTerritory(territory));
+        this.domManager.getTerritorySelectionListener().subscribe(territory => {
+            // if (territory) {
+            //     console.log(territory);
+            //     console.log(this.props.mpStates.find(
+            //         m => m.territories.findIndex(terr => terr.territory_id === territory.territory_id) !== -1)
+            //     );
+            // }
+            this.props.selectTerritory(territory);
+        });
 
     }
 
@@ -121,7 +129,7 @@ class MainWorldMap extends React.Component<Props, {}>{
      * @param kmPerPX the number of kilometer per pixel on the map
      */
     private getClosestPrecision(kmPerPX: number): number {
-        return config.precision_levels.reduce( (prev, curr) => {
+        return config.precision_levels.reduce((prev, curr) => {
             return (Math.abs(curr - kmPerPX) < Math.abs(prev - kmPerPX) ? curr : prev);
         });
     }
@@ -193,7 +201,7 @@ class MainWorldMap extends React.Component<Props, {}>{
  * @param state The redux state
  */
 const mapStateToProps = (state: RootState): StateProps => ({
-    year: state.current_date.getFullYear(),
+    year: state.current_date.getUTCFullYear(),
     selectedTerritory: state.selectedTerritory,
     mpStates: state.mpStates,
     lands: state.lands
@@ -201,4 +209,4 @@ const mapStateToProps = (state: RootState): StateProps => ({
 
 export const WorldMapConnected = connect(mapStateToProps, {
     updateLoadingLandStatus, updateLoadingTerritoryStatus, selectTerritory, updateMpStates, updateLands
- })(MainWorldMap);
+})(MainWorldMap);

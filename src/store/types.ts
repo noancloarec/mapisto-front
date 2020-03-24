@@ -13,6 +13,12 @@ export const FINISH_EDITION = 'FINISH_EDITION';
 export const UPDATE_MPSTATES = 'UPDATE_MPSTATES';
 export const UPDATE_LANDS = 'UPDATE_LANDS';
 export const SHOW_SELECTED_STATE = 'SHOW_SELECTED_STATE';
+export const CHANGE_STATE_PERIOD = 'CHANGE_STATE_PERIOD';
+export const START_TERRITORY_EXTEND = 'START_TERRITORY_EXTEND';
+export const EDIT_ASK_FOR_CAPITAL = 'EDIT_ASK_FOR_CAPITAL';
+interface ChangeStatePeriodAction {
+    type: typeof CHANGE_STATE_PERIOD;
+}
 interface UpdateTimeAction {
     type: typeof UPDATE_TIME;
     payload: Date;
@@ -60,6 +66,15 @@ interface FinishEdition {
     type: typeof FINISH_EDITION;
     payload: MapistoState;
 }
+
+interface StartTerritoryExtend {
+    type: typeof START_TERRITORY_EXTEND;
+    payload: DOMPoint;
+}
+
+interface EditAskForCapitalAction {
+    type: typeof EDIT_ASK_FOR_CAPITAL;
+}
 export type ActionTypes =
     UpdateTimeAction |
     AskForEditionTypeAction |
@@ -71,4 +86,7 @@ export type ActionTypes =
     FinishEdition |
     UpdateMPStatesAction |
     UpdateLandsAction |
-    ShowSelectedStateAction;
+    ShowSelectedStateAction |
+    ChangeStatePeriodAction |
+    StartTerritoryExtend |
+    EditAskForCapitalAction;
