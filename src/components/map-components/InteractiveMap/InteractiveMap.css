@@ -1,0 +1,12 @@
+.interactive-map{
+    height: 100%;
+}
+
+.state:hover path:not(.selected){
+    opacity: .8;
+    transition: opacity ease-in .1s;
+}
+
+path.selected{
+    opacity: .7;
+}

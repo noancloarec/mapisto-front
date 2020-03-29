@@ -1,0 +1,12 @@
+.time-navigable-map{
+    height: 100%;
+    position: relative;
+}
+.time-navigable-map > .time-select{
+    position: absolute;
+    left:50%;
+}
+.time-navigable-map > .time-select > * {
+    position: relative;
+    left : -50%;
+}

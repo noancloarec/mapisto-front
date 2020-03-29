@@ -1,5 +1,5 @@
 import { MapistoTerritoryRaw } from "./MapistoTerritoryRaw";
-import { MapistoViewBox } from "src/interfaces/mapistoViewBox";
+import { MapistoViewBox } from "src/entities/mapistoViewBox";
 /**
  * A Mapisto state representation, as returned by the API
  */

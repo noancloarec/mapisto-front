@@ -1,7 +1,7 @@
 import React from 'react';
 import './App.css';
-import { MapistoMap } from './components/map-components/WorldMap/WorldMap';
-import { MapistoState } from './interfaces/mapistoState';
+import { MapistoMap } from './components/map-components/MapistoMap/MapistoMap';
+import { MapistoState } from './entities/mapistoState';
 import { ViewBoxLike } from '@svgdotjs/svg.js';
 const App: React.FC = () => {
   return (

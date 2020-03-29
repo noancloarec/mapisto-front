@@ -1,6 +1,6 @@
 let apiPath;
 if (process.env.NODE_ENV === 'development') {
-    apiPath = 'http://localhost:8080';
+    apiPath = 'http://192.168.1.164:8080';
 } else {
     apiPath = 'https://api.mapisto.org';
 }
