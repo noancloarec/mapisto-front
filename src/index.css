@@ -51,3 +51,10 @@ button.dotted-button{
   cursor: pointer;
   text-decoration: underline dotted;
 }
+
+.form-warning{
+  margin-top: .25rem;
+    font-size: 80%;
+    color: #dc3545;
+
+}

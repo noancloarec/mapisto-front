@@ -37,13 +37,13 @@ export class FocusedSVGManager extends SVGManager {
         console.log('end init map');
     }
 
-    focusViewbox(vb: ViewBoxLike, minAspectRatio: number): ViewBoxLike {
+    focusViewbox(vb: ViewBoxLike, minAspectRatio: number) {
         this.focusedViewbox = this.enlargeViewBox(this.fitViewboxToAspectRatio(vb, minAspectRatio));
         if (this.drawing) {
             this.drawing.viewbox(this.focusedViewbox);
         }
+        this.refreshVisibleSVG()
         console.log('end focus viewbox')
-        return this.focusedViewbox
     }
 
 

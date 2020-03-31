@@ -11,6 +11,7 @@ import { RenameStateConnected } from "../RenameTerritoryOrState/RenameState";
 import { MapistoState } from "src/entities/mapistoState";
 import { MapistoTerritory } from "src/entities/mapistoTerritory";
 import { ExtendStatePeriodConnected } from "../ExtendStatePeriod/ExtendStatePeriod";
+import { ExtendTerritoryPeriodConnected } from "../ExtendTerritoryPeriod/ExtendTerritory";
 
 interface StateProps {
     editionType: EditionType;
@@ -65,6 +66,8 @@ class EditionPopup extends React.Component<Props, {}>{
                 return <RenameStateConnected />;
             case EditionType.ExtendStatePeriod:
                 return <ExtendStatePeriodConnected />;
+            case EditionType.ExtendTerritoryPeriod:
+                return <ExtendTerritoryPeriodConnected />;
             default:
                 return <p>Rien trouve</p>;
         }

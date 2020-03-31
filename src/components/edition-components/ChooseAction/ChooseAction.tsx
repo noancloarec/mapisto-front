@@ -12,8 +12,8 @@ interface Props {
 export class ChooseAction extends React.Component<Props, {}>{
 
     renderChoices() {
-        return this.props.choices.map(choice =>
-            <button className="mb-1 btn btn-outline-primary" onClick={choice.action}>
+        return this.props.choices.map((choice, index) =>
+            <button className="mb-1 btn btn-outline-primary" key={index} onClick={choice.action}>
                 {choice.text}
             </button>
 

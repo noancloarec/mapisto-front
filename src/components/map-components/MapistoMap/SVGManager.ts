@@ -1,7 +1,7 @@
 import { MapistoState } from 'src/entities/mapistoState';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
 import { Svg, SVG, G, ViewBoxLike, Path } from '@svgdotjs/svg.js';
-import { getVisibleSVG, howManyPointsPerPixel, translateSVGDistanceToPixel, computeTerritoryNameSize } from './display-utilities';
+import { getVisibleSVG, howManyPointsPerPixel, translateSVGDistanceToPixel, computeTerritoryNameSize, svgCoords } from './display-utilities';
 import { Land } from 'src/entities/Land';
 import { Subject } from 'rxjs';
 import { auditTime } from 'rxjs/operators';
@@ -20,6 +20,7 @@ export class SVGManager {
 
     protected seaRect: Rect;
 
+    private controlKeyIsPressed = false;
 
     /** A reference to the parent HTML element, used to compare svg coords with in-window pixel coords
      *  (e.g. to determine which part of the map should be loaded)
@@ -53,6 +54,21 @@ export class SVGManager {
      */
     initMap(svgParent: HTMLDivElement, vb: ViewBoxLike/*, onViewboxChange?: (vb: ViewBoxLike) => void*/) {
         this.parentElement = svgParent;
+        this.parentElement.addEventListener('keydown', e => {
+            if (e.key === 'Control') {
+                this.controlKeyIsPressed = true;
+            }
+        });
+        this.parentElement.addEventListener('keyup', e => {
+            if (e.key === 'Control') {
+                this.controlKeyIsPressed = false;
+            }
+        });
+        this.parentElement.addEventListener('click', e => {
+            if (this.controlKeyIsPressed) {
+                console.log(svgCoords(e.clientX, e.clientY, this.parentElement));
+            }
+        });
         this.parentElement.innerHTML = "";
         this.drawing = SVG();
         this.drawing.addTo(this.parentElement).viewbox(vb.x, vb.y, vb.width, vb.height);
@@ -62,7 +78,7 @@ export class SVGManager {
         this.statesContainer = this.drawing.group().id('states-container');
         this.namesContainer = this.drawing.group().id('names_container');
         this.refreshVisibleSVG();
-        console.log(this.getVisibleSVG())
+        console.log(this.getVisibleSVG());
         // if (onViewboxChange) {
         //     onViewboxChange(getVisibleSVG(this.parentElement));
         // }
@@ -160,7 +176,7 @@ export class SVGManager {
 
     }
 
-    private refreshVisibleSVG() {
+    protected refreshVisibleSVG() {
         this.visibleSVG = getVisibleSVG(this.parentElement);
 
     }

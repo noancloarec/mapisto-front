@@ -61,7 +61,7 @@ export class MapistoAPI {
             })
         ).pipe(
             map(res => res.data),
-            map(lands => lands.map(raw => parseLand(raw, precisionLevel)))
+            map(lands => lands.map(raw => parseLand(raw, precisionLevel))),
         );
     }
 
@@ -78,6 +78,22 @@ export class MapistoAPI {
             map(states => states.map(raw => parseState(raw, null))),
             map(states => states.sort((a, b) => a.compare(b)))
         );
+    }
+
+    static getConcurrentTerritories(
+        territoryId: number, capital: DOMPoint, startYear: number, endYear: number
+    ): Observable<MapistoTerritory[]> {
+        return from(
+            axios.get<MapistoTerritoryRaw[]>(`${config.api_path}/territory/${territoryId}/concurrent_territories`, {
+                params: {
+                    newStart: yearToISOString(startYear),
+                    newEnd: yearToISOString(endYear),
+                    capital_x: capital.x,
+                    capital_y: capital.y
+                }
+            })).pipe(
+                map(res => res.data.map(raw => parseTerritory(raw, null)))
+            );
     }
 
     static getStateFromTerritory(territoryId: number, year: number): Observable<MapistoState> {
@@ -168,7 +184,8 @@ function parseTerritory(raw: MapistoTerritoryRaw, precisionLevel: number): Mapis
         raw.d_path,
         raw.territory_id,
         precisionLevel,
-        raw.bounding_box
+        raw.bounding_box,
+        raw.state_id
     );
     return res;
 

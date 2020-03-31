@@ -40,14 +40,15 @@ export class FocusedOnStateMap extends React.Component<Props, State>{
         MapistoAPI.loadState(this.props.state_id, this.props.year).subscribe(
             state => {
                 this.setState({ viewBoxForState: state.boundingBox }, () => {
-                    const vb = this.svgManager.focusViewbox(state.boundingBox, MIN_ASPECT_RATIO);
-                    this.loadActualMap(vb, getMapPrecision(this.svgManager));
+                    this.svgManager.focusViewbox(state.boundingBox, MIN_ASPECT_RATIO);
+                    this.loadActualMap(getMapPrecision(this.svgManager));
                 });
             }
         );
     }
 
-    loadActualMap(vb: ViewBoxLike, precision: number) {
+    loadActualMap(precision: number) {
+        const vb = this.svgManager.getVisibleSVG();
         MapistoAPI.loadStates(this.props.year, precision, vb).subscribe(
             res => {
                 this.svgManager.setFocusedTerritories(
