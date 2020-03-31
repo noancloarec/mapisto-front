@@ -1,28 +1,23 @@
 import React from 'react';
 import './App.css';
-import { MapistoMap } from './components/map-components/MapistoMap/MapistoMap';
-import { MapistoState } from './entities/mapistoState';
-import { ViewBoxLike } from '@svgdotjs/svg.js';
+import { InteractiveMapConnected } from './components/map-components/InteractiveMap/InteractiveMap';
+import { TerritoryPanelConnected } from './components/edition-components/TerritoryPanel/TerritoryPanel';
+import { EditionPopupConnected } from './components/edition-components/EditionPopup/EditionPopup';
 const App: React.FC = () => {
   return (
     <div>
-      {/* <section id="world-map">
-        <WorldMapConnected />
-      </section>
-      <section id="time-selector-row">
-        <div id="time-selector">
-          <TimeSelectorConnected></TimeSelectorConnected>
-        </div>
-      </section>
-      <section id="loading-section">
-        <LoadingIconConnected></LoadingIconConnected>
+      <section id="main-map">
+        <InteractiveMapConnected></InteractiveMapConnected>
       </section>
       <section id="territory-panel-section">
-        <TerritoryPanelConnected></TerritoryPanelConnected>
+        <TerritoryPanelConnected />
       </section>
       <section id="editing-panel-section">
-        <EditingPanelConnected></EditingPanelConnected>
-      </section> */}
+        <EditionPopupConnected />
+      </section>
+      <section>
+
+      </section>
     </div>
   );
 };

@@ -2,11 +2,11 @@
     height: 100%;
 }
 
-.state:hover path:not(.selected){
+.interactive-map .state:hover path:not(.selected){
     opacity: .8;
     transition: opacity ease-in .1s;
 }
 
-path.selected{
+.interactive-map path.selected{
     opacity: .7;
 }

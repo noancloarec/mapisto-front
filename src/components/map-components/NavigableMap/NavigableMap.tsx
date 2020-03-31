@@ -6,23 +6,25 @@ import { Land } from 'src/entities/Land';
 import { ViewBoxLike } from '@svgdotjs/svg.js';
 import { MapistoAPI } from 'src/api/MapistoApi';
 import { getMapPrecision } from '../MapistoMap/display-utilities';
-import { Subject } from 'rxjs';
-import { auditTime, debounceTime } from 'rxjs/operators';
+import { Subject, Subscription } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
 
 interface Props {
     year: number;
     svgManager: NavigableSVGManager;
+    onStatesLoaded: () => void;
 }
 interface State {
     mpStates: MapistoState[];
     lands: Land[];
 }
 export class NavigableMap extends React.Component<Props, State>{
-    scheduleRefresh$: Subject<ViewBoxLike>;
+    scheduleRefresh$: Subject<void>;
     public static defaultProps = {
         svgManager: new NavigableSVGManager()
     };
+    private mapSubscription: Subscription;
 
     constructor(props: Props) {
         super(props);
@@ -33,9 +35,9 @@ export class NavigableMap extends React.Component<Props, State>{
         this.scheduleRefresh$ = new Subject();
         this.scheduleRefresh$.pipe(
             debounceTime(300)
-        ).subscribe(vb => this.loadMap(vb));
+        ).subscribe(() => this.loadMap());
 
-        this.props.svgManager.attachOnZoomOrPan((vb: ViewBoxLike) => this.scheduleRefresh$.next(vb));
+        this.props.svgManager.attachOnZoomOrPan(() => this.scheduleRefresh$.next());
     }
 
     shouldComponentUpdate(nextProps: Props, nextState: State) {
@@ -64,7 +66,8 @@ export class NavigableMap extends React.Component<Props, State>{
 
 
 
-    private loadMap(vb: ViewBoxLike) {
+    private loadMap() {
+        const vb = this.props.svgManager.getVisibleSVG();
         const precision = getMapPrecision(this.props.svgManager);
         this.loadStates(this.props.year, vb, precision);
         this.loadLands(vb, precision);
@@ -73,12 +76,14 @@ export class NavigableMap extends React.Component<Props, State>{
 
 
     private loadStates(year: number, vb: ViewBoxLike, precision: number) {
-        MapistoAPI.loadStates(year,
-            precision,
-            vb).subscribe(
+        if (this.mapSubscription) {
+            this.mapSubscription.unsubscribe();
+        }
+        this.mapSubscription = MapistoAPI.loadStates(year, precision, vb)
+            .subscribe(
                 res => {
                     const newStates = this.reduceStates(this.state.mpStates, res);
-                    this.setState({ mpStates: newStates });
+                    this.setState({ mpStates: newStates }, () => this.props.onStatesLoaded());
                 }
             );
     }

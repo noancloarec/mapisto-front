@@ -29,29 +29,28 @@ export function getVisibleSVG(svgContainer: HTMLDivElement): ViewBoxLike {
  * @param y The y coordinate (in pixel, within the window) of the point
  */
 export function svgCoords(x: number, y: number, svgContainer: HTMLDivElement): DOMPoint {
-    const ancestors = getAncestors(svgContainer);
 
-    const matrixes = ancestors.map(e => new DOMMatrix(window.getComputedStyle(e).transform));
-    let pt = new DOMPoint(x, y);
-    for (const matrix of matrixes) {
-        pt = pt.matrixTransform(matrix.inverse());
-    }
+    const pt = new DOMPoint(x, y);
+    // const ancestors = getAncestors(svgContainer);
+    // const matrixes = ancestors.map(e => new DOMMatrix(window.getComputedStyle(e).transform));
+    // for (const matrix of matrixes) {
+    //     pt = pt.matrixTransform(matrix.inverse());
+    // }
     return pt.matrixTransform(svgContainer.querySelector('svg').getScreenCTM().inverse());
 }
 
-function getAncestors(node: HTMLElement): Element[] {
-    if (!node.parentElement) {
-        return [];
-    } else {
-        return [node.parentElement, ...getAncestors(node.parentElement)];
-    }
-}
+// function getAncestors(node: HTMLElement): Element[] {
+//     if (!node.parentElement) {
+//         return [];
+//     } else {
+//         return [node.parentElement, ...getAncestors(node.parentElement)];
+//     }
+// }
 
 /**
  * Tells how many points lie in 1 pixel on the map
  */
-export function howManyPointsPerPixel(svgContainer: HTMLDivElement): number {
-    const visibleSVG = getVisibleSVG(svgContainer);
+export function howManyPointsPerPixel(svgContainer: HTMLDivElement, visibleSVG: ViewBoxLike): number {
     const pxWidth = svgContainer.clientWidth;
     return visibleSVG.width / pxWidth;
 }

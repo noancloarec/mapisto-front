@@ -1,8 +1,9 @@
 import { SVGManager } from "../MapistoMap/SVGManager";
-import { G, ViewBoxLike } from '@svgdotjs/svg.js';
+import { G, ViewBoxLike, Rect } from '@svgdotjs/svg.js';
 import { MapistoState } from "src/entities/mapistoState";
 import { MapistoTerritory } from "src/entities/mapistoTerritory";
 import { auditTime } from "rxjs/operators";
+import { getOverlayColor } from "src/utils/color_harmony";
 
 
 export class FocusedSVGManager extends SVGManager {
@@ -10,7 +11,7 @@ export class FocusedSVGManager extends SVGManager {
     private focusedTerritoriesId: number[] = [];
     private focusedNamesContainer: G;
     private focusedViewbox: ViewBoxLike;
-
+    private overlayRect: Rect;
     constructor() {
         super();
         this.scheduleNameRefresh$.pipe(
@@ -21,17 +22,19 @@ export class FocusedSVGManager extends SVGManager {
     }
 
     setFocusedTerritories(territories: MapistoTerritory[]) {
+        this.focusedTerritoriesContainer.clear();
         this.focusedTerritoriesId = territories.map(t => t.territoryId);
     }
 
     initMap(svgParent: HTMLDivElement, vb: ViewBoxLike) {
         super.initMap(svgParent, vb);
-        this.drawing.rect(1e5, 1e5).move(-5e4, -5e4).id('black-overlay');
+        this.overlayRect = this.drawing.rect(1e5, 1e5).move(-5e4, -5e4).id('overlay');
         this.focusedTerritoriesContainer = this.drawing.group().id('focused-territories');
         this.focusedNamesContainer = this.drawing.group().id('focused-names-container');
         if (this.focusedViewbox) {
             this.drawing.viewbox(this.focusedViewbox);
         }
+        console.log('end init map');
     }
 
     focusViewbox(vb: ViewBoxLike, minAspectRatio: number): ViewBoxLike {
@@ -39,7 +42,8 @@ export class FocusedSVGManager extends SVGManager {
         if (this.drawing) {
             this.drawing.viewbox(this.focusedViewbox);
         }
-        return this.focusedViewbox;
+        console.log('end focus viewbox')
+        return this.focusedViewbox
     }
 
 
@@ -54,6 +58,7 @@ export class FocusedSVGManager extends SVGManager {
             for (const territory of territoriesToFocusOn) {
                 this.addTerritoryToStateGroup(stateGroup, territory);
             }
+            this.overlayRect.fill(getOverlayColor(st.color));
         }
     }
 

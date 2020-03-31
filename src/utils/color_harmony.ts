@@ -3,6 +3,12 @@ export function getLabelColor(backgroundColor: string) {
     return luminosity > 80 ? 'black' : 'white';
 }
 
+export function getOverlayColor(backgroundColor: string) {
+    const luminosity = getLuminosity(backgroundColor);
+    return luminosity > 80 ? 'black' : 'white';
+
+}
+
 /**
  * Compute the L (luminosity) parameter of the LaB representation of an RGB pixel
  * Used to determine if the name f the country should be written white

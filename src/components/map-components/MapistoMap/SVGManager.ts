@@ -1,6 +1,6 @@
 import { MapistoState } from 'src/entities/mapistoState';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
-import { Svg, SVG, G, ViewBoxLike, Path, Box } from '@svgdotjs/svg.js';
+import { Svg, SVG, G, ViewBoxLike, Path } from '@svgdotjs/svg.js';
 import { getVisibleSVG, howManyPointsPerPixel, translateSVGDistanceToPixel, computeTerritoryNameSize } from './display-utilities';
 import { Land } from 'src/entities/Land';
 import { Subject } from 'rxjs';
@@ -28,11 +28,19 @@ export class SVGManager {
 
     protected scheduleNameRefresh$: Subject<void>;
 
+    /**
+     * As getVisibleSVG makes browser rendering synchronous, its result is stored here.
+     */
+    private visibleSVG: ViewBoxLike;
+
     constructor() {
         this.scheduleNameRefresh$ = new Subject<void>();
         this.scheduleNameRefresh$.pipe(
             auditTime(300)
-        ).subscribe(() => this.refreshNamesDisplay());
+        ).subscribe(() => {
+            this.refreshVisibleSVG();
+            this.refreshNamesDisplay();
+        });
     }
 
     /**
@@ -53,6 +61,8 @@ export class SVGManager {
         this.landContainer = this.drawing.group().id('land-mass');
         this.statesContainer = this.drawing.group().id('states-container');
         this.namesContainer = this.drawing.group().id('names_container');
+        this.refreshVisibleSVG();
+        console.log(this.getVisibleSVG())
         // if (onViewboxChange) {
         //     onViewboxChange(getVisibleSVG(this.parentElement));
         // }
@@ -79,11 +89,11 @@ export class SVGManager {
 
 
     pointsPerPixel(): number {
-        return howManyPointsPerPixel(this.parentElement);
+        return howManyPointsPerPixel(this.parentElement, this.getVisibleSVG());
     }
 
     getVisibleSVG(): ViewBoxLike {
-        return getVisibleSVG(this.parentElement);
+        return this.visibleSVG;
     }
 
 
@@ -134,21 +144,29 @@ export class SVGManager {
     }
 
     private displayName(territoryPath: Path, name: string, color: string, container = this.namesContainer) {
-        container.text((add) => {
-            add.tspan(name);
-        }).attr({
-            x: territoryPath.bbox().x + territoryPath.bbox().width / 2,
-            y: territoryPath.bbox().y + territoryPath.bbox().height / 2
-        }).font({
-            anchor: 'middle',
-            size: computeTerritoryNameSize(territoryPath.bbox(), getVisibleSVG(this.parentElement).width)
-        }).fill(color);
+        const computedSize = computeTerritoryNameSize(territoryPath.bbox(), this.getVisibleSVG().width);
+        const nameParts = name.split(' ');
+        for (let i = 0; i < nameParts.length; i++) {
+            container.text((add) => {
+                add.tspan(nameParts[i]);
+            }).attr({
+                x: territoryPath.bbox().x + territoryPath.bbox().width / 2,
+                y: territoryPath.bbox().y + territoryPath.bbox().height / 2 + i * computedSize
+            }).font({
+                anchor: 'middle',
+                size: computedSize
+            }).fill(color);
+        }
+
+    }
+
+    private refreshVisibleSVG() {
+        this.visibleSVG = getVisibleSVG(this.parentElement);
 
     }
 
     private isVisible(polygon: Path): boolean {
-        const visible = getVisibleSVG(this.parentElement);
         const bbox = polygon.bbox();
-        return intersect(visible, bbox);
+        return intersect(this.getVisibleSVG(), bbox);
     }
 }

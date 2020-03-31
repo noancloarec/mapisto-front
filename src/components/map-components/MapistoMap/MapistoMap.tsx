@@ -42,7 +42,6 @@ export class MapistoMap extends React.Component<Props, {}>{
         delete propsWithoutMapData.lands;
         // console.log(this.props.onViewBoxChange)
         // console.log(nextProps.onViewBoxChange)
-        console.log({ nextProps, props: this.props });
         for (const [key, value] of Object.entries(nextPropsWithoutMapData)) {
             for (const [keyb, valueb] of Object.entries(nextPropsWithoutMapData)) {
                 if (key === keyb && value !== valueb) {
@@ -54,9 +53,6 @@ export class MapistoMap extends React.Component<Props, {}>{
 
         if (nextProps.mpStates !== this.props.mpStates) {
             this.drawTerritories(nextProps.mpStates);
-        } else {
-            console.log("no difference in territories");
-
         }
         if (nextProps.lands !== this.props.lands) {
             this.drawLand(nextProps.lands);

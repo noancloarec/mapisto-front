@@ -23,8 +23,6 @@ export class FocusedOnTerritoryMap extends React.Component<Props, State>{
     constructor(props: Props) {
         super(props);
         this.svgManager = new FocusedSVGManager();
-        this.svgManager.setFocusedTerritories([this.props.territory]);
-        this.computedViewbox = this.svgManager.focusViewbox(this.props.territory.boundingBox, 4 / 3);
 
         this.state = {
             mpStates: [],
@@ -33,21 +31,16 @@ export class FocusedOnTerritoryMap extends React.Component<Props, State>{
     }
 
     componentDidMount() {
-        const precision = getMapPrecision(this.svgManager);
-        MapistoAPI.loadStates(
-            this.props.year, precision, this.computedViewbox
-        ).subscribe(
-            states =>
-                this.setState({
-                    mpStates: states
-                })
-        );
-        MapistoAPI.loadLands(precision, this.computedViewbox).subscribe(
-            res => this.setState({
-                lands: res
-            })
-        );
+        this.updateMap(this.props.territory);
     }
+    shouldComponentUpdate(newProps: Props, nextState: State) {
+        console.log(nextState)
+        if (newProps.territory !== this.props.territory) {
+            this.updateMap(newProps.territory);
+        }
+        return true;
+    }
+
     render() {
         return <MapistoMap
             SVGManager={this.svgManager}
@@ -57,5 +50,26 @@ export class FocusedOnTerritoryMap extends React.Component<Props, State>{
         >
 
         </MapistoMap>;
+    }
+
+    private updateMap(territory: MapistoTerritory) {
+        this.svgManager.setFocusedTerritories([territory]);
+        this.computedViewbox = this.svgManager.focusViewbox(territory.boundingBox, 4 / 3);
+        console.log({ computed: this.computedViewbox, visible: this.svgManager.getVisibleSVG() })
+        const precision = getMapPrecision(this.svgManager);
+        MapistoAPI.loadStates(
+            this.props.year, precision, this.svgManager.getVisibleSVG()
+        ).subscribe(
+            states =>
+                this.setState({
+                    mpStates: states
+                })
+        );
+        MapistoAPI.loadLands(precision, this.svgManager.getVisibleSVG()).subscribe(
+            res => this.setState({
+                lands: res
+            })
+        );
+
     }
 }

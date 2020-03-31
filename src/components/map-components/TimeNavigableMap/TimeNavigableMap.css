@@ -5,8 +5,15 @@
 .time-navigable-map > .time-select{
     position: absolute;
     left:50%;
+    top :0;
 }
 .time-navigable-map > .time-select > * {
     position: relative;
     left : -50%;
+}
+
+.time-navigable-map > .loading-box{
+    position: absolute;
+    left: 0;
+    bottom: 0;
 }

@@ -1,24 +1,24 @@
 import { SVGManager } from "../MapistoMap/SVGManager";
 import { ViewBoxLike } from "@svgdotjs/svg.js";
-import { getVisibleSVG } from "../MapistoMap/display-utilities";
 
 export class NavigableSVGManager extends SVGManager {
-    private onZoomOrPan: (vb: ViewBoxLike) => void;
+    private onZoomOrPan: () => void;
 
     initMap(svgParent: HTMLDivElement, vb: ViewBoxLike) {
         super.initMap(svgParent, vb);
-        this.drawing.panZoom({ oneFingerPan: true });
+        this.drawing.panZoom({ oneFingerPan: true, zoomFactor: .1 });
         const triggerChange = () => {
             if (this.onZoomOrPan) {
-                this.onZoomOrPan(getVisibleSVG(this.parentElement));
+                this.onZoomOrPan();
             }
         };
+
         this.drawing.on('zoom', triggerChange);
         this.drawing.on('panning', triggerChange);
         triggerChange();
     }
 
-    attachOnZoomOrPan(fn: (vb: ViewBoxLike) => void) {
+    attachOnZoomOrPan(fn: () => void) {
         this.onZoomOrPan = fn;
     }
 

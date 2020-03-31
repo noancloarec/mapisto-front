@@ -22,7 +22,7 @@ body {
     margin: 0;
 }
 
-section#world-map {
+section#main-map {
     width: 100vw;
     height: 100vh;
     overflow: hidden;

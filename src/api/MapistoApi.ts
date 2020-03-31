@@ -26,7 +26,7 @@ export class MapistoAPI {
                     min_x: bbox.x,
                     max_x: bbox.x + bbox.width,
                     min_y: bbox.y,
-                    max_y: bbox.y + bbox.width
+                    max_y: bbox.y + bbox.height
                 }
             })
         ).pipe(
@@ -56,7 +56,7 @@ export class MapistoAPI {
                     min_x: bbox.x,
                     max_x: bbox.x + bbox.width,
                     min_y: bbox.y,
-                    max_y: bbox.y + bbox.width
+                    max_y: bbox.y + bbox.height
                 }
             })
         ).pipe(
@@ -77,6 +77,18 @@ export class MapistoAPI {
             map(res => res.data),
             map(states => states.map(raw => parseState(raw, null))),
             map(states => states.sort((a, b) => a.compare(b)))
+        );
+    }
+
+    static getStateFromTerritory(territoryId: number, year: number): Observable<MapistoState> {
+        return from(
+            axios.get<MapistoStateRaw>(`${config.api_path}/state/from_territory/${territoryId}`, {
+                params: {
+                    date: yearToISOString(year)
+                }
+            })
+        ).pipe(
+            map(res => parseState(res.data, null))
         );
     }
 
@@ -102,6 +114,23 @@ export class MapistoAPI {
                 map(res => res.data.removed_states.map(r => parseState(r, null)))
             );
 
+    }
+
+    static renameState(modifiedState: MapistoState): Observable<void> {
+        return from(
+            axios.put<string>(
+                `${config.api_path}/state`,
+                { state_id: modifiedState.stateId, name: modifiedState.name },
+                {
+                    params: {
+                        validity_start: modifiedState.validityStart,
+                        validity_end: modifiedState.validityEnd
+                    }
+                })).pipe(
+                    map(_ => {
+                        return;
+                    })
+                );
     }
 }
 

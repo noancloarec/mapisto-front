@@ -12,3 +12,7 @@ path{
     height: 100%;
     width: 100%;
 }
+
+#land-mass>path{
+    pointer-events: none;
+}
