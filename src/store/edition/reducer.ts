@@ -1,9 +1,10 @@
-import { EditionState, EditionActionTypes, SELECT_STATE, SELECT_TERRITORY, CHANGE_EDITION_TYPE } from "./types";
+import { EditionState, EditionActionTypes, SELECT_STATE, SELECT_TERRITORY, CHANGE_EDITION_TYPE, FINISH_SUCCESSFUL_EDITION, FIT_SELECTED_TO_YEAR } from "./types";
 
 const initialState: EditionState = {
     selectedState: null,
     selectedTerritory: null,
-    editionType: null
+    editionType: null,
+    mapVersion: "0"
 };
 
 export function editionReducer(
@@ -25,6 +26,22 @@ export function editionReducer(
             return {
                 ...state,
                 editionType: action.payload
+            };
+        case FINISH_SUCCESSFUL_EDITION:
+            return {
+                ...state,
+                editionType: null,
+                mapVersion: `${parseInt(state.mapVersion, 10) + 1}`
+            };
+        case FIT_SELECTED_TO_YEAR:
+            return {
+                ...state,
+                selectedTerritory:
+                    !state.selectedTerritory || state.selectedTerritory.isOutdated(action.payload) ?
+                        null : state.selectedTerritory,
+                selectedState:
+                    !state.selectedState || state.selectedState.isOutdated(action.payload) ?
+                        null : state.selectedState
             };
         default:
             return state;

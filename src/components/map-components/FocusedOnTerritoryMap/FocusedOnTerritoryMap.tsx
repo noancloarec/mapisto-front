@@ -7,8 +7,10 @@ import { Land } from 'src/entities/Land';
 import { MapistoAPI } from 'src/api/MapistoApi';
 import { getMapPrecision } from '../MapistoMap/display-utilities';
 import '../FocusedOnStateMap/FocusedMap.css';
+import { RootState } from 'src/store';
+import { connect } from 'react-redux';
 
-interface Props {
+interface OwnProps {
     territory: MapistoTerritory;
     year: number;
     svgManager?: FocusedSVGManager;
@@ -17,12 +19,17 @@ interface State {
     mpStates: MapistoState[];
     lands: Land[];
 }
-export class FocusedOnTerritoryMap extends React.Component<Props, State>{
+
+interface StateProps {
+    mapVersion: string;
+}
+
+type Props = OwnProps & StateProps;
+class FocusedOnTerritoryMapUnconnected extends React.Component<Props, State>{
     private svgManager: FocusedSVGManager;
     constructor(props: Props) {
         super(props);
         if (this.props.svgManager) {
-            console.log(this.props.svgManager)
             this.svgManager = this.props.svgManager;
         } else {
             this.svgManager = new FocusedSVGManager();
@@ -38,13 +45,15 @@ export class FocusedOnTerritoryMap extends React.Component<Props, State>{
         this.updateMap(this.props.territory, this.props.year);
     }
     shouldComponentUpdate(newProps: Props, nextState: State) {
-        if (newProps.territory !== this.props.territory || this.props.year !== newProps.year) {
+        if (newProps.territory !== this.props.territory ||
+            this.props.year !== newProps.year ||
+            newProps.mapVersion !== this.props.mapVersion
+        ) {
             this.updateMap(newProps.territory, newProps.year);
             return false;
         }
         return true;
     }
-
 
     render() {
         return <MapistoMap
@@ -77,3 +86,7 @@ export class FocusedOnTerritoryMap extends React.Component<Props, State>{
 
     }
 }
+const mapStateToProps = (state: RootState): StateProps => ({
+    mapVersion: state.edition.mapVersion
+});
+export const FocusedOnTerritoryMap = connect(mapStateToProps)(FocusedOnTerritoryMapUnconnected);

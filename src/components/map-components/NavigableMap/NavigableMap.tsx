@@ -9,17 +9,23 @@ import { getMapPrecision } from '../MapistoMap/display-utilities';
 import { Subject, Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
+import { RootState } from 'src/store';
+import { connect } from 'react-redux';
 
-interface Props {
+interface OwnProps {
     year: number;
     svgManager: NavigableSVGManager;
     onStatesLoaded: () => void;
 }
+interface StateProps {
+    mapVersion: string;
+}
+type Props = StateProps & OwnProps;
 interface State {
     mpStates: MapistoState[];
     lands: Land[];
 }
-export class NavigableMap extends React.Component<Props, State>{
+class NavigableMapUnconnected extends React.Component<Props, State>{
     scheduleRefresh$: Subject<void>;
     public static defaultProps = {
         svgManager: new NavigableSVGManager()
@@ -41,7 +47,7 @@ export class NavigableMap extends React.Component<Props, State>{
     }
 
     shouldComponentUpdate(nextProps: Props, nextState: State) {
-        if (nextProps.year !== this.props.year) {
+        if (nextProps.year !== this.props.year || nextProps.mapVersion !== this.props.mapVersion) {
             this.loadStates(
                 nextProps.year,
                 this.props.svgManager.getVisibleSVG(),
@@ -112,6 +118,9 @@ export class NavigableMap extends React.Component<Props, State>{
             knownState.territories = this.reduceTerritories(
                 knownState.territories, newState ? newState.territories : []
             );
+            if (newState) {
+                knownState.name = newState.name;
+            }
         }
         const unknownYetStates = newStates.filter(
             n => knownStates.findIndex(known => known.stateId === n.stateId) === -1
@@ -125,17 +134,23 @@ export class NavigableMap extends React.Component<Props, State>{
         newTerritories: MapistoTerritory[]): MapistoTerritory[] {
 
         const territoriesMorePrecise = baseTerritories.filter(t => !t.isOutdated(this.props.year));
+        // console.log(`After remove outdated from ${this.props.year} : `, territoriesMorePrecise)
         for (let i = 0; i < territoriesMorePrecise.length; i++) {
             const baseTerritory = territoriesMorePrecise[i];
             const newTerritory = newTerritories.find(t => t.territoryId === baseTerritory.territoryId);
-            if (newTerritory && newTerritory.precisionLevel < baseTerritory.precisionLevel) {
-                territoriesMorePrecise[i] = newTerritory;
+            if (newTerritory) {
+                territoriesMorePrecise[i].validityStart = newTerritory.validityStart;
+                territoriesMorePrecise[i].validityEnd = newTerritory.validityEnd;
+                if (newTerritory.precisionLevel < baseTerritory.precisionLevel) {
+                    territoriesMorePrecise[i] = newTerritory;
+                }
             }
         }
         const unknownYetTerritories = newTerritories.filter(
             t => baseTerritories.findIndex(baseT => baseT.territoryId === t.territoryId) === -1
         );
 
+        console.log('reduced territories :')
         return [...territoriesMorePrecise, ...unknownYetTerritories];
     }
 
@@ -156,3 +171,8 @@ export class NavigableMap extends React.Component<Props, State>{
     }
 
 }
+
+const mapStateToProps = (state: RootState): StateProps => ({
+    mapVersion: state.edition.mapVersion
+});
+export const NavigableMap = connect(mapStateToProps)(NavigableMapUnconnected)

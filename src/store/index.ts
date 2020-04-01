@@ -1,6 +1,5 @@
-import { combineReducers, createStore, compose } from "redux";
+import { combineReducers, createStore, compose, applyMiddleware } from "redux";
 import { editionReducer } from "./edition/reducer";
-import { } from "redux";
 import { mainMapReducer } from "./main-map/reducer";
 
 const rootReducer = combineReducers({

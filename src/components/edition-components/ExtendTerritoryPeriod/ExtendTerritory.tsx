@@ -31,8 +31,10 @@ interface State {
     hiddenTerritories: MapistoTerritory[];
     conflictAtStart: MapistoTerritory;
     conflictAtEnd: MapistoTerritory;
+    extensionButtonDisabled: boolean;
 }
 class ExtendTerritoryPeriod extends React.Component<Props, State>{
+    toBeMerged: MapistoTerritory[];
     constructor(props: Props) {
         super(props);
         this.state = this.getInitialState();
@@ -50,8 +52,8 @@ class ExtendTerritoryPeriod extends React.Component<Props, State>{
             endMapDisplayed: [],
             hiddenTerritories: [],
             conflictAtStart: undefined,
-            conflictAtEnd: undefined
-
+            conflictAtEnd: undefined,
+            extensionButtonDisabled: true
         };
 
     }
@@ -87,11 +89,29 @@ class ExtendTerritoryPeriod extends React.Component<Props, State>{
     renderExtensionWizard() {
         return (
             <div id="territory-extension-wizard">
-                <button className="btn btn-outline-primary" onClick={() => this.setState(this.getInitialState())}>Back</button>
+                <button className="btn btn-outline-primary" onClick={() => this.setState(this.getInitialState())}>
+                    Back
+                </button>
                 {this.renderConflictCheckForm()}
                 {this.renderConflictCheckResults()}
+                <button className="btn btn-primary" disabled={this.state.extensionButtonDisabled}
+                    onClick={() => this.extendTerritory()}
+                >
+                    Extend the territory
+                </button>
             </div>
 
+        );
+    }
+
+    extendTerritory() {
+        MapistoAPI.extendTerritory(
+            this.props.selectedTerritory.territoryId,
+            this.state.restrictedStart,
+            this.state.restrictedEnd,
+            this.toBeMerged.map(t => t.territoryId)
+        ).subscribe(
+            res => this.props.onTerritoryExtended(res, this.toBeMerged)
         );
     }
     renderConflictCheckForm() {
@@ -99,7 +119,7 @@ class ExtendTerritoryPeriod extends React.Component<Props, State>{
             <form onSubmit={event => this.checkConcurrentTerritories(event)}>
                 <div className="form-group">
                     <input className="form-control" type="number" value={this.state.startYear}
-                        onChange={ev => this.setState({ startYear: ev.target.value })}
+                        onChange={ev => this.setState({ startYear: ev.target.value, extensionButtonDisabled: true })}
                     />
                     {parseInt(this.state.startYear, 10) > this.props.selectedTerritory.validityStart.getUTCFullYear() &&
                         (
@@ -118,7 +138,7 @@ class ExtendTerritoryPeriod extends React.Component<Props, State>{
                 </div>
                 <div className="form-group">
                     <input className="form-control" type="number" value={this.state.endYear}
-                        onChange={ev => this.setState({ endYear: ev.target.value })}
+                        onChange={ev => this.setState({ endYear: ev.target.value, extensionButtonDisabled: true })}
                     />
                     {parseInt(this.state.endYear, 10) < this.props.selectedTerritory.validityEnd.getUTCFullYear() &&
                         (
@@ -234,21 +254,23 @@ class ExtendTerritoryPeriod extends React.Component<Props, State>{
             conflictAtStart.validityEnd : dateFromYear(parseInt(this.state.startYear, 10));
         const restrictedEnd = conflictAtEnd ?
             conflictAtEnd.validityStart : dateFromYear(parseInt(this.state.endYear, 10));
-        const toBeMerged = this.getConcurrentAllowedToMerge(concurrents, restrictedStart, restrictedEnd);
-        const displayedMaps = this.computeDisplayedMaps(toBeMerged, restrictedStart, restrictedEnd);
+        this.toBeMerged = this.getConcurrentAllowedToMerge(concurrents, restrictedStart, restrictedEnd);
+
+        const displayedMaps = this.computeDisplayedMaps(this.toBeMerged, restrictedStart, restrictedEnd);
         this.setState({
             restrictedStart: restrictedStart.getUTCFullYear(),
             restrictedEnd: restrictedEnd.getUTCFullYear(),
             startMapDisplayed: displayedMaps.startMaps,
             endMapDisplayed: displayedMaps.endMaps,
-            hiddenTerritories: toBeMerged.filter(
+            hiddenTerritories: this.toBeMerged.filter(
                 terr =>
                     [...displayedMaps.startMaps, ...displayedMaps.endMaps].map(m => m.territory)
                         .indexOf(terr) === -1),
             conflictAtStart,
             conflictAtEnd,
             startYear: restrictedStart.getUTCFullYear() + "",
-            endYear: restrictedEnd.getUTCFullYear() + ""
+            endYear: restrictedEnd.getUTCFullYear() + "",
+            extensionButtonDisabled: false
         });
     }
 

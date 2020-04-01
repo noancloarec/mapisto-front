@@ -5,7 +5,7 @@ import { MapistoState } from "src/entities/mapistoState";
 import { MapistoAPI } from "src/api/MapistoApi";
 import { connect } from "react-redux";
 import { RootState } from "src/store";
-import { changeEditionType } from "src/store/edition/actions";
+import { finishSuccessfullEdition } from "src/store/edition/actions";
 
 interface StateProps {
     mpState: MapistoState;
@@ -87,6 +87,6 @@ const mapStateToProps = (state: RootState): StateProps => ({
 });
 
 const mapDispatchToProps: DispatchProps = {
-    stateRenamed: () => changeEditionType(null)
+    stateRenamed: () => finishSuccessfullEdition()
 };
 export const RenameStateConnected = connect(mapStateToProps, mapDispatchToProps)(RenameState);

@@ -1,14 +1,14 @@
-import { Observable, from } from "rxjs";
+import { Observable, from, of } from "rxjs";
 import { MapistoTerritory } from "src/entities/mapistoTerritory";
 import { MapistoState } from "src/entities/mapistoState";
 import axios from 'axios';
 import { config } from "src/config";
 import { MapistoStateRaw } from "./MapistoStateRaw";
-import { map } from "rxjs/operators";
+import { map, delay } from "rxjs/operators";
 import { MapistoTerritoryRaw } from "./MapistoTerritoryRaw";
 import { Land } from "src/entities/Land";
 import { LandRaw } from "./LandRaw";
-import { yearToISOString } from "src/utils/date_utils";
+import { yearToISOString, dateFromYear } from "src/utils/date_utils";
 import { ViewBoxLike } from "@svgdotjs/svg.js";
 
 export class MapistoAPI {
@@ -129,6 +129,23 @@ export class MapistoAPI {
             .pipe(
                 map(res => res.data.removed_states.map(r => parseState(r, null)))
             );
+    }
+    static extendTerritory(
+        territoryId: number,
+        newStart: number,
+        newEnd: number,
+        territoryIdsToDelete: number[]
+    ): Observable<MapistoTerritory> {
+        return from(
+            axios.put<MapistoTerritoryRaw>(`${config.api_path}/territory/${territoryId}/extend`, territoryIdsToDelete, {
+                params: {
+                    newStart: yearToISOString(newStart),
+                    newEnd: yearToISOString(newEnd)
+                }
+            }))
+            .pipe(
+                map(res => parseTerritory(res.data, null))
+            );
 
     }
 
@@ -147,6 +164,13 @@ export class MapistoAPI {
                         return;
                     })
                 );
+    }
+    static searchState(pattern: string, start?: number, end?: number): Observable<MapistoState[]> {
+        return of([new MapistoState(dateFromYear(496), dateFromYear(2020), 12, "France", null, 'blue', null),
+        new MapistoState(dateFromYear(1707), dateFromYear(2020), 12, "United Kingdom", null, 'red', null)]).pipe(
+            delay(1000),
+            map(e => e.filter(s => s.name.includes(pattern))),
+        );
     }
 }
 

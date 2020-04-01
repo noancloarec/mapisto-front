@@ -5,8 +5,10 @@ import './InteractiveMap.css';
 import { connect } from 'react-redux';
 import { changeYear } from 'src/store/main-map/actions';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
-import { selectTerritory } from 'src/store/edition/actions';
+import { selectTerritory, fitSelectedToYear } from 'src/store/edition/actions';
 import { RootState } from 'src/store';
+import { EditionActionTypes } from 'src/store/edition/types';
+import { MainMapActionTypes } from 'src/store/main-map/types';
 
 interface StateProps {
     initialYear: number;
@@ -29,7 +31,6 @@ export class InteractiveMap extends React.Component<Props, {}>{
                 <TimeNavigableMap
                     svgManager={this.svgManager}
                     yearChange={y => {
-                        console.log('calling for yearchange');
                         this.props.yearChange(y);
                     }
                     }
@@ -41,13 +42,19 @@ export class InteractiveMap extends React.Component<Props, {}>{
     }
 }
 
-const mapDispatchToProps = {
-    yearChange: (newYear: number) => changeYear(newYear),
-    onSelectTerritory: (terr: MapistoTerritory) => selectTerritory(terr)
-};
+
+const mapDispatchToProps = (
+    dispatch: (action: EditionActionTypes | MainMapActionTypes) => void
+): DispatchProps => ({
+    yearChange: year => {
+        dispatch(changeYear(year));
+        dispatch(fitSelectedToYear(year));
+    },
+    onSelectTerritory: territory => dispatch(selectTerritory(territory))
+});
 
 const mapStateToProps = (state: RootState): StateProps => ({
-    initialYear: state.mainMap.currentYear
-})
+    initialYear: state.mainMap.currentYear,
+});
 
 export const InteractiveMapConnected = connect(mapStateToProps, mapDispatchToProps)(InteractiveMap);
