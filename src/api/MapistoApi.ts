@@ -1,14 +1,14 @@
-import { Observable, from, of } from "rxjs";
+import { Observable, from } from "rxjs";
 import { MapistoTerritory } from "src/entities/mapistoTerritory";
 import { MapistoState } from "src/entities/mapistoState";
 import axios from 'axios';
 import { config } from "src/config";
 import { MapistoStateRaw } from "./MapistoStateRaw";
-import { map, delay } from "rxjs/operators";
+import { map } from "rxjs/operators";
 import { MapistoTerritoryRaw } from "./MapistoTerritoryRaw";
 import { Land } from "src/entities/Land";
 import { LandRaw } from "./LandRaw";
-import { yearToISOString, dateFromYear } from "src/utils/date_utils";
+import { yearToISOString } from "src/utils/date_utils";
 import { ViewBoxLike } from "@svgdotjs/svg.js";
 
 export class MapistoAPI {
@@ -130,6 +130,42 @@ export class MapistoAPI {
                 map(res => res.data.removed_states.map(r => parseState(r, null)))
             );
     }
+
+    static changeTerritoryBelonging(territoryId: number, newStateId: number): Observable<number> {
+        return from(
+            axios.put<number>(`${config.api_path}/territory/${territoryId}/reassign_to/${newStateId}`)
+        ).pipe(
+            map(res => res.data)
+        );
+    }
+
+    static mergeStates(toBeAbsorbedId: number, toAbsordID: number): Observable<number> {
+        return from(
+            axios.put<number>(`${config.api_path}/state/${toAbsordID}/absorb/${toBeAbsorbedId}`)
+        ).pipe(
+            map(res => res.data)
+        );
+
+    }
+
+    static createState(toCreate: MapistoState): Observable<number> {
+        return from(
+            axios.post<number>(`${config.api_path}/state`,
+                {
+                    name: toCreate.name,
+                    color: toCreate.color,
+                },
+                {
+                    params: {
+                        validity_start: toCreate.validityStart,
+                        validity_end: toCreate.validityEnd
+                    }
+                }
+            )).pipe(
+                map(res => res.data)
+            );
+    }
+
     static extendTerritory(
         territoryId: number,
         newStart: number,
@@ -149,11 +185,11 @@ export class MapistoAPI {
 
     }
 
-    static renameState(modifiedState: MapistoState): Observable<void> {
+    static putState(modifiedState: MapistoState): Observable<void> {
         return from(
             axios.put<string>(
                 `${config.api_path}/state`,
-                { state_id: modifiedState.stateId, name: modifiedState.name },
+                { state_id: modifiedState.stateId, name: modifiedState.name, color: modifiedState.color },
                 {
                     params: {
                         validity_start: modifiedState.validityStart,
@@ -166,10 +202,16 @@ export class MapistoAPI {
                 );
     }
     static searchState(pattern: string, start?: number, end?: number): Observable<MapistoState[]> {
-        return of([new MapistoState(dateFromYear(496), dateFromYear(2020), 12, "France", null, 'blue', null),
-        new MapistoState(dateFromYear(1707), dateFromYear(2020), 12, "United Kingdom", null, 'red', null)]).pipe(
-            delay(1000),
-            map(e => e.filter(s => s.name.includes(pattern))),
+        return from(
+            axios.get<MapistoStateRaw[]>(`${config.api_path}/state_search`, {
+                params: {
+                    pattern,
+                    start: start ? yearToISOString(start) : '',
+                    end: end ? yearToISOString(end) : ''
+                }
+            })
+        ).pipe(
+            map(res => res.data.map(s => parseState(s, null)))
         );
     }
 }

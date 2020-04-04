@@ -17,6 +17,7 @@ interface DispatchProps {
     onSelectedStateLoaded: (state: MapistoState) => void;
     // startRenaming: (state: MapistoState) => void;
     startTerritoryEdition: () => void;
+    startStateNaming: () => void;
     showSelectedState: () => void;
     // askForCapital: () => void;
 }
@@ -55,13 +56,25 @@ class TerritoryPanel extends React.Component<Props, State> {
 
 
     renderActionButtons() {
+        const reportErrorButton = (
+            <button className="btn btn-outline-danger"
+                onClick={
+                    () => this.props.startTerritoryEdition()
+                }
+            >Report an error</button>
+        );
+        const fillNameButton = (
+            <button className="btn btn-success"
+                onClick={
+                    () => this.props.startStateNaming()
+                }
+            >
+                Fill in the name
+            </button>
+        );
         return (
             <div className="action-buttons d-flex justify-content-center">
-                <button className="btn btn-outline-danger"
-                    onClick={
-                        () => this.props.startTerritoryEdition()
-                    }
-                >Report an error</button>
+                {this.state.selectedState.name ? reportErrorButton : fillNameButton}
             </div>
         );
     }
@@ -71,11 +84,21 @@ class TerritoryPanel extends React.Component<Props, State> {
         return (
             <div className="d-flex flex-column justify-content-between">
                 <div>
-                    <h1>A part of&nbsp;
+                    {
+                        stateDetails.name ? (
+
+                            <h1>A part of&nbsp;
                         <button className="dotted-button" onClick={this.props.showSelectedState}>
-                            {stateDetails.name ? stateDetails.name : "Unknown state"}
-                        </button>
-                    </h1>
+                                    {stateDetails.name}
+                                </button>
+                            </h1>
+                        ) :
+                            (
+                                <h1>
+                                    We could not figure out what this is yet
+                                </h1>
+                            )
+                    }
                     <div className="thumbnail-in-panel">
                         <FocusedOnTerritoryMap
                             year={this.props.year}
@@ -126,7 +149,8 @@ const mapStateToProps = (state: RootState): StateProps => ({
 const mapDispatchToProps: DispatchProps = {
     onSelectedStateLoaded: (st: MapistoState) => selectState(st),
     startTerritoryEdition: () => changeEditionType(EditionType.AskRenameOrExtendTerritory),
-    showSelectedState: () => changeEditionType(EditionType.DisplayState)
+    showSelectedState: () => changeEditionType(EditionType.DisplayState),
+    startStateNaming: () => changeEditionType(EditionType.RenameState)
 
 };
 export const TerritoryPanelConnected = connect(

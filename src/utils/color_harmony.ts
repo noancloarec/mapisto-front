@@ -1,11 +1,11 @@
 export function getLabelColor(backgroundColor: string) {
     const luminosity = getLuminosity(backgroundColor);
-    return luminosity > 80 ? 'black' : 'white';
+    return luminosity > 90 ? 'black' : 'white';
 }
 
 export function getOverlayColor(backgroundColor: string) {
     const luminosity = getLuminosity(backgroundColor);
-    return luminosity > 80 ? 'black' : 'white';
+    return luminosity > 90 ? 'black' : 'white';
 
 }
 

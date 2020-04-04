@@ -62,7 +62,9 @@ export class TimeNavigableMap extends React.Component<Props, State>{
             yearOnSelector: newYear,
             loading: true
         });
-        this.timeChangeSubject$.next(newYear);
+        if (!isNaN(newYear)) {
+            this.timeChangeSubject$.next(newYear);
+        }
     }
 
     render() {

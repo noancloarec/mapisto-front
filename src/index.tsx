@@ -4,14 +4,23 @@ import './index.css';
 import { store } from 'src/store/index';
 import { Provider } from "react-redux";
 import App from "./App";
-import { StateAutoComplete } from "./components/form-components/StateAutoComplete";
 render(
-    // <Provider store={store}>
-    //     <App />
-    // </Provider>,
-    <div className="col-4 mt-2 offset-4">
-        <StateAutoComplete mpStateChange={(res) => console.log(res)} allowStateCreation={true} startYear={1912} endYear={1999} />
-        <div>Coucoucou</div>
-    </div>,
+    // <div className="offset-3 mt-4 col-6">
+    //     <StateAutoComplete
+    //         // initialState={new MapistoState(
+    //         //     dateFromYear(1912), dateFromYear(1960), undefined,
+    //         //     "United States", [], '#000000', undefined
+    //         // )}
+    //         autoFocus
+    //         onMpStateChange={s => console.log(s)}
+    //         // allowStateCreation
+    //         // maxStartYear={1912}
+    //         // minEndYear={1914}
+    //         allowStateEdition
+    //     ></StateAutoComplete >
+    // </div>,
+    <Provider store={store}>
+        <App />
+    </Provider>,
     document.getElementById("root")
 );

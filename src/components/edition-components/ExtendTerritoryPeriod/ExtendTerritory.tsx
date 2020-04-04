@@ -2,7 +2,7 @@ import React, { FormEvent } from 'react';
 import { MapistoState } from 'src/entities/mapistoState';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
 import { RootState } from 'src/store';
-import { changeEditionType } from 'src/store/edition/actions';
+import { finishSuccessfullEdition } from 'src/store/edition/actions';
 import { connect } from 'react-redux';
 import { SelectCapitalMap } from 'src/components/map-components/SelectCapitalMap/SelectCapitalMap';
 import './ExtendTerritoryPeriod.css';
@@ -44,8 +44,8 @@ class ExtendTerritoryPeriod extends React.Component<Props, State>{
         return {
             capital: undefined,
             step: 1,
-            startYear: "" + this.props.selectedTerritory.validityStart.getUTCFullYear(),
-            endYear: "" + this.props.selectedTerritory.validityEnd.getUTCFullYear(),
+            startYear: "" + this.props.selectedTerritory.startYear,
+            endYear: "" + this.props.selectedTerritory.endYear,
             restrictedStart: undefined,
             restrictedEnd: undefined,
             startMapDisplayed: [],
@@ -121,18 +121,18 @@ class ExtendTerritoryPeriod extends React.Component<Props, State>{
                     <input className="form-control" type="number" value={this.state.startYear}
                         onChange={ev => this.setState({ startYear: ev.target.value, extensionButtonDisabled: true })}
                     />
-                    {parseInt(this.state.startYear, 10) > this.props.selectedTerritory.validityStart.getUTCFullYear() &&
+                    {parseInt(this.state.startYear, 10) > this.props.selectedTerritory.startYear &&
                         (
                             <div className="form-warning">
-                                Cannot be higher than {this.props.selectedTerritory.validityStart.getUTCFullYear()}
+                                Cannot be higher than {this.props.selectedTerritory.startYear}
                             </div>
                         )}
-                    {parseInt(this.state.startYear, 10) < this.props.selectedState.validityStart.getUTCFullYear() &&
+                    {parseInt(this.state.startYear, 10) < this.props.selectedState.startYear &&
                         (
                             <div className="form-warning">
                                 Cannot extend to {this.state.startYear} :
                                 {this.props.selectedState.name} was created in &nbsp;
-                                {this.props.selectedState.validityStart.getUTCFullYear()}
+                                {this.props.selectedState.startYear}
                             </div>
                         )}
                 </div>
@@ -140,18 +140,18 @@ class ExtendTerritoryPeriod extends React.Component<Props, State>{
                     <input className="form-control" type="number" value={this.state.endYear}
                         onChange={ev => this.setState({ endYear: ev.target.value, extensionButtonDisabled: true })}
                     />
-                    {parseInt(this.state.endYear, 10) < this.props.selectedTerritory.validityEnd.getUTCFullYear() &&
+                    {parseInt(this.state.endYear, 10) < this.props.selectedTerritory.endYear &&
                         (
                             <div className="form-warning">
-                                Cannot be lower than {this.props.selectedTerritory.validityEnd.getUTCFullYear()}
+                                Cannot be lower than {this.props.selectedTerritory.endYear}
                             </div>
                         )}
-                    {parseInt(this.state.endYear, 10) > this.props.selectedState.validityEnd.getUTCFullYear() &&
+                    {parseInt(this.state.endYear, 10) > this.props.selectedState.endYear &&
                         (
                             <div className="form-warning">
                                 Cannot extend to {this.state.endYear} :
                                 {this.props.selectedState.name} existed until &nbsp;
-                                {this.props.selectedState.validityEnd.getUTCFullYear()}
+                                {this.props.selectedState.endYear}
                             </div>
                         )}
                 </div>
@@ -231,10 +231,10 @@ class ExtendTerritoryPeriod extends React.Component<Props, State>{
 
     private canCheckForConflit(): boolean {
         return (
-            parseInt(this.state.startYear, 10) <= this.props.selectedTerritory.validityStart.getUTCFullYear()
-            && parseInt(this.state.startYear, 10) >= this.props.selectedState.validityStart.getUTCFullYear()
-            && parseInt(this.state.endYear, 10) >= this.props.selectedTerritory.validityEnd.getUTCFullYear()
-            && parseInt(this.state.endYear, 10) <= this.props.selectedState.validityEnd.getUTCFullYear()
+            parseInt(this.state.startYear, 10) <= this.props.selectedTerritory.startYear
+            && parseInt(this.state.startYear, 10) >= this.props.selectedState.startYear
+            && parseInt(this.state.endYear, 10) >= this.props.selectedTerritory.endYear
+            && parseInt(this.state.endYear, 10) <= this.props.selectedState.endYear
         );
     }
 
@@ -295,7 +295,7 @@ class ExtendTerritoryPeriod extends React.Component<Props, State>{
     private computeDisplayedMaps(concurrents: MapistoTerritory[], restrictedStart: Date, restrictedEnd: Date) {
         let startMaps: DisplayedMap[] = [];
         // If the user changed the start date
-        if (parseInt(this.state.startYear, 10) !== this.props.selectedTerritory.validityStart.getUTCFullYear()) {
+        if (parseInt(this.state.startYear, 10) !== this.props.selectedTerritory.startYear) {
             startMaps = [{
                 year: restrictedStart.getUTCFullYear() - 1, territory: this.props.selectedTerritory
             },
@@ -306,12 +306,12 @@ class ExtendTerritoryPeriod extends React.Component<Props, State>{
 
                 if (concurrentStartIsRestrictedStart) {
                     startMaps.push({
-                        year: concurrents[0].validityStart.getUTCFullYear(),
+                        year: concurrents[0].startYear,
                         territory: concurrents[0]
                     });
                     if (concurrents.length > 1) {
                         startMaps.push({
-                            year: concurrents[1].validityStart.getUTCFullYear(),
+                            year: concurrents[1].startYear,
                             territory: concurrents[1]
                         });
                     }
@@ -321,7 +321,7 @@ class ExtendTerritoryPeriod extends React.Component<Props, State>{
                         territory: this.props.selectedTerritory
                     });
                     startMaps.push({
-                        year: concurrents[0].validityStart.getUTCFullYear(),
+                        year: concurrents[0].startYear,
                         territory: concurrents[0]
                     });
 
@@ -336,7 +336,7 @@ class ExtendTerritoryPeriod extends React.Component<Props, State>{
 
         let endMaps: DisplayedMap[] = [];
         // If the user changed the end date
-        if (parseInt(this.state.endYear, 10) !== this.props.selectedTerritory.validityEnd.getUTCFullYear()) {
+        if (parseInt(this.state.endYear, 10) !== this.props.selectedTerritory.endYear) {
             endMaps = [{
                 year: restrictedEnd.getUTCFullYear(),
                 territory: this.props.selectedTerritory
@@ -351,7 +351,7 @@ class ExtendTerritoryPeriod extends React.Component<Props, State>{
                     restrictedEnd.getTime() !== concurrents[concurrents.length - 1].validityEnd.getTime();
                 if (shouldDisplayLastConcurrent) {
                     endMaps.push({
-                        year: concurrents[concurrents.length - 1].validityEnd.getUTCFullYear() - 1,
+                        year: concurrents[concurrents.length - 1].endYear - 1,
                         territory: concurrents[concurrents.length - 1]
                     });
 
@@ -377,6 +377,6 @@ const mapStateToProps = (state: RootState): StateProps => ({
 });
 
 const mapDispatchToProps: DispatchProps = {
-    onTerritoryExtended: () => changeEditionType(null)
+    onTerritoryExtended: () => finishSuccessfullEdition()
 };
 export const ExtendTerritoryPeriodConnected = connect(mapStateToProps, mapDispatchToProps)(ExtendTerritoryPeriod);

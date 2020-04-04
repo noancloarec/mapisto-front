@@ -30,6 +30,8 @@ export function editionReducer(
         case FINISH_SUCCESSFUL_EDITION:
             return {
                 ...state,
+                selectedState: null,
+                selectedTerritory: null,
                 editionType: null,
                 mapVersion: `${parseInt(state.mapVersion, 10) + 1}`
             };

@@ -42,35 +42,45 @@ class RenameTerritoryOrState extends React.Component<Props, {}>{
                 <div className="row mt-2">
                     <div className="col-6">
                         <div className="d-flex flex-column justify-content-center">
-
-                            <button className="btn btn-primary m-auto">
-                                Rename this territory
-                        </button>
+                            <h4 className="text-center">The territory name is wrong</h4>
                             <small className="form-text text-muted text-center">
                                 It was not part of {this.props.selectedState.name} between &nbsp;
-                            {this.props.selectedTerritory.validityStart.getUTCFullYear()}
+                            {this.props.selectedTerritory.startYear}
                                 &nbsp;and&nbsp;
-                            {this.props.selectedTerritory.validityEnd.getUTCFullYear()}
+                            {this.props.selectedTerritory.endYear}
                             </small>
+
                         </div>
                     </div>
                     <div className="col-6">
                         <div className="d-flex flex-column justify-content-center">
-                            <button className="btn btn-primary m-auto" onClick={this.props.choseRenameState}>
-                                Rename all territories (the whole state)
-                        </button>
+                            <h4 className="text-center">The state is wrong</h4>
                             <small className="form-text text-muted text-center">
                                 {this.props.selectedState.name} is mispelled
                         </small>
                             <small className="form-text text-muted text-center">
-                                Rename it for the period {this.props.selectedState.validityStart.getUTCFullYear()}
+                                Rename it for the period {this.props.selectedState.startYear}
                                 &nbsp;-&nbsp;
-                                {this.props.selectedState.validityEnd.getUTCFullYear()}
+                                {this.props.selectedState.endYear}
                             </small>
-
                         </div>
                     </div>
+                </div>
+                <div className="row mt-2">
+                    <div className="col-6 d-flex justify-content-center">
+                        <button
+                            className="btn btn-primary m-auto"
+                            onClick={() => this.props.choseRenameTerritory()}
+                        >
+                            Rename this territory
+                        </button>
 
+                    </div>
+                    <div className="col-6 d-flex justify-content-center">
+                        <button className="btn btn-primary m-auto" onClick={this.props.choseRenameState}>
+                            Rename the state (all territories)
+                        </button>
+                    </div>
                 </div>
             </div >
         );

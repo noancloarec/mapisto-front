@@ -24,7 +24,11 @@ export class ChooseAction extends React.Component<Props, {}>{
         return (
             <div className="correction-choice d-flex flex-column">
                 <h1>What is wrong?</h1>
-                {this.renderChoices()}
+                <div className="d-flex justify-content-center">
+                    <div className="d-flex flex-column">
+                        {this.renderChoices()}
+                    </div>
+                </div>
             </div>
         );
     }

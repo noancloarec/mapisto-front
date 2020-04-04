@@ -1,4 +1,4 @@
-import { combineReducers, createStore, compose, applyMiddleware } from "redux";
+import { combineReducers, createStore, compose } from "redux";
 import { editionReducer } from "./edition/reducer";
 import { mainMapReducer } from "./main-map/reducer";
 

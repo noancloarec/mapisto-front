@@ -26,15 +26,18 @@ class StateDisplay extends React.Component<Props, {}>{
 
                     <FocusedOnStateMap year={this.props.year} state_id={this.props.selectedState.stateId} />
                 </div>
-                <h3>Existed between&nbsp;
-                        {this.props.selectedState.validityStart.getUTCFullYear()}
-                    &nbsp;and&nbsp;
-                        {this.props.selectedState.validityEnd.getUTCFullYear()}
-                </h3>
-                <button className="btn btn-outline-danger"
-                    onClick={this.props.reportError}>
-                    Report an error
+                <div className="m-3 d-flex justify-content-around">
+                    <h4>Creation : {this.props.selectedState.startYear}</h4>
+                    <h4>
+                        End : {this.props.selectedState.endYear}
+                    </h4>
+                </div>
+                <div className="d-flex justify-content-center">
+                    <button className="btn btn-outline-danger"
+                        onClick={this.props.reportError}>
+                        Report an error
                     </button>
+                </div>
             </section >
         );
     }

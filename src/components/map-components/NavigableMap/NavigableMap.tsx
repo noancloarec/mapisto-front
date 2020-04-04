@@ -47,11 +47,16 @@ class NavigableMapUnconnected extends React.Component<Props, State>{
     }
 
     shouldComponentUpdate(nextProps: Props, nextState: State) {
-        if (nextProps.year !== this.props.year || nextProps.mapVersion !== this.props.mapVersion) {
+        if (nextProps.year !== this.props.year) {
             this.loadStates(
                 nextProps.year,
                 this.props.svgManager.getVisibleSVG(),
                 getMapPrecision(this.props.svgManager)
+            );
+        }
+        if (nextProps.mapVersion !== this.props.mapVersion) {
+            this.loadStates(
+                nextProps.year, this.props.svgManager.getVisibleSVG(), getMapPrecision(this.props.svgManager), true
             );
         }
         return nextState !== this.state;
@@ -73,7 +78,7 @@ class NavigableMapUnconnected extends React.Component<Props, State>{
 
 
     private loadMap() {
-        const vb = this.props.svgManager.getVisibleSVG();
+        const vb = this.props.svgManager.getVisibleSVG(false);
         const precision = getMapPrecision(this.props.svgManager);
         this.loadStates(this.props.year, vb, precision);
         this.loadLands(vb, precision);
@@ -81,14 +86,14 @@ class NavigableMapUnconnected extends React.Component<Props, State>{
 
 
 
-    private loadStates(year: number, vb: ViewBoxLike, precision: number) {
+    private loadStates(year: number, vb: ViewBoxLike, precision: number, eraseCache = false) {
         if (this.mapSubscription) {
             this.mapSubscription.unsubscribe();
         }
         this.mapSubscription = MapistoAPI.loadStates(year, precision, vb)
             .subscribe(
                 res => {
-                    const newStates = this.reduceStates(this.state.mpStates, res);
+                    const newStates = eraseCache ? res : this.reduceStates(this.state.mpStates, res);
                     this.setState({ mpStates: newStates }, () => this.props.onStatesLoaded());
                 }
             );
@@ -150,7 +155,6 @@ class NavigableMapUnconnected extends React.Component<Props, State>{
             t => baseTerritories.findIndex(baseT => baseT.territoryId === t.territoryId) === -1
         );
 
-        console.log('reduced territories :')
         return [...territoriesMorePrecise, ...unknownYetTerritories];
     }
 
@@ -175,4 +179,4 @@ class NavigableMapUnconnected extends React.Component<Props, State>{
 const mapStateToProps = (state: RootState): StateProps => ({
     mapVersion: state.edition.mapVersion
 });
-export const NavigableMap = connect(mapStateToProps)(NavigableMapUnconnected)
+export const NavigableMap = connect(mapStateToProps)(NavigableMapUnconnected);

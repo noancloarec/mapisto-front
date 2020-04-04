@@ -79,7 +79,7 @@ export function translateSVGDistanceToPixel(distance: number, svgContainer: HTML
  * @param bbox the territory's bbox
  */
 export function computeTerritoryNameSize(bbox: Box, svgWidth: number) {
-    return Math.max(Math.min(bbox.width, bbox.height) / 10, svgWidth / 50);
+    return Math.max(Math.min(bbox.width, bbox.height) / 20, svgWidth / 100);
 }
 
 export function getMapPrecision(svgManager: SVGManager) {

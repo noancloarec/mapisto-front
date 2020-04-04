@@ -58,3 +58,7 @@ button.dotted-button{
     color: #dc3545;
 
 }
+
+button:disabled{
+  cursor: default;
+}

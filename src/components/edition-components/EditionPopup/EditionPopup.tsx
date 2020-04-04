@@ -12,6 +12,7 @@ import { MapistoState } from "src/entities/mapistoState";
 import { MapistoTerritory } from "src/entities/mapistoTerritory";
 import { ExtendStatePeriodConnected } from "../ExtendStatePeriod/ExtendStatePeriod";
 import { ExtendTerritoryPeriodConnected } from "../ExtendTerritoryPeriod/ExtendTerritory";
+import { ReassignTerritoryConnected } from "../ReassignTerritory/ReassignTerritory";
 
 interface StateProps {
     editionType: EditionType;
@@ -28,6 +29,10 @@ interface DispatchProps {
     choseExtendState: () => void;
 }
 type Props = StateProps & DispatchProps;
+/**
+ * Editing pages of mapisto are rendered in a Popup above the actual map
+ * This is the popup container, decides page to display according to redux state
+ */
 class EditionPopup extends React.Component<Props, {}>{
     renderEditionComponent() {
         switch (this.props.editionType) {
@@ -38,8 +43,8 @@ class EditionPopup extends React.Component<Props, {}>{
                         action: this.props.choseRenameStateOrTerritory
                     },
                     {
-                        text: `The borders were stable for longer than ${this.props.selectedTerritory.validityStart.getUTCFullYear()} \
-                        - ${this.props.selectedTerritory.validityEnd.getUTCFullYear()}`,
+                        text: `The borders were stable for longer than ${this.props.selectedTerritory.startYear} \
+                        - ${this.props.selectedTerritory.endYear}`,
                         action: this.props.choseExtendTerritory
                     }
                     ]}
@@ -47,16 +52,15 @@ class EditionPopup extends React.Component<Props, {}>{
             case EditionType.AskRenameOrExtendState:
                 return <ChooseAction
                     choices={[{
-                        text: `The name ${this.props.selectedState.name} is wrong`,
+                        text: `${this.props.selectedState.name} is mispelled / I don't like the color`,
                         action: this.props.choseRenameState
                     },
                     {
-                        text: `${this.props.selectedState.name} existed for longer than ${this.props.selectedState.validityStart.getUTCFullYear()} \
-                        - ${this.props.selectedState.validityEnd.getUTCFullYear()}`,
+                        text: `${this.props.selectedState.name} existed for longer than ${this.props.selectedState.startYear} \
+                        - ${this.props.selectedState.endYear}`,
                         action: this.props.choseExtendState
                     }
                     ]}
-
                 />;
             case EditionType.DisplayState:
                 return <StateDisplayConnected />;
@@ -68,6 +72,8 @@ class EditionPopup extends React.Component<Props, {}>{
                 return <ExtendStatePeriodConnected />;
             case EditionType.ExtendTerritoryPeriod:
                 return <ExtendTerritoryPeriodConnected />;
+            case EditionType.RenameTerritory:
+                return <ReassignTerritoryConnected />;
             default:
                 return <p>Rien trouve</p>;
         }

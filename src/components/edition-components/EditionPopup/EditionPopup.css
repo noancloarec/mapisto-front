@@ -14,13 +14,14 @@
 .popup-container{
     margin-top: 10vh;
     max-height: 85vh;
+    min-height: 50vh;
     overflow-y: auto;
     overflow-x: hidden;
     left: 50%;
     transform: translate(-50%, 0);
     background-color: white;
-    min-height: 200px;
     padding: 10px;
+    min-width: 50vw;
 }
 
 .popup-container h1{

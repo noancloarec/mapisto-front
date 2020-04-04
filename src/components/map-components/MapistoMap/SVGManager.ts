@@ -108,7 +108,10 @@ export class SVGManager {
         return howManyPointsPerPixel(this.parentElement, this.getVisibleSVG());
     }
 
-    getVisibleSVG(): ViewBoxLike {
+    getVisibleSVG(fromCache = true): ViewBoxLike {
+        if (!fromCache) {
+            this.refreshVisibleSVG();
+        }
         return this.visibleSVG;
     }
 

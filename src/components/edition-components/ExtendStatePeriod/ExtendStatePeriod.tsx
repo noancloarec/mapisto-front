@@ -4,7 +4,7 @@ import { MapistoState } from "src/entities/mapistoState";
 import { MapistoAPI } from "src/api/MapistoApi";
 import { dateFromYear } from "src/utils/date_utils";
 import { RootState } from "src/store";
-import { changeEditionType } from "src/store/edition/actions";
+import { finishSuccessfullEdition } from "src/store/edition/actions";
 interface StateProps {
     editedState: MapistoState;
 }
@@ -27,8 +27,8 @@ class ExtendStatePeriod extends React.Component<StateProps & DispatchProps, Stat
             periodWasAdapted: false,
             concurrentStates: [],
             periodTooSmallToCheck: false,
-            startYear: this.props.editedState.validityStart.getUTCFullYear(),
-            endYear: this.props.editedState.validityEnd.getUTCFullYear()
+            startYear: this.props.editedState.startYear,
+            endYear: this.props.editedState.endYear
         };
     }
 
@@ -69,8 +69,8 @@ class ExtendStatePeriod extends React.Component<StateProps & DispatchProps, Stat
         if (checked.length) {
 
             return {
-                start: Math.min(checked[0].state.validityStart.getUTCFullYear(), this.state.startYear),
-                end: Math.max(checked[checked.length - 1].state.validityEnd.getUTCFullYear(), this.state.endYear)
+                start: Math.min(checked[0].state.startYear, this.state.startYear),
+                end: Math.max(checked[checked.length - 1].state.endYear, this.state.endYear)
             };
         } else {
             return {
@@ -106,7 +106,7 @@ class ExtendStatePeriod extends React.Component<StateProps & DispatchProps, Stat
                 this.setState({
                     startYear: newYear,
                     periodWasAdapted: false,
-                    periodTooSmallToCheck: !newYear || newYear > this.props.editedState.validityStart.getUTCFullYear()
+                    periodTooSmallToCheck: !newYear || newYear > this.props.editedState.startYear
                 });
 
                 break;
@@ -114,7 +114,7 @@ class ExtendStatePeriod extends React.Component<StateProps & DispatchProps, Stat
                 this.setState({
                     endYear: newYear,
                     periodWasAdapted: false,
-                    periodTooSmallToCheck: !newYear || newYear < this.props.editedState.validityEnd.getUTCFullYear()
+                    periodTooSmallToCheck: !newYear || newYear < this.props.editedState.endYear
                 });
                 break;
 
@@ -133,7 +133,7 @@ class ExtendStatePeriod extends React.Component<StateProps & DispatchProps, Stat
                 onChange={e => this.handleCheck(e, st.stateId)}
             />
             <label className="form-check-label" htmlFor={st.stateId.toString()}>
-                {st.name} ({st.validityStart.getUTCFullYear()}, {st.validityEnd.getUTCFullYear()})
+                {st.name} ({st.startYear}, {st.endYear})
                 </label>
         </div>;
     }
@@ -196,6 +196,6 @@ const mapStateToProps = (state: RootState): StateProps => ({
     editedState: state.edition.selectedState
 });
 const mapDispatchToProps: DispatchProps = {
-    stateWasExtended: () => changeEditionType(null)
+    stateWasExtended: () => finishSuccessfullEdition()
 };
 export const ExtendStatePeriodConnected = connect(mapStateToProps, mapDispatchToProps)(ExtendStatePeriod);
