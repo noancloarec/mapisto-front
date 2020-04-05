@@ -16,7 +16,6 @@ interface Props {
 }
 export class MapistoMap extends React.Component<Props, {}>{
     public static defaultProps = {
-        // tslint:disable-next-line: object-literal-shorthand
         SVGManager: new SVGManager(),
     };
 
@@ -45,7 +44,7 @@ export class MapistoMap extends React.Component<Props, {}>{
         for (const [key, value] of Object.entries(nextPropsWithoutMapData)) {
             for (const [keyb, valueb] of Object.entries(nextPropsWithoutMapData)) {
                 if (key === keyb && value !== valueb) {
-                    console.log("difference between ", value, valueb);
+                    console.warn("difference between ", value, valueb);
                     return true;
                 }
             }

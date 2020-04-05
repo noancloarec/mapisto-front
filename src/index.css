@@ -62,3 +62,7 @@ button.dotted-button{
 button:disabled{
   cursor: default;
 }
+
+svg{
+  text-rendering: optimizeSpeed;
+}

@@ -26,7 +26,7 @@ interface State {
     lands: Land[];
 }
 class NavigableMapUnconnected extends React.Component<Props, State>{
-    scheduleRefresh$: Subject<void>;
+    scheduleRefresh$: Subject<ViewBoxLike>;
     public static defaultProps = {
         svgManager: new NavigableSVGManager()
     };
@@ -38,12 +38,15 @@ class NavigableMapUnconnected extends React.Component<Props, State>{
             mpStates: [],
             lands: []
         };
-        this.scheduleRefresh$ = new Subject();
+        this.scheduleRefresh$ = new Subject<ViewBoxLike>();
         this.scheduleRefresh$.pipe(
             debounceTime(300)
-        ).subscribe(() => this.loadMap());
+        ).subscribe(vb => this.loadMap(vb));
 
-        this.props.svgManager.attachOnZoomOrPan(() => this.scheduleRefresh$.next());
+        this.props.svgManager.attachOnZoomOrPan(vb => this.scheduleRefresh$.next(vb));
+    }
+    componentDidMount() {
+        this.scheduleRefresh$.next(this.props.svgManager.getVisibleSVG(false));
     }
 
     shouldComponentUpdate(nextProps: Props, nextState: State) {
@@ -77,8 +80,7 @@ class NavigableMapUnconnected extends React.Component<Props, State>{
 
 
 
-    private loadMap() {
-        const vb = this.props.svgManager.getVisibleSVG(false);
+    private loadMap(vb: ViewBoxLike) {
         const precision = getMapPrecision(this.props.svgManager);
         this.loadStates(this.props.year, vb, precision);
         this.loadLands(vb, precision);

@@ -54,6 +54,19 @@ export class SVGManager {
      */
     initMap(svgParent: HTMLDivElement, vb: ViewBoxLike/*, onViewboxChange?: (vb: ViewBoxLike) => void*/) {
         this.parentElement = svgParent;
+        this.parentElement.innerHTML = "";
+        this.drawing = SVG();
+        this.drawing.addTo(this.parentElement).viewbox(vb.x, vb.y, vb.width, vb.height);
+        this.drawing.attr("preserveAspectRatio", "xMidYMid");
+        this.seaRect = this.drawing.rect(1e5, 1e5).move(-5e4, -5e4).fill("#d8e2eb").id("map-sea");
+        this.landContainer = this.drawing.group().id('land-mass');
+        this.statesContainer = this.drawing.group().id('states-container');
+        this.namesContainer = this.drawing.group().id('names_container');
+        this.refreshVisibleSVG();
+        this.enableControlClickDebugging();
+    }
+
+    private enableControlClickDebugging() {
         this.parentElement.addEventListener('keydown', e => {
             if (e.key === 'Control') {
                 this.controlKeyIsPressed = true;
@@ -66,22 +79,11 @@ export class SVGManager {
         });
         this.parentElement.addEventListener('click', e => {
             if (this.controlKeyIsPressed) {
+                // tslint:disable-next-line: no-console
                 console.log(svgCoords(e.clientX, e.clientY, this.parentElement));
             }
         });
-        this.parentElement.innerHTML = "";
-        this.drawing = SVG();
-        this.drawing.addTo(this.parentElement).viewbox(vb.x, vb.y, vb.width, vb.height);
-        this.drawing.attr("preserveAspectRatio", "xMidYMid");
-        this.seaRect = this.drawing.rect(1e5, 1e5).move(-5e4, -5e4).fill("#d8e2eb").id("map-sea");
-        this.landContainer = this.drawing.group().id('land-mass');
-        this.statesContainer = this.drawing.group().id('states-container');
-        this.namesContainer = this.drawing.group().id('names_container');
-        this.refreshVisibleSVG();
-        console.log(this.getVisibleSVG());
-        // if (onViewboxChange) {
-        //     onViewboxChange(getVisibleSVG(this.parentElement));
-        // }
+
     }
 
     addState(mp: MapistoState) {
