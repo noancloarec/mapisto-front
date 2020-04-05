@@ -1,9 +1,15 @@
-.black-overlay, .popup-container{
+.editing-panel{
     position: fixed;
     top:0;
+    right: 0;
+    left: 0;
+    bottom: 0;
 }
 
 .black-overlay{
+    z-index: -1;
+    position: absolute;
+    top:0;
     right: 0;
     left: 0;
     bottom: 0;
@@ -12,16 +18,11 @@
 }
 
 .popup-container{
-    margin-top: 10vh;
-    max-height: 85vh;
-    min-height: 50vh;
     overflow-y: auto;
     overflow-x: hidden;
-    left: 50%;
-    transform: translate(-50%, 0);
     background-color: white;
-    padding: 10px;
-    min-width: 50vw;
+    pointer-events: all;
+    max-height: 90vh;
 }
 
 .popup-container h1{
@@ -30,4 +31,7 @@
     margin-top: 11px;
     margin-bottom: 28px;
 
+}
+.no-pointer-events{
+    pointer-events: none;
 }

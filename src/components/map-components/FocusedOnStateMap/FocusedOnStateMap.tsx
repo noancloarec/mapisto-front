@@ -6,7 +6,7 @@ import { MapistoAPI } from "src/api/MapistoApi";
 import { MapistoMap } from "../MapistoMap/MapistoMap";
 import { FocusedSVGManager } from "./FocusedSVGManager";
 import { Land } from "src/entities/Land";
-import { getMapPrecision } from "../MapistoMap/display-utilities";
+import { getMapPrecision, enlargeViewBox, fitViewboxToAspectRatio } from "../MapistoMap/display-utilities";
 import './FocusedMap.css';
 
 interface Props {
@@ -19,7 +19,6 @@ interface State {
     lands: Land[];
 }
 
-const MIN_ASPECT_RATIO = 4 / 3;
 export class FocusedOnStateMap extends React.Component<Props, State>{
 
     svgManager: FocusedSVGManager;
@@ -40,16 +39,16 @@ export class FocusedOnStateMap extends React.Component<Props, State>{
         MapistoAPI.loadState(this.props.state_id, this.props.year).subscribe(
             state => {
                 this.setState({ viewBoxForState: state.boundingBox }, () => {
-                    this.svgManager.focusViewbox(state.boundingBox, MIN_ASPECT_RATIO);
-                    this.loadActualMap(getMapPrecision(this.svgManager));
+                    const toLoad = enlargeViewBox(fitViewboxToAspectRatio(state.boundingBox, 16 / 9), 1.2)
+                    this.svgManager.setViewbox(toLoad);
+                    this.loadActualMap(getMapPrecision(this.svgManager), toLoad);
                 });
             }
         );
     }
 
-    loadActualMap(precision: number) {
-        const vb = this.svgManager.getVisibleSVG();
-        MapistoAPI.loadStates(this.props.year, precision, vb).subscribe(
+    loadActualMap(precision: number, toLoad: ViewBoxLike) {
+        MapistoAPI.loadStates(this.props.year, precision, toLoad).subscribe(
             res => {
                 this.svgManager.setFocusedTerritories(
                     res.find(mpState => mpState.stateId === this.props.state_id).territories
@@ -57,7 +56,7 @@ export class FocusedOnStateMap extends React.Component<Props, State>{
                 this.setState({ statesForDisplay: res });
             }
         );
-        MapistoAPI.loadLands(precision, vb).subscribe(
+        MapistoAPI.loadLands(precision, toLoad).subscribe(
             res => {
                 this.setState({
                     lands: res

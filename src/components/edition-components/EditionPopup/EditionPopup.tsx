@@ -34,6 +34,7 @@ type Props = StateProps & DispatchProps;
  * This is the popup container, decides page to display according to redux state
  */
 class EditionPopup extends React.Component<Props, {}>{
+
     renderEditionComponent() {
         switch (this.props.editionType) {
             case EditionType.AskRenameOrExtendTerritory:
@@ -81,10 +82,12 @@ class EditionPopup extends React.Component<Props, {}>{
     }
     render() {
         if (this.props.editionType) {
-            return <div className="editing-panel">
+            return <div className="editing-panel row d-flex justify-content-center">
                 <div className="black-overlay" onClick={() => this.props.cancelEdition()}></div>
-                <div className="popup-container">
-                    {this.renderEditionComponent()}
+                <div className="no-pointer-events row d-flex justify-content-center flex-column col-11 col-sm-10 col-md-8 col-lg-6">
+                    <div className="popup-container p-2 ">
+                        {this.renderEditionComponent()}
+                    </div>
                 </div>
             </div>;
         } else {

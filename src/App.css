@@ -33,5 +33,6 @@ section#main-map {
     bottom: 0;
 }
 
-#territory-panel-section{
+#main-map .map, #main-map svg{
+    height: 100%;
 }

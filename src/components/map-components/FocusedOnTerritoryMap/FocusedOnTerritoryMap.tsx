@@ -5,7 +5,7 @@ import { FocusedSVGManager } from '../FocusedOnStateMap/FocusedSVGManager';
 import { MapistoState } from 'src/entities/mapistoState';
 import { Land } from 'src/entities/Land';
 import { MapistoAPI } from 'src/api/MapistoApi';
-import { getMapPrecision } from '../MapistoMap/display-utilities';
+import { getMapPrecision, enlargeViewBox, fitViewboxToAspectRatio } from '../MapistoMap/display-utilities';
 import '../FocusedOnStateMap/FocusedMap.css';
 import { RootState } from 'src/store';
 import { connect } from 'react-redux';
@@ -67,18 +67,20 @@ class FocusedOnTerritoryMapUnconnected extends React.Component<Props, State>{
     }
 
     private updateMap(territory: MapistoTerritory, year: number) {
+        const bbox = enlargeViewBox(fitViewboxToAspectRatio(territory.boundingBox, 16 / 9), 1.2);
         this.svgManager.setFocusedTerritories([territory]);
-        this.svgManager.focusViewbox(territory.boundingBox, 4 / 3);
+        this.svgManager.setViewbox(bbox);
         const precision = getMapPrecision(this.svgManager);
+
         MapistoAPI.loadStates(
-            year, precision, this.svgManager.getVisibleSVG()
+            year, precision, bbox
         ).subscribe(
             states =>
                 this.setState({
                     mpStates: states
                 })
         );
-        MapistoAPI.loadLands(precision, this.svgManager.getVisibleSVG()).subscribe(
+        MapistoAPI.loadLands(precision, bbox).subscribe(
             res => this.setState({
                 lands: res
             })

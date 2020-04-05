@@ -37,17 +37,6 @@ export class FocusedSVGManager extends SVGManager {
         console.log('end init map');
     }
 
-    focusViewbox(vb: ViewBoxLike, minAspectRatio: number) {
-        this.focusedViewbox = this.enlargeViewBox(this.fitViewboxToAspectRatio(vb, minAspectRatio));
-        if (this.drawing) {
-            this.drawing.viewbox(this.focusedViewbox);
-        }
-        this.refreshVisibleSVG()
-        console.log('end focus viewbox')
-    }
-
-
-
     addState(st: MapistoState) {
         super.addState(st);
         const territoriesToFocusOn = st.territories.filter(
@@ -62,28 +51,6 @@ export class FocusedSVGManager extends SVGManager {
         }
     }
 
-    private enlargeViewBox(vb: ViewBoxLike): ViewBoxLike {
-        const resizeFactor = .2;
-        return {
-            x: vb.x - resizeFactor * vb.width / 2,
-            y: vb.y - resizeFactor * vb.height / 2,
-            width: vb.width * (1 + resizeFactor),
-            height: vb.height * (1 + resizeFactor)
-        };
-    }
-
-    private fitViewboxToAspectRatio(vb: ViewBoxLike, minAspectRatio: number): ViewBoxLike {
-        const aspect = vb.width / vb.height;
-        if (aspect < minAspectRatio) {
-            return {
-                ...vb,
-                width: minAspectRatio * vb.height,
-                x: vb.x - (minAspectRatio * vb.height - vb.width) / 2
-            };
-        } else {
-            return vb;
-        }
-    }
 
 
 }

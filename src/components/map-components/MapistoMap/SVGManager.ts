@@ -1,7 +1,7 @@
 import { MapistoState } from 'src/entities/mapistoState';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
 import { Svg, SVG, G, ViewBoxLike, Path } from '@svgdotjs/svg.js';
-import { getVisibleSVG, howManyPointsPerPixel, translateSVGDistanceToPixel, computeTerritoryNameSize, svgCoords } from './display-utilities';
+import { getVisibleSVG, computeTerritoryNameSize, svgCoords } from './display-utilities';
 import { Land } from 'src/entities/Land';
 import { Subject } from 'rxjs';
 import { auditTime } from 'rxjs/operators';
@@ -29,17 +29,16 @@ export class SVGManager {
 
     protected scheduleNameRefresh$: Subject<void>;
 
-    /**
-     * As getVisibleSVG makes browser rendering synchronous, its result is stored here.
-     */
-    private visibleSVG: ViewBoxLike;
+
+    private viewbox: ViewBoxLike;
+    private clientViewBox: ViewBoxLike;
+
 
     constructor() {
         this.scheduleNameRefresh$ = new Subject<void>();
         this.scheduleNameRefresh$.pipe(
             auditTime(300)
         ).subscribe(() => {
-            this.refreshVisibleSVG();
             this.refreshNamesDisplay();
         });
     }
@@ -57,33 +56,33 @@ export class SVGManager {
         this.parentElement.innerHTML = "";
         this.drawing = SVG();
         this.drawing.addTo(this.parentElement).viewbox(vb.x, vb.y, vb.width, vb.height);
-        this.drawing.attr("preserveAspectRatio", "xMidYMid");
         this.seaRect = this.drawing.rect(1e5, 1e5).move(-5e4, -5e4).fill("#d8e2eb").id("map-sea");
         this.landContainer = this.drawing.group().id('land-mass');
         this.statesContainer = this.drawing.group().id('states-container');
         this.namesContainer = this.drawing.group().id('names_container');
-        this.refreshVisibleSVG();
         this.enableControlClickDebugging();
+        window.addEventListener('resize', () => {
+            this.refreshClientViewbox();
+            if (this.clientViewBox.width) {
+                this.setViewbox(getVisibleSVG(this.parentElement));
+            }
+        });
+        this.setViewbox(getVisibleSVG(this.parentElement));
+        this.refreshClientViewbox();
     }
 
-    private enableControlClickDebugging() {
-        this.parentElement.addEventListener('keydown', e => {
-            if (e.key === 'Control') {
-                this.controlKeyIsPressed = true;
-            }
-        });
-        this.parentElement.addEventListener('keyup', e => {
-            if (e.key === 'Control') {
-                this.controlKeyIsPressed = false;
-            }
-        });
-        this.parentElement.addEventListener('click', e => {
-            if (this.controlKeyIsPressed) {
-                // tslint:disable-next-line: no-console
-                console.log(svgCoords(e.clientX, e.clientY, this.parentElement));
-            }
-        });
+    private refreshClientViewbox() {
+        const rect = this.parentElement.getBoundingClientRect();
+        this.clientViewBox = {
+            x: rect.left,
+            y: rect.top,
+            width: rect.width,
+            height: rect.height
+        };
+    }
 
+    protected getClientViewbox(): ViewBoxLike {
+        return this.clientViewBox;
     }
 
     addState(mp: MapistoState) {
@@ -107,14 +106,15 @@ export class SVGManager {
 
 
     pointsPerPixel(): number {
-        return howManyPointsPerPixel(this.parentElement, this.getVisibleSVG());
+        return this.getViewBox().width / this.getClientViewbox().width;
     }
 
-    getVisibleSVG(fromCache = true): ViewBoxLike {
-        if (!fromCache) {
-            this.refreshVisibleSVG();
-        }
-        return this.visibleSVG;
+    protected getSVGDistance(distance: number) {
+        return distance * this.getViewBox().width / this.clientViewBox.width;
+    }
+
+    public getViewBox() {
+        return this.viewbox;
     }
 
 
@@ -161,11 +161,15 @@ export class SVGManager {
 
     protected shouldDisplayName(territoryPath: Path): boolean {
         return this.isVisible(territoryPath) &&
-            translateSVGDistanceToPixel(territoryPath.bbox().width, this.parentElement) > 100;
+            this.getPixelDistance(territoryPath.bbox().width) > 100;
+    }
+
+    protected getPixelDistance(svgDistance: number) {
+        return svgDistance / this.pointsPerPixel();
     }
 
     private displayName(territoryPath: Path, name: string, color: string, container = this.namesContainer) {
-        const computedSize = computeTerritoryNameSize(territoryPath.bbox(), this.getVisibleSVG().width);
+        const computedSize = computeTerritoryNameSize(territoryPath.bbox(), this.getViewBox().width);
         const nameParts = name.split(' ');
         for (let i = 0; i < nameParts.length; i++) {
             container.text((add) => {
@@ -181,13 +185,37 @@ export class SVGManager {
 
     }
 
-    protected refreshVisibleSVG() {
-        this.visibleSVG = getVisibleSVG(this.parentElement);
-
-    }
-
     private isVisible(polygon: Path): boolean {
         const bbox = polygon.bbox();
-        return intersect(this.getVisibleSVG(), bbox);
+        return intersect(this.getViewBox(), bbox);
     }
+
+
+    private enableControlClickDebugging() {
+        this.parentElement.addEventListener('keydown', e => {
+            if (e.key === 'Control') {
+                this.controlKeyIsPressed = true;
+            }
+        });
+        this.parentElement.addEventListener('keyup', e => {
+            if (e.key === 'Control') {
+                this.controlKeyIsPressed = false;
+            }
+        });
+        this.parentElement.addEventListener('click', e => {
+            if (this.controlKeyIsPressed) {
+                // tslint:disable-next-line: no-console
+                console.log(svgCoords(e.clientX, e.clientY, this.parentElement));
+            }
+        });
+
+    }
+
+    public setViewbox(vb: ViewBoxLike) {
+        this.drawing.viewbox(vb);
+        this.viewbox = vb;
+    }
+
+
+
 }

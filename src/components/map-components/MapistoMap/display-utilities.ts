@@ -8,7 +8,6 @@ import { SVGManager } from './SVGManager';
  */
 export function getVisibleSVG(svgContainer: HTMLDivElement): ViewBoxLike {
     const boundings = svgContainer.getBoundingClientRect();
-
     const origin = svgCoords(boundings.left, boundings.top, svgContainer);
     const end = svgCoords(
         boundings.left + boundings.width,
@@ -21,8 +20,9 @@ export function getVisibleSVG(svgContainer: HTMLDivElement): ViewBoxLike {
         width: end.x - origin.x,
         height: end.y - origin.y
     };
-
 }
+
+
 /**
  * Given a point in a pixel-based frame (within the window), gives the corresponding svg coordinate
  * @param x The x coordinate (in pixel, within the window) of the point
@@ -47,30 +47,23 @@ export function svgCoords(x: number, y: number, svgContainer: HTMLDivElement): D
 //     }
 // }
 
-/**
- * Tells how many points lie in 1 pixel on the map
- */
-export function howManyPointsPerPixel(svgContainer: HTMLDivElement, visibleSVG: ViewBoxLike): number {
-    const pxWidth = svgContainer.clientWidth;
-    return visibleSVG.width / pxWidth;
-}
 
-/**
- * Given a size in point (svg frame), computes the on-screen size in pixels
- * @param svgSize the size in points
- */
-export function translateSVGDistanceToPixel(distance: number, svgContainer: HTMLDivElement) {
-    const svg = svgContainer.querySelector('svg');
-    const matrix = svg.getScreenCTM();
+// /**
+//  * Given a size in point (svg frame), computes the on-screen size in pixels
+//  * @param svgSize the size in points
+//  */
+// export function translateSVGDistanceToPixel(distance: number, svgContainer: HTMLDivElement) {
+//     const svg = svgContainer.querySelector('svg');
+//     const matrix = svg.getScreenCTM();
 
-    const origin = svg.createSVGPoint();
-    const distant = svg.createSVGPoint();
-    distant.x = distance;
+//     const origin = svg.createSVGPoint();
+//     const distant = svg.createSVGPoint();
+//     distant.x = distance;
 
-    const originPx = origin.matrixTransform(matrix);
-    const ptPX = distant.matrixTransform(matrix);
-    return ptPX.x - originPx.x;
-}
+//     const originPx = origin.matrixTransform(matrix);
+//     const ptPX = distant.matrixTransform(matrix);
+//     return ptPX.x - originPx.x;
+// }
 
 
 
@@ -106,4 +99,33 @@ function getKilometersPerPixel(svgManager: SVGManager): number {
     const kmPerPoint = 40000 / 2269;
 
     return kmPerPoint * svgManager.pointsPerPixel();
+}
+
+
+export function enlargeViewBox(vb: ViewBoxLike, resizeFactor: number): ViewBoxLike {
+    return {
+        x: vb.x - (resizeFactor - 1) * vb.width / 2,
+        y: vb.y - (resizeFactor - 1) * vb.height / 2,
+        width: vb.width * resizeFactor,
+        height: vb.height * resizeFactor
+    };
+}
+
+export function fitViewboxToAspectRatio(vb: ViewBoxLike, aspectRatio: number): ViewBoxLike {
+    const aspect = vb.width / vb.height;
+    if (aspect < aspectRatio) {
+        return {
+            ...vb,
+            width: aspectRatio * vb.height,
+            x: vb.x - (aspectRatio * vb.height - vb.width) / 2
+        };
+    } else if (aspect > aspectRatio) {
+        return {
+            ...vb,
+            height: vb.width / aspectRatio,
+            y: vb.y - (aspectRatio / vb.width - vb.height) / 2
+        };
+    } else {
+        return vb;
+    }
 }

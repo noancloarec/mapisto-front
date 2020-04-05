@@ -8,8 +8,7 @@ path{
 .map:focus{
     outline: none;
 }
-.map, .map>svg{
-    height: 100%;
+.map>svg{
     width: 100%;
 }
 

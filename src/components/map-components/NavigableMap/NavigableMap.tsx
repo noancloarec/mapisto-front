@@ -17,6 +17,7 @@ interface OwnProps {
     svgManager: NavigableSVGManager;
     onStatesLoaded: () => void;
 }
+
 interface StateProps {
     mapVersion: string;
 }
@@ -46,20 +47,22 @@ class NavigableMapUnconnected extends React.Component<Props, State>{
         this.props.svgManager.attachOnZoomOrPan(vb => this.scheduleRefresh$.next(vb));
     }
     componentDidMount() {
-        this.scheduleRefresh$.next(this.props.svgManager.getVisibleSVG(false));
+        console.log('there im nexting')
+        console.log(this.props.svgManager.getViewBox())
+        this.scheduleRefresh$.next(this.props.svgManager.getViewBox());
     }
 
     shouldComponentUpdate(nextProps: Props, nextState: State) {
         if (nextProps.year !== this.props.year) {
             this.loadStates(
                 nextProps.year,
-                this.props.svgManager.getVisibleSVG(),
+                this.props.svgManager.getViewBox(),
                 getMapPrecision(this.props.svgManager)
             );
         }
         if (nextProps.mapVersion !== this.props.mapVersion) {
             this.loadStates(
-                nextProps.year, this.props.svgManager.getVisibleSVG(), getMapPrecision(this.props.svgManager), true
+                nextProps.year, this.props.svgManager.getViewBox(), getMapPrecision(this.props.svgManager), true
             );
         }
         return nextState !== this.state;

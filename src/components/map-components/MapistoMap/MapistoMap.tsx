@@ -7,7 +7,7 @@ import './MapistoMap.css';
 import { Land } from "src/entities/Land";
 
 interface Props {
-    SVGManager: SVGManager;
+    SVGManager?: SVGManager;
     mpStates: MapistoState[];
     lands: Land[];
     initialViewbox: ViewBoxLike;
@@ -15,9 +15,7 @@ interface Props {
     // onViewBoxChange?: (viewbox: ViewBoxLike, precision: number) => void;
 }
 export class MapistoMap extends React.Component<Props, {}>{
-    public static defaultProps = {
-        SVGManager: new SVGManager(),
-    };
+
 
     /**
      * A reference to the parent of the SVG. To be given to mapDomManager so it can create the SVG map
@@ -26,6 +24,9 @@ export class MapistoMap extends React.Component<Props, {}>{
 
 
     constructor(props: Props) {
+        if (!props.SVGManager) {
+            props.SVGManager = new SVGManager();
+        }
         super(props);
         this.containerRef = React.createRef<HTMLDivElement>();
     }

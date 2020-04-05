@@ -36,9 +36,3 @@
     opacity: 1;
     transition: transform ease-out.1s, opacity ease-out .3s;
 }
-
-.thumbnail-in-panel{
-    height: 200px;
-    position: relative;
-}
-
