@@ -222,7 +222,6 @@ export class MapistoAPI {
             axios.get<SceneRaw[]>(`${config.api_path}/movie/${stateId}`)
         ).pipe(
             map(res => res.data.map(s => parseScene(s))),
-            tap((scenes: Scene[]) => scenes.forEach(s => console.log(`ratio : ${s.bbox.width / s.bbox.height}`)))
         );
     }
 }

@@ -19,7 +19,7 @@
     margin-top : 3px;
     height: 3px;
 }
-.progress-bar-container:hover > .progress-bar{
+.progress-bar-container:hover > .progress-bar, .pressed-bar{
     height: 5px;
     margin-top: 2px;
 
