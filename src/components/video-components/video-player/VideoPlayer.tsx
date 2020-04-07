@@ -83,7 +83,7 @@ export class VideoPlayer extends React.Component<Props, State>{
                 this.unPause();
             }
         }
-    }).bind(this)
+    }).bind(this);
 
     private pause() {
         this.setState({
@@ -104,7 +104,7 @@ export class VideoPlayer extends React.Component<Props, State>{
         const end = this.state.scenery[this.state.scenery.length - 1].endYear;
         this.yearEmitter$ = zip(
             range(year, end - year),
-            timer(0, 100),
+            timer(0, 300),
             (val, _) => val
         );
         this.setState({ currentYear: year });

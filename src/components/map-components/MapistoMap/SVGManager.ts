@@ -151,9 +151,11 @@ export class SVGManager {
         container.clear();
         for (const st of sourceContainer.children()) {
             const name = st.attr('state-name');
-            for (const territoryPath of st.children()) {
-                if (this.shouldDisplayName(territoryPath as Path)) {
-                    this.displayName(territoryPath as Path, name, getLabelColor(st.attr('fill')), container);
+            if (name) {
+                for (const territoryPath of st.children()) {
+                    if (this.shouldDisplayName(territoryPath as Path)) {
+                        this.displayName(territoryPath as Path, name, getLabelColor(st.attr('fill')), container);
+                    }
                 }
             }
         }
