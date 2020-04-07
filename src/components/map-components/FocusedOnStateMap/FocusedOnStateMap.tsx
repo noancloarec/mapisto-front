@@ -1,6 +1,5 @@
 import { MapistoState } from "src/entities/mapistoState";
 import { ViewBoxLike } from '@svgdotjs/svg.js';
-import '@svgdotjs/svg.panzoom.js';
 import React from "react";
 import { MapistoAPI } from "src/api/MapistoApi";
 import { MapistoMap } from "../MapistoMap/MapistoMap";
@@ -71,7 +70,7 @@ export class FocusedOnStateMap extends React.Component<Props, State>{
                 mpStates={this.state.statesForDisplay}
                 SVGManager={this.svgManager}
                 lands={this.state.lands}
-                initialViewbox={this.state.viewBoxForState}
+                viewbox={this.state.viewBoxForState}
             />;
         } else {
             return (

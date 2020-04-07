@@ -1,7 +1,6 @@
 import React from 'react';
 import './TerritoryPanel.css';
 import { connect } from 'react-redux';
-import Moment from 'react-moment';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
 import { MapistoState } from 'src/entities/mapistoState';
 import { selectState, changeEditionType } from 'src/store/edition/actions';
@@ -107,9 +106,9 @@ class TerritoryPanel extends React.Component<Props, State> {
                     </div>
                     {stateDetails.name &&
                         <h3>Borders between&nbsp;
-                                <Moment format="YYYY">{this.props.selectedTerritory.validityStart}</Moment>
+                                {this.props.selectedTerritory.startYear}
                             &nbsp;and&nbsp;
-                                <Moment format="YYYY">{this.props.selectedTerritory.validityEnd}</Moment>
+                                {this.props.selectedTerritory.endYear}
                         </h3>
                     }
                 </div>

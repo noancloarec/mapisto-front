@@ -1,0 +1,60 @@
+.control-bar{
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 40px;
+}
+
+.progress-bar-container{
+    position: absolute;
+    top: 0;
+    left: 10px;
+    height: 9px;
+    right: 10px;
+    cursor: pointer;
+}
+.progress-bar{
+    background-color: #6d747d;
+    margin-top : 3px;
+    height: 3px;
+}
+.progress-bar-container:hover > .progress-bar{
+    height: 5px;
+    margin-top: 2px;
+
+}
+.accomplished-progress{
+    width: 40%;
+    height: 100%;
+    background-color: red;
+}
+
+.play-pause-button{
+    position: absolute;
+    left: 0;
+    bottom: 0;
+    width: 58px;
+    height: 36px;
+    padding-left: 5px;
+    cursor: pointer;
+}
+.play-pause-button > svg{
+    width: 100%;
+}
+
+.play-pause-button > svg > path{
+    fill: white;
+    stroke: #999;
+    stroke-width: 1;
+}
+
+.bg-gradient{
+    pointer-events: none;
+    position: absolute;
+    top: -47px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(0deg, rgba(88, 88, 88, 0.7791491596638656) 0%, rgba(255,255,255,0.0) 100%);
+}

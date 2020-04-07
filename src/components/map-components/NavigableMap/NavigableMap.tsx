@@ -25,6 +25,7 @@ type Props = StateProps & OwnProps;
 interface State {
     mpStates: MapistoState[];
     lands: Land[];
+    viewbox: ViewBoxLike;
 }
 class NavigableMapUnconnected extends React.Component<Props, State>{
     scheduleRefresh$: Subject<ViewBoxLike>;
@@ -37,18 +38,37 @@ class NavigableMapUnconnected extends React.Component<Props, State>{
         super(props);
         this.state = {
             mpStates: [],
-            lands: []
+            lands: [],
+            viewbox: {
+                x: 0, y: 0, width: 1000, height: 1000
+            }
         };
         this.scheduleRefresh$ = new Subject<ViewBoxLike>();
         this.scheduleRefresh$.pipe(
             debounceTime(300)
         ).subscribe(vb => this.loadMap(vb));
 
-        this.props.svgManager.attachOnZoomOrPan(vb => this.scheduleRefresh$.next(vb));
+        this.props.svgManager.attachOnZoomOrPan(vb => {
+            this.setState({ viewbox: vb })
+            this.scheduleRefresh$.next(vb)
+        });
     }
+
+
+    render() {
+        return (
+            <MapistoMap
+                SVGManager={this.props.svgManager}
+                lands={this.state.lands}
+                mpStates={this.state.mpStates}
+                viewbox={this.state.viewbox}
+            >
+
+            </MapistoMap>
+        );
+    }
+
     componentDidMount() {
-        console.log('there im nexting')
-        console.log(this.props.svgManager.getViewBox())
         this.scheduleRefresh$.next(this.props.svgManager.getViewBox());
     }
 
@@ -68,18 +88,6 @@ class NavigableMapUnconnected extends React.Component<Props, State>{
         return nextState !== this.state;
     }
 
-    render() {
-        return (
-            <MapistoMap
-                SVGManager={this.props.svgManager}
-                lands={this.state.lands}
-                mpStates={this.state.mpStates}
-                initialViewbox={({ x: 0, y: 0, height: 1000, width: 2000 })}
-            >
-
-            </MapistoMap>
-        );
-    }
 
 
 

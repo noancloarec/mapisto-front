@@ -1,7 +1,6 @@
 import { SVGManager } from "./SVGManager";
 import { MapistoState } from "src/entities/mapistoState";
 import { ViewBoxLike } from '@svgdotjs/svg.js';
-import '@svgdotjs/svg.panzoom.js';
 import React, { RefObject } from "react";
 import './MapistoMap.css';
 import { Land } from "src/entities/Land";
@@ -10,7 +9,7 @@ interface Props {
     SVGManager?: SVGManager;
     mpStates: MapistoState[];
     lands: Land[];
-    initialViewbox: ViewBoxLike;
+    viewbox: ViewBoxLike;
     onKeyDown?: (event: React.KeyboardEvent) => void;
     // onViewBoxChange?: (viewbox: ViewBoxLike, precision: number) => void;
 }
@@ -23,11 +22,14 @@ export class MapistoMap extends React.Component<Props, {}>{
     private containerRef: RefObject<HTMLDivElement>;
 
 
+    private svgManager: SVGManager;
     constructor(props: Props) {
-        if (!props.SVGManager) {
-            props.SVGManager = new SVGManager();
-        }
         super(props);
+        if (this.props.SVGManager) {
+            this.svgManager = this.props.SVGManager
+        } else {
+            this.svgManager = new SVGManager()
+        }
         this.containerRef = React.createRef<HTMLDivElement>();
     }
 
@@ -57,6 +59,9 @@ export class MapistoMap extends React.Component<Props, {}>{
         if (nextProps.lands !== this.props.lands) {
             this.drawLand(nextProps.lands);
         }
+        if (nextProps.viewbox !== this.props.viewbox) {
+            this.svgManager.setViewbox(nextProps.viewbox);
+        }
         return false;
     }
     componentDidMount() {
@@ -68,15 +73,15 @@ export class MapistoMap extends React.Component<Props, {}>{
     }
 
     private drawTerritories(mpStates: MapistoState[]) {
-        this.props.SVGManager.clearTerritories();
+        this.svgManager.clearTerritories();
         for (const mpState of mpStates) {
-            this.props.SVGManager.addState(mpState);
+            this.svgManager.addState(mpState);
         }
     }
 
     private drawLand(lands: Land[]) {
-        this.props.SVGManager.clearLands();
-        lands.forEach(land => this.props.SVGManager.addLand(land));
+        this.svgManager.clearLands();
+        lands.forEach(land => this.svgManager.addLand(land));
     }
 
     // private handleViewBoxChange(vb: ViewBoxLike) {
@@ -89,8 +94,8 @@ export class MapistoMap extends React.Component<Props, {}>{
 
 
     private initSVG() {
-        this.props.SVGManager.initMap(
-            this.containerRef.current, this.props.initialViewbox /*, vb => this.handleViewBoxChange(vb) */
+        this.svgManager.initMap(
+            this.containerRef.current, this.props.viewbox /*, vb => this.handleViewBoxChange(vb) */
         );
         this.drawTerritories(this.props.mpStates);
         this.drawLand(this.props.lands);

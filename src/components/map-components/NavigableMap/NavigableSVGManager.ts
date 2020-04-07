@@ -81,7 +81,6 @@ export class NavigableSVGManager extends SVGManager {
             x: vb.x + this.getSVGDistance(-event.deltaX),
             y: vb.y + this.getSVGDistance(-event.deltaY)
         };
-        this.setViewbox(newVB);
         this.onZoomOrPan(newVB);
 
     }
@@ -135,7 +134,6 @@ export class NavigableSVGManager extends SVGManager {
                 height
             };
 
-            this.setViewbox(newVB);
             this.onZoomOrPan(newVB);
         }
     }

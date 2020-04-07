@@ -4,12 +4,14 @@ import { MapistoState } from "src/entities/mapistoState";
 import axios from 'axios';
 import { config } from "src/config";
 import { MapistoStateRaw } from "./MapistoStateRaw";
-import { map } from "rxjs/operators";
+import { map, tap } from "rxjs/operators";
 import { MapistoTerritoryRaw } from "./MapistoTerritoryRaw";
 import { Land } from "src/entities/Land";
 import { LandRaw } from "./LandRaw";
 import { yearToISOString } from "src/utils/date_utils";
 import { ViewBoxLike } from "@svgdotjs/svg.js";
+import { SceneRaw } from "./SceneRaw";
+import { Scene } from "src/entities/Scene";
 
 export class MapistoAPI {
 
@@ -214,6 +216,15 @@ export class MapistoAPI {
             map(res => res.data.map(s => parseState(s, null)))
         );
     }
+
+    static getVideo(stateId: number): Observable<Scene[]> {
+        return from(
+            axios.get<SceneRaw[]>(`${config.api_path}/movie/${stateId}`)
+        ).pipe(
+            map(res => res.data.map(s => parseScene(s))),
+            tap((scenes: Scene[]) => scenes.forEach(s => console.log(`ratio : ${s.bbox.width / s.bbox.height}`)))
+        );
+    }
 }
 
 
@@ -254,6 +265,15 @@ function parseTerritory(raw: MapistoTerritoryRaw, precisionLevel: number): Mapis
         raw.state_id
     );
     return res;
+}
 
+function parseScene(raw: SceneRaw): Scene {
+    return new Scene(
+        new Date(raw.validity_start + "Z"),
+        new Date(raw.validity_end + "Z"),
+        raw.states.map(s => parseState(s, null)),
+        raw.bounding_box,
+        raw.lands.map(l => parseLand(l, null))
+    );
 }
 

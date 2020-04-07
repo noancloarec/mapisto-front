@@ -123,7 +123,7 @@ export function fitViewboxToAspectRatio(vb: ViewBoxLike, aspectRatio: number): V
         return {
             ...vb,
             height: vb.width / aspectRatio,
-            y: vb.y - (aspectRatio / vb.width - vb.height) / 2
+            y: vb.y - (vb.width / aspectRatio - vb.height) / 2
         };
     } else {
         return vb;

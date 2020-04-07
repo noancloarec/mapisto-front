@@ -1,0 +1,11 @@
+.video-player{
+    position: relative;
+    max-height: 100vh;
+    user-select: none;
+}
+
+.video-time-display{
+    position: absolute;
+    left : 50%;
+    transform: translateX(-50%);
+}

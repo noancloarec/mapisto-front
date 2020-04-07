@@ -58,7 +58,7 @@ class FocusedOnTerritoryMapUnconnected extends React.Component<Props, State>{
     render() {
         return <MapistoMap
             SVGManager={this.svgManager}
-            initialViewbox={this.props.territory.boundingBox}
+            viewbox={this.props.territory.boundingBox}
             mpStates={this.state.mpStates}
             lands={this.state.lands}
         >

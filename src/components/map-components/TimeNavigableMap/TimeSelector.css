@@ -40,3 +40,7 @@
     -moz-appearance: textfield;
     /* Firefox */
 }
+.time-select input:disabled{
+    background-color: white;
+    color: black;
+}
