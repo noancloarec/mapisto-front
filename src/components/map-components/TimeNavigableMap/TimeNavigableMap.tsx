@@ -6,6 +6,7 @@ import { TimeNavigableSVGManager } from './TimeNavigableSVGManager';
 import { LoadingIcon } from './LoadingIcon';
 import { Subject } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
+import { ViewBoxLike } from '@svgdotjs/svg.js';
 
 interface State {
     yearOnSelector: number;
@@ -16,6 +17,7 @@ interface Props {
     initialYear: number;
     svgManager: TimeNavigableSVGManager;
     yearChange?: (newYearDisplayed: number) => void;
+    initialViewBox: ViewBoxLike;
 }
 export class TimeNavigableMap extends React.Component<Props, State>{
     private timeChangeSubject$: Subject<number>;
@@ -73,6 +75,7 @@ export class TimeNavigableMap extends React.Component<Props, State>{
                 svgManager={this.props.svgManager}
                 year={this.state.yearDisplayed}
                 onStatesLoaded={() => this.setState({ loading: false })}
+                initialViewBox={this.props.initialViewBox}
             ></NavigableMap>
             <TimeSelector
                 year={this.state.yearOnSelector}

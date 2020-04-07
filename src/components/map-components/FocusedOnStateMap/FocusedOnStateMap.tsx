@@ -35,6 +35,7 @@ export class FocusedOnStateMap extends React.Component<Props, State>{
 
 
     componentDidMount() {
+        console.log('focused on state did mount')
         MapistoAPI.loadState(this.props.state_id, this.props.year).subscribe(
             state => {
                 this.setState({ viewBoxForState: state.boundingBox }, () => {

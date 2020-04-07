@@ -41,7 +41,7 @@ code {
     monospace;
 }
 
-button.dotted-button{
+.dotted-button, .dotted-button:hover{
   color: inherit;
   font-weight: 200;
   background: none!important;
@@ -56,7 +56,11 @@ button.dotted-button{
   margin-top: .25rem;
     font-size: 80%;
     color: #dc3545;
+}
 
+a:hover{
+  color: initial;
+  text-decoration: initial;
 }
 
 button:disabled{

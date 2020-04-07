@@ -6,6 +6,7 @@ import { EditionType } from "src/store/edition/types";
 import { RootState } from "src/store";
 import { MapistoState } from "src/entities/mapistoState";
 import { FocusedOnStateMap } from "src/components/map-components/FocusedOnStateMap/FocusedOnStateMap";
+import { Link } from "react-router-dom";
 
 interface StateProps {
     selectedState: MapistoState;
@@ -22,6 +23,10 @@ class StateDisplay extends React.Component<Props, {}>{
         return (
             <section id="state-display">
                 <h1>{this.props.selectedState.name}</h1>
+                <h2 className="text-center">
+                    <Link className="dotted-button"
+                        to={`/movie/${this.props.selectedState.stateId}`}>Play its evolution</Link>
+                </h2>
                 <div className="state-display-map-container">
 
                     <FocusedOnStateMap year={this.props.year} state_id={this.props.selectedState.stateId} />

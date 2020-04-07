@@ -16,6 +16,7 @@ interface OwnProps {
     year: number;
     svgManager: NavigableSVGManager;
     onStatesLoaded: () => void;
+    initialViewBox: ViewBoxLike;
 }
 
 interface StateProps {
@@ -39,9 +40,7 @@ class NavigableMapUnconnected extends React.Component<Props, State>{
         this.state = {
             mpStates: [],
             lands: [],
-            viewbox: {
-                x: 0, y: 0, width: 1000, height: 1000
-            }
+            viewbox: this.props.initialViewBox
         };
         this.scheduleRefresh$ = new Subject<ViewBoxLike>();
         this.scheduleRefresh$.pipe(
@@ -49,8 +48,8 @@ class NavigableMapUnconnected extends React.Component<Props, State>{
         ).subscribe(vb => this.loadMap(vb));
 
         this.props.svgManager.attachOnZoomOrPan(vb => {
-            this.setState({ viewbox: vb })
-            this.scheduleRefresh$.next(vb)
+            this.setState({ viewbox: vb });
+            this.scheduleRefresh$.next(vb);
         });
     }
 

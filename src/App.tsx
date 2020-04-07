@@ -7,7 +7,9 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link
+  Link,
+  useLocation,
+  useParams
 } from "react-router-dom";
 import { VideoPlayer } from './components/video-components/video-player/VideoPlayer';
 
@@ -31,18 +33,26 @@ const App: React.FC = () => {
             </section>
           </div>
         </Route>
-        <Route path="/movie">
-          <div className="container-fluid">
-            <div className="row d-flex justify-content-center video-page">
-              <div className="col-12  col-lg-11 col-xl-10 p-0">
-                <VideoPlayer stateId={79} />
-              </div>
-            </div>
-          </div>
+        <Route path="/movie/:state_id">
+          <VideoPage />
         </Route>
+
 
       </Switch>
     </Router>
+  );
+};
+
+const VideoPage: React.FC = () => {
+  const { state_id } = useParams<{ state_id: string }>();
+  return (
+    <div className="container-fluid">
+      <div className="row d-flex justify-content-center video-page">
+        <div className="col-12  col-lg-11 col-xl-10 p-0">
+          <VideoPlayer stateId={parseInt(state_id, 10)} />
+        </div>
+      </div>
+    </div>
   );
 };
 

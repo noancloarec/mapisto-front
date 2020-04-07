@@ -14,6 +14,8 @@ interface State{
 }
 export class ControlBar extends React.Component<Props, State>{
     private progressBarRef : RefObject<HTMLDivElement>;
+    private handleMouseMove : (e:MouseEvent) => void;
+    private handleMouseUp : () => void;
     constructor(props : Props){
         super(props);
         this.progressBarRef = React.createRef();
@@ -21,6 +23,19 @@ export class ControlBar extends React.Component<Props, State>{
         this.state = {
             progressBeingChanged : false
         };
+
+        this.handleMouseMove = ((event : MouseEvent) => {
+            if(this.state.progressBeingChanged){
+                this.emitYearChange(event);
+            }
+        }).bind(this);
+
+        this.handleMouseUp = (() => {
+            this.setState({
+                progressBeingChanged : false
+            });
+        }).bind(this);
+
     }
 
 
@@ -64,36 +79,27 @@ export class ControlBar extends React.Component<Props, State>{
     }
 
     computeProgress():number{
-        const totalYears = this.props.end - this.props.start;
+        const totalYears = this.props.end - this.props.start -1;
         const elapsedYears = this.props.year - this.props.start;
-        return Math.ceil(100*elapsedYears/totalYears);
+        return 100*elapsedYears/totalYears;
     }
 
     componentDidMount(){
-        window.addEventListener('mousemove', e => this.handleMouseMove(e));
-        window.addEventListener('mouseup', e => this.handleMouseUp(e));
+        window.addEventListener('mousemove', this.handleMouseMove);
+        window.addEventListener('mouseup', this.handleMouseUp);
     }
     componentWillUnmount(){
-        window.removeEventListener('mousemove', e => this.handleMouseMove(e));
-        window.removeEventListener('mouseup', e => this.handleMouseUp(e));
+        window.removeEventListener('mousemove', this.handleMouseMove);
+        window.removeEventListener('mouseup', this.handleMouseUp);
     }
 
-    handleMouseMove(event : MouseEvent){
-        if(this.state.progressBeingChanged){
-            this.emitYearChange(event);
-        }
-    }
-
-    handleMouseUp(event : MouseEvent){
-        this.setState({
-            progressBeingChanged : false
-        });
-    }
 
     emitYearChange(event: MouseEvent){
         const boundingRect = this.progressBarRef.current.getBoundingClientRect();
         const progress = (event.clientX - boundingRect.left)/boundingRect.width;
-        const year = Math.floor((this.props.end - this.props.start)*progress + this.props.start);
+        let year = Math.floor((this.props.end - this.props.start)*progress + this.props.start);
+        year = Math.max(this.props.start, year);
+        year=Math.min(this.props.end-1, year);
         this.props.onYearChange(year);
 
     }
@@ -105,6 +111,6 @@ export class ControlBar extends React.Component<Props, State>{
         if(!this.props.paused){
             this.props.onPause();
         }
-        this.emitYearChange(event.nativeEvent)
+        this.emitYearChange(event.nativeEvent);
     }
 }

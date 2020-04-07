@@ -6,18 +6,17 @@ import { connect } from 'react-redux';
 import { changeYear } from 'src/store/main-map/actions';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
 import { selectTerritory, fitSelectedToYear } from 'src/store/edition/actions';
-import { RootState } from 'src/store';
 import { EditionActionTypes } from 'src/store/edition/types';
 import { MainMapActionTypes } from 'src/store/main-map/types';
+import { withRouter, RouteComponentProps } from 'react-router';
+import { ViewBoxLike } from '@svgdotjs/svg.js';
 
-interface StateProps {
-    initialYear: number;
-}
+
 interface DispatchProps {
     yearChange: (newYear: number) => void;
     onSelectTerritory: (t: MapistoTerritory) => void;
 }
-type Props = DispatchProps & StateProps;
+type Props = DispatchProps & RouteComponentProps;
 export class InteractiveMap extends React.Component<Props, {}>{
     private svgManager: InteractiveSVGManager;
     constructor(props: Props) {
@@ -34,11 +33,35 @@ export class InteractiveMap extends React.Component<Props, {}>{
                         this.props.yearChange(y);
                     }
                     }
-                    initialYear={this.props.initialYear}
+                    initialYear={this.yearFromParams()}
+                    initialViewBox={this.vbFromParams()}
 
                 ></TimeNavigableMap>
             </div>
         );
+    }
+    componentDidMount() {
+        console.log('componenet did mount')
+        this.props.yearChange(this.yearFromParams());
+        this.props.onSelectTerritory(null);
+    }
+    yearFromParams() {
+        return parseInt(new URLSearchParams(this.props.location.search).get('year'), 10) || 1918;
+    }
+
+    vbFromParams(): ViewBoxLike {
+        const params = new URLSearchParams(this.props.location.search);
+        const x = parseInt(params.get('x'), 10);
+        const y = parseInt(params.get('y'), 10);
+        const width = parseInt(params.get('width'), 10);
+        const height = parseInt(params.get('height'), 10);
+        if (!(isNaN(x) || isNaN(y) || isNaN(width) || isNaN(height))) {
+            return {
+                x, y, width, height
+            };
+        } else {
+            return { x: 0, y: 0, width: 1000, height: 1000 };
+        }
     }
 }
 
@@ -53,8 +76,7 @@ const mapDispatchToProps = (
     onSelectTerritory: territory => dispatch(selectTerritory(territory))
 });
 
-const mapStateToProps = (state: RootState): StateProps => ({
-    initialYear: state.mainMap.currentYear,
-});
 
-export const InteractiveMapConnected = connect(mapStateToProps, mapDispatchToProps)(InteractiveMap);
+
+
+export const InteractiveMapConnected = withRouter(connect(() => ({}), mapDispatchToProps)(InteractiveMap));

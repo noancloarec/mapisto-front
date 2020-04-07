@@ -20,7 +20,9 @@ export function editionReducer(
         case SELECT_TERRITORY:
             return {
                 ...state,
-                selectedTerritory: action.payload
+                selectedTerritory: action.payload,
+                selectedState: null,
+                editionType: null
             };
         case CHANGE_EDITION_TYPE:
             return {
