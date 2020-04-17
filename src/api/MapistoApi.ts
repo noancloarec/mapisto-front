@@ -156,12 +156,8 @@ export class MapistoAPI {
                 {
                     name: toCreate.name,
                     color: toCreate.color,
-                },
-                {
-                    params: {
-                        validity_start: toCreate.validityStart,
-                        validity_end: toCreate.validityEnd
-                    }
+                    validity_start: toCreate.validityStart,
+                    validity_end: toCreate.validityEnd
                 }
             )).pipe(
                 map(res => res.data)

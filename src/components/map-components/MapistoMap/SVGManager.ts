@@ -149,7 +149,6 @@ export class SVGManager {
      */
     protected refreshNamesDisplay(container = this.namesContainer, sourceContainer = this.statesContainer) {
         container.clear();
-        return;
         for (const st of sourceContainer.children()) {
             const name = st.attr('state-name');
             if (name) {
