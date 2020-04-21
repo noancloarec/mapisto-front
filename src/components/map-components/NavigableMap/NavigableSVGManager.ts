@@ -109,7 +109,6 @@ export class NavigableSVGManager extends SVGManager {
      * @param direction >0 for zoom, <0 for unzoom
      */
     private handleWheel(event: WheelEvent) {
-        console.log('wheeel')
         const scrollSpeed = 1.1;
         const scale = event.deltaY < 0 ? scrollSpeed : 1 / scrollSpeed;
 

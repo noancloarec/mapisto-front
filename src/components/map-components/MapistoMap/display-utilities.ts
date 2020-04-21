@@ -30,19 +30,10 @@ export function getVisibleSVG(svgContainer: HTMLDivElement): ViewBoxLike {
  */
 export function svgCoords(x: number, y: number, svgContainer: HTMLDivElement): DOMPoint {
     const svg = svgContainer.querySelector('svg');
-    // const pt = new DOMPoint(x, y);
     const fromSVG = svg.createSVGPoint();
     fromSVG.x = x;
     fromSVG.y = y;
-    // const res = pt.matrixTransform(svg.getScreenCTM().inverse());
     const resFromSVG = fromSVG.matrixTransform(svg.getScreenCTM().inverse());
-    // console.log('dompoint : ', pt, 'to', res);
-    console.log('newDomPoint', fromSVG, 'to', resFromSVG);
-    // const ancestors = getAncestors(svgContainer);
-    // const matrixes = ancestors.map(e => new DOMMatrix(window.getComputedStyle(e).transform));
-    // for (const matrix of matrixes) {
-    //     pt = pt.matrixTransform(matrix.inverse());
-    // }
     return resFromSVG;
 }
 
