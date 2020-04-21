@@ -3,7 +3,7 @@ import './TerritoryPanel.css';
 import { connect } from 'react-redux';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
 import { MapistoState } from 'src/entities/mapistoState';
-import { selectState, changeEditionType } from 'src/store/edition/actions';
+import { selectState, changeEditionType, selectTerritory } from 'src/store/edition/actions';
 import { RootState } from 'src/store';
 import { FocusedOnTerritoryMap } from 'src/components/map-components/FocusedOnTerritoryMap/FocusedOnTerritoryMap';
 import { MapistoAPI } from 'src/api/MapistoApi';
@@ -18,6 +18,7 @@ interface DispatchProps {
     startTerritoryEdition: () => void;
     startStateNaming: () => void;
     showSelectedState: () => void;
+    closePanel: () => void;
     // askForCapital: () => void;
 }
 type Props = StateProps & DispatchProps;
@@ -83,6 +84,12 @@ class TerritoryPanel extends React.Component<Props, State> {
         return (
             <div className="d-flex flex-column justify-content-between">
                 <div>
+                    <div className="d-flex justify-content-end">
+                        <button className="btn btn-outline-dark" onClick={this.props.closePanel}>
+                            <i className="fa fa-times" />
+                        </button>
+                    </div>
+
                     {
                         stateDetails.name ? (
                             <div>
@@ -145,8 +152,8 @@ const mapDispatchToProps: DispatchProps = {
     onSelectedStateLoaded: (st: MapistoState) => selectState(st),
     startTerritoryEdition: () => changeEditionType(EditionType.AskRenameOrExtendTerritory),
     showSelectedState: () => changeEditionType(EditionType.DisplayState),
-    startStateNaming: () => changeEditionType(EditionType.RenameState)
-
+    startStateNaming: () => changeEditionType(EditionType.RenameState),
+    closePanel: () => selectTerritory(null)
 };
 export const TerritoryPanelConnected = connect(
     mapStateToProps,
