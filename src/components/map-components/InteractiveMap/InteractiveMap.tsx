@@ -40,12 +40,7 @@ export class InteractiveMap extends React.Component<Props, {}>{
                 <TimeNavigableMap
                     svgManager={this.svgManager}
                     yearChange={y => {
-                        const searchParams = new URLSearchParams(this.props.location.search);
-                        searchParams.set('year', `${y}`);
-                        this.props.history.push({
-                            pathname: '/',
-                            search: searchParams.toString()
-                        });
+                        this.updateParams(y);
                         this.props.yearChange(y);
                     }
                     }
@@ -61,10 +56,22 @@ export class InteractiveMap extends React.Component<Props, {}>{
         this.props.onSelectTerritory(null);
     }
     yearFromParams() {
-        const year = parseInt(new URLSearchParams(this.props.location.search).get('year'), 10)
-            || Math.floor(Math.random() * 300 + 1700);
+        let year = parseInt(new URLSearchParams(this.props.location.search).get('year'), 10)
+        if (!year) {
+            year = Math.floor(Math.random() * 300 + 1700);
+            this.updateParams(year);
+        }
         this.props.yearChange(year);
         return year;
+    }
+
+    updateParams(year: number) {
+        const searchParams = new URLSearchParams(this.props.location.search);
+        searchParams.set('year', `${year}`);
+        this.props.history.push({
+            pathname: '/',
+            search: searchParams.toString()
+        });
     }
 
     vbFromParams(): ViewBoxLike {

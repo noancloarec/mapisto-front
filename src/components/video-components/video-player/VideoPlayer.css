@@ -4,7 +4,9 @@
     margin: auto;
     background-color: black;
 }
-
+.video-player a{
+    display: block;
+}
 .video-time-display{
     position: absolute;
     left : 50%;

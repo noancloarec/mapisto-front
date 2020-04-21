@@ -1,6 +1,7 @@
 import { SVGManager } from "../MapistoMap/SVGManager";
 import { ViewBoxLike } from "@svgdotjs/svg.js";
 import Hammer from 'hammerjs';
+import { MapistoPoint } from "src/entities/MapistoPoint";
 interface DragState {
     dragging: boolean;
     viewBoxOrigin: ViewBoxLike;
@@ -8,7 +9,7 @@ interface DragState {
 interface PinchState {
     pinching: boolean;
     viewBoxOrigin: ViewBoxLike;
-    zoomCenter: DOMPoint;
+    zoomCenter: MapistoPoint;
 }
 export class NavigableSVGManager extends SVGManager {
     private onZoomOrPan: (vb: ViewBoxLike) => void;
@@ -90,7 +91,7 @@ export class NavigableSVGManager extends SVGManager {
         this.pinchState = {
             pinching: true,
             viewBoxOrigin: this.getViewBox(),
-            zoomCenter: new DOMPoint(event.center.x, event.center.y)
+            zoomCenter: { x: event.center.x, y: event.center.y }
         };
     }
     private handlePinch(event: HammerInput) {
@@ -108,13 +109,14 @@ export class NavigableSVGManager extends SVGManager {
      * @param direction >0 for zoom, <0 for unzoom
      */
     private handleWheel(event: WheelEvent) {
+        console.log('wheeel')
         const scrollSpeed = 1.1;
         const scale = event.deltaY < 0 ? scrollSpeed : 1 / scrollSpeed;
 
-        this.doZoom(scale, this.getViewBox(), new DOMPoint(event.x, event.y));
+        this.doZoom(scale, this.getViewBox(), { x: event.x, y: event.y });
     }
 
-    private doZoom(scale: number, fromViewbox: ViewBoxLike, center: DOMPoint) {
+    private doZoom(scale: number, fromViewbox: ViewBoxLike, center: MapistoPoint) {
         const width = fromViewbox.width / scale;
         const height = fromViewbox.height / scale;
         const dw = width - fromViewbox.width;

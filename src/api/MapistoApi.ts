@@ -12,6 +12,7 @@ import { yearToISOString } from "src/utils/date_utils";
 import { ViewBoxLike } from "@svgdotjs/svg.js";
 import { SceneRaw } from "./SceneRaw";
 import { Scene } from "src/entities/Scene";
+import { MapistoPoint } from "src/entities/MapistoPoint";
 
 export class MapistoAPI {
 
@@ -83,7 +84,7 @@ export class MapistoAPI {
     }
 
     static getConcurrentTerritories(
-        territoryId: number, capital: DOMPoint, startYear: number, endYear: number
+        territoryId: number, capital: MapistoPoint, startYear: number, endYear: number
     ): Observable<MapistoTerritory[]> {
         return from(
             axios.get<MapistoTerritoryRaw[]>(`${config.api_path}/territory/${territoryId}/concurrent_territories`, {

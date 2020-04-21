@@ -9,6 +9,7 @@ import './ExtendTerritoryPeriod.css';
 import { MapistoAPI } from 'src/api/MapistoApi';
 import { dateFromYear } from 'src/utils/date_utils';
 import { FocusedOnTerritoryMap } from 'src/components/map-components/FocusedOnTerritoryMap/FocusedOnTerritoryMap';
+import { MapistoPoint } from 'src/entities/MapistoPoint';
 
 interface StateProps {
     selectedState: MapistoState;
@@ -20,7 +21,7 @@ interface DispatchProps {
 }
 type Props = StateProps & DispatchProps;
 interface State {
-    capital: DOMPoint;
+    capital: MapistoPoint;
     step: number;
     startYear: string;
     endYear: string;

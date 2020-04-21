@@ -2,9 +2,10 @@ import React from 'react';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
 import { FocusedOnTerritoryMap } from '../FocusedOnTerritoryMap/FocusedOnTerritoryMap';
 import { SelectCapitalSVGManager } from './SelectCapitalSVGManager';
+import { MapistoPoint } from 'src/entities/MapistoPoint';
 interface Props {
     territory: MapistoTerritory;
-    onCapitalChange: (capital: DOMPoint) => void;
+    onCapitalChange: (capital: MapistoPoint) => void;
     year: number;
 }
 export class SelectCapitalMap extends React.Component<Props, {}>{

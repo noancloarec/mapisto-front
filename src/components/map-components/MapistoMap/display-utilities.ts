@@ -1,4 +1,4 @@
-import { ViewBoxLike, Box } from '@svgdotjs/svg.js';
+import { ViewBoxLike, Box, Point } from '@svgdotjs/svg.js';
 import { config } from 'src/config';
 import { SVGManager } from './SVGManager';
 
@@ -29,14 +29,21 @@ export function getVisibleSVG(svgContainer: HTMLDivElement): ViewBoxLike {
  * @param y The y coordinate (in pixel, within the window) of the point
  */
 export function svgCoords(x: number, y: number, svgContainer: HTMLDivElement): DOMPoint {
-
-    const pt = new DOMPoint(x, y);
+    const svg = svgContainer.querySelector('svg');
+    // const pt = new DOMPoint(x, y);
+    const fromSVG = svg.createSVGPoint();
+    fromSVG.x = x;
+    fromSVG.y = y;
+    // const res = pt.matrixTransform(svg.getScreenCTM().inverse());
+    const resFromSVG = fromSVG.matrixTransform(svg.getScreenCTM().inverse());
+    // console.log('dompoint : ', pt, 'to', res);
+    console.log('newDomPoint', fromSVG, 'to', resFromSVG);
     // const ancestors = getAncestors(svgContainer);
     // const matrixes = ancestors.map(e => new DOMMatrix(window.getComputedStyle(e).transform));
     // for (const matrix of matrixes) {
     //     pt = pt.matrixTransform(matrix.inverse());
     // }
-    return pt.matrixTransform(svgContainer.querySelector('svg').getScreenCTM().inverse());
+    return resFromSVG;
 }
 
 // function getAncestors(node: HTMLElement): Element[] {

@@ -2,10 +2,11 @@ import { FocusedSVGManager } from "../FocusedOnStateMap/FocusedSVGManager";
 import { G, Path, Circle } from "@svgdotjs/svg.js";
 import { MapistoTerritory } from "src/entities/mapistoTerritory";
 import { svgCoords } from "../MapistoMap/display-utilities";
+import { MapistoPoint } from "src/entities/MapistoPoint";
 
 export class SelectCapitalSVGManager extends FocusedSVGManager {
     private targetTerritoryId: number;
-    public onSelectCapital: (capital: DOMPoint) => void;
+    public onSelectCapital: (capital: MapistoPoint) => void;
     private capitalCircle: Circle;
     setTargetedTerritory(territory: MapistoTerritory) {
         this.targetTerritoryId = territory.territoryId;
