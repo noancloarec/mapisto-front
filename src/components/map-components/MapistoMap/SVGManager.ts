@@ -218,6 +218,12 @@ export class SVGManager {
         this.viewbox = vb;
     }
 
+    public onUnmount() {
+        this.namesContainer.clear();
+        this.landContainer.clear();
+        this.statesContainer.clear();
+        this.drawing.clear();
+    }
 
 
 }

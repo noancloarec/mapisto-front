@@ -1,7 +1,8 @@
 .video-player{
     position: relative;
-    max-height: 100vh;
     user-select: none;
+    margin: auto;
+    background-color: black;
 }
 
 .video-time-display{
@@ -10,10 +11,22 @@
     transform: translateX(-50%);
 }
 
-.time-link{
-    margin: 10px 15px;
-    position: absolute;
-    width: 200px;
-    height: 76px ;
-    top: 0;
+.video-time-display .time-select{
+    pointer-events: none;
+}
+
+.video-loading-container{
+    width:100px;
+    height: 100px;
+}
+
+p.loading-progress{
+    color: white;
+    font-size: 3em;
+    margin-top: 20px;
+    text-align: center;
+}
+
+.video-player.hide-cursor{
+    cursor: none;
 }

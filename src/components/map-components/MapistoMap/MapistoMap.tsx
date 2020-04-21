@@ -26,9 +26,9 @@ export class MapistoMap extends React.Component<Props, {}>{
     constructor(props: Props) {
         super(props);
         if (this.props.SVGManager) {
-            this.svgManager = this.props.SVGManager
+            this.svgManager = this.props.SVGManager;
         } else {
-            this.svgManager = new SVGManager()
+            this.svgManager = new SVGManager();
         }
         this.containerRef = React.createRef<HTMLDivElement>();
     }
@@ -72,6 +72,11 @@ export class MapistoMap extends React.Component<Props, {}>{
         this.initSVG();
     }
 
+    componentWillUnmount() {
+        console.log("map unmount");
+        this.svgManager.onUnmount();
+        delete this.svgManager;
+    }
     private drawTerritories(mpStates: MapistoState[]) {
         this.svgManager.clearTerritories();
         for (const mpState of mpStates) {
@@ -104,7 +109,6 @@ export class MapistoMap extends React.Component<Props, {}>{
 
 
     render() {
-        console.log("MAP render");
         return (
             <div className="map"
                 onKeyDown={event => {

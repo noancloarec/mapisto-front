@@ -47,15 +47,11 @@ class EditionPopup extends React.Component<Props, {}>{
                         text: `The borders were stable for longer than ${this.props.selectedTerritory.startYear} \
                         - ${this.props.selectedTerritory.endYear}`,
                         action: this.props.choseExtendTerritory
-                    }
-                    ]}
-                />;
-            case EditionType.AskRenameOrExtendState:
-                return <ChooseAction
-                    choices={[{
-                        text: `${this.props.selectedState.name} is mispelled / I don't like the color`,
-                        action: this.props.choseRenameState
                     },
+                    // {
+                    //     text: `${this.props.selectedState.name} is mispelled / I don't like the color`,
+                    //     action: this.props.choseRenameState
+                    // },
                     {
                         text: `${this.props.selectedState.name} existed for longer than ${this.props.selectedState.startYear} \
                         - ${this.props.selectedState.endYear}`,

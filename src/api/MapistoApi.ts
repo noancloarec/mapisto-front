@@ -213,9 +213,13 @@ export class MapistoAPI {
         );
     }
 
-    static getVideo(stateId: number): Observable<Scene[]> {
+    static getVideo(stateId: number, onProgress?: (progress: number) => void): Observable<Scene[]> {
         return from(
-            axios.get<SceneRaw[]>(`${config.api_path}/movie/${stateId}`)
+            axios.get<SceneRaw[]>(`${config.api_path}/movie/${stateId}`,
+                onProgress ? {
+                    onDownloadProgress: event => onProgress(event.loaded / event.total)
+                } : {}
+            )
         ).pipe(
             map(res => res.data.map(s => parseScene(s))),
         );

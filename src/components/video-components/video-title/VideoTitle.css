@@ -1,0 +1,37 @@
+.video-title{
+    position: absolute;
+    top: 0;
+    width: 100%;
+    color: white;
+}
+
+.video-title>h1{
+    position: absolute;
+    padding: 10px 30px;
+    z-index: 1;
+    font-size: 1.7em;
+}
+
+@media screen and (max-width:700px){
+    .video-title>h1{
+        font-size: 1em;
+    }
+}
+
+
+.bg-gradient-title{
+    height: 168px;
+    position: absolute;
+    width: 100%;
+    top: 0;
+    background: linear-gradient(0deg, rgba(155,155,155,0.0) 52%,rgba(0, 0, 0, 0.7791491596638656) 93%);
+}
+
+.video-title{
+    opacity: 100;
+}
+
+.video-title.hidden{
+    opacity: 0;
+    transition: opacity ease-out .3s;
+}

@@ -16,6 +16,17 @@
     color: gray;
 }
 
+.time-select{
+    pointer-events: auto;
+    height: 85px;
+
+}
+.time-select svg{
+    height: 60%!important;
+    margin-top: 17px;
+    fill: gray;
+    cursor: pointer;
+}
 .time-select input,
 .time-select input:focus {
     font-size: 3em;
@@ -25,7 +36,24 @@
     outline: none;
     border: 1px solid black;
     border-radius: 2px;
-    max-width: 40vw;
+}
+
+
+
+@media (max-height:600px), (max-width:700px){
+    .time-select{
+        height: 60px;
+    }
+    .time-select input, .time-select input:focus{
+        font-size: 1.8em;
+        width: 111px;
+    }
+
+    .time-select svg{
+        height: 49% !important;
+        margin-top: 15px;
+    }
+
 }
 
 .time-select input::-webkit-outer-spin-button,

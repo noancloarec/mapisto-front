@@ -77,10 +77,12 @@ export class TimeNavigableMap extends React.Component<Props, State>{
                 onStatesLoaded={() => this.setState({ loading: false })}
                 initialViewBox={this.props.initialViewBox}
             ></NavigableMap>
-            <TimeSelector
-                year={this.state.yearOnSelector}
-                yearChange={newYear => this.changeYear(newYear)}
-            ></TimeSelector>
+            <div className="time-selector-row">
+                <TimeSelector
+                    year={this.state.yearOnSelector}
+                    yearChange={newYear => this.changeYear(newYear)}
+                ></TimeSelector>
+            </div>
             {(this.state.loading &&
                 <div className="loading-box">
                     <LoadingIcon loading={true}></LoadingIcon>

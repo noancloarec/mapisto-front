@@ -7,6 +7,7 @@ import { FocusedSVGManager } from "./FocusedSVGManager";
 import { Land } from "src/entities/Land";
 import { getMapPrecision, enlargeViewBox, fitViewboxToAspectRatio } from "../MapistoMap/display-utilities";
 import './FocusedMap.css';
+import { Subscription } from "rxjs";
 
 interface Props {
     year: number;
@@ -21,6 +22,7 @@ interface State {
 export class FocusedOnStateMap extends React.Component<Props, State>{
 
     svgManager: FocusedSVGManager;
+    loadStateSubscription: Subscription;
 
     constructor(props: Props) {
         super(props);
@@ -35,8 +37,7 @@ export class FocusedOnStateMap extends React.Component<Props, State>{
 
 
     componentDidMount() {
-        console.log('focused on state did mount')
-        MapistoAPI.loadState(this.props.state_id, this.props.year).subscribe(
+        this.loadStateSubscription = MapistoAPI.loadState(this.props.state_id, this.props.year).subscribe(
             state => {
                 this.setState({ viewBoxForState: state.boundingBox }, () => {
                     const toLoad = enlargeViewBox(fitViewboxToAspectRatio(state.boundingBox, 16 / 9), 1.2)
@@ -45,6 +46,9 @@ export class FocusedOnStateMap extends React.Component<Props, State>{
                 });
             }
         );
+    }
+    componentWillUnmount() {
+        this.loadStateSubscription.unsubscribe();
     }
 
     loadActualMap(precision: number, toLoad: ViewBoxLike) {

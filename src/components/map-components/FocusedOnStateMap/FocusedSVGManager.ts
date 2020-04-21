@@ -34,7 +34,6 @@ export class FocusedSVGManager extends SVGManager {
         if (this.focusedViewbox) {
             this.drawing.viewbox(this.focusedViewbox);
         }
-        console.log('end init map');
     }
 
     addState(st: MapistoState) {

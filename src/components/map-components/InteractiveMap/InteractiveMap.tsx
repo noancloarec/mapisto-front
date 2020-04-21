@@ -41,12 +41,13 @@ export class InteractiveMap extends React.Component<Props, {}>{
         );
     }
     componentDidMount() {
-        console.log('componenet did mount')
         this.props.yearChange(this.yearFromParams());
         this.props.onSelectTerritory(null);
     }
     yearFromParams() {
-        return parseInt(new URLSearchParams(this.props.location.search).get('year'), 10) || 1918;
+        const year = parseInt(new URLSearchParams(this.props.location.search).get('year'), 10) || Math.floor(Math.random() * 300 + 1700);
+        this.props.yearChange(year);
+        return year
     }
 
     vbFromParams(): ViewBoxLike {

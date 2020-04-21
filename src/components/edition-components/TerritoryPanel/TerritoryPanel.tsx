@@ -85,12 +85,15 @@ class TerritoryPanel extends React.Component<Props, State> {
                 <div>
                     {
                         stateDetails.name ? (
-
-                            <h1>A part of&nbsp;
-                        <button className="dotted-button" onClick={this.props.showSelectedState}>
-                                    {stateDetails.name}
-                                </button>
-                            </h1>
+                            <div>
+                                <h1>A part of&nbsp;
+                                <a className="dotted-button"
+                                        href={`/movie/${stateDetails.stateId}`}>
+                                        {stateDetails.name}
+                                    </a>
+                                </h1>
+                                <h2 className="text-center">{stateDetails.startYear} - {stateDetails.endYear}</h2>
+                            </div>
                         ) :
                             (
                                 <h1>
@@ -104,13 +107,6 @@ class TerritoryPanel extends React.Component<Props, State> {
                             territory={this.props.selectedTerritory}
                         />
                     </div>
-                    {stateDetails.name &&
-                        <h3>Borders between&nbsp;
-                                {this.props.selectedTerritory.startYear}
-                            &nbsp;and&nbsp;
-                                {this.props.selectedTerritory.endYear}
-                        </h3>
-                    }
                 </div>
                 {this.renderActionButtons()}
             </div >

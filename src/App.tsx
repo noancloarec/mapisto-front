@@ -46,13 +46,7 @@ const App: React.FC = () => {
 const VideoPage: React.FC = () => {
   const { state_id } = useParams<{ state_id: string }>();
   return (
-    <div className="container-fluid">
-      <div className="row d-flex justify-content-center video-page">
-        <div className="col-12  col-lg-11 col-xl-10 p-0">
-          <VideoPlayer stateId={parseInt(state_id, 10)} />
-        </div>
-      </div>
-    </div>
+    <VideoPlayer stateId={parseInt(state_id, 10)} />
   );
 };
 

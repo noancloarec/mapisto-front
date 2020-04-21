@@ -3,7 +3,7 @@
     bottom: 0;
     left: 0;
     right: 0;
-    height: 40px;
+    height: 45px;
 }
 
 .progress-bar-container{
@@ -30,23 +30,26 @@
     background-color: red;
 }
 
-.play-pause-button{
-    position: absolute;
-    left: 0;
-    bottom: 0;
-    width: 58px;
+.buttons-container{
     height: 36px;
+    display: flex;
+    justify-content: space-between;
     padding-left: 5px;
+    margin-top: 8px;
+}
+.buttons-container > *{
+    z-index: 1;
+}
+.play-pause-button, .full-screen-button{
+    width: 58px;
     cursor: pointer;
 }
 .play-pause-button > svg{
     width: 100%;
 }
 
-.play-pause-button > svg > path{
+.buttons-container  svg{
     fill: white;
-    stroke: #999;
-    stroke-width: 1;
 }
 
 .bg-gradient{
@@ -57,4 +60,13 @@
     left: 0;
     right: 0;
     background: linear-gradient(0deg, rgba(88, 88, 88, 0.7791491596638656) 0%, rgba(255,255,255,0.0) 100%);
+}
+
+.control-bar{
+    opacity: 100;
+}
+
+.control-bar.hidden{
+    opacity: 0;
+    transition: opacity ease-out .3s;
 }

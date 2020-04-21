@@ -1,7 +1,7 @@
 import { MainMapState, MainMapActionTypes, CHANGE_YEAR } from "./types";
 
 const initialState: MainMapState = {
-    currentYear: 1918
+    currentYear: Math.random() * 300 + 1700
 };
 
 export function mainMapReducer(

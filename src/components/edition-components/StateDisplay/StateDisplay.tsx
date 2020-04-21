@@ -24,8 +24,8 @@ class StateDisplay extends React.Component<Props, {}>{
             <section id="state-display">
                 <h1>{this.props.selectedState.name}</h1>
                 <h2 className="text-center">
-                    <Link className="dotted-button"
-                        to={`/movie/${this.props.selectedState.stateId}`}>Play its evolution</Link>
+                    <a className="dotted-button"
+                        href={`/movie/${this.props.selectedState.stateId}`}>Play its evolution</a>
                 </h2>
                 <div className="state-display-map-container">
 

@@ -76,7 +76,7 @@ export function computeTerritoryNameSize(bbox: Box, svgWidth: number) {
 }
 
 export function getMapPrecision(svgManager: SVGManager) {
-    return getClosestPrecision(getKilometersPerPixel(svgManager));
+    return getClosestPrecision(getKilometersPerPixel(svgManager) * .7);
 }
 
 /**

@@ -1,22 +1,3 @@
-#time-selector-row {
-    position: fixed;
-    top: 0;
-    display: flex;
-    justify-content: center;
-    width: 100%;
-    pointer-events: none;
-}
-
-#time-selector {
-    opacity: .5;
-    pointer-events: all;
-    transition: opacity ease 1s;
-}
-
-#time-selector:hover {
-    opacity: 1;
-    transition: ease-out .1s;
-}
 
 body {
     margin: 0;
@@ -35,4 +16,28 @@ section#main-map {
 
 #main-map .map, #main-map svg{
     height: 100%;
+}
+
+.full-page-video-container{
+    width : 100vw;
+    height: 100vh;
+}
+.full-page-video-container > .video-player{
+    width: 100vw;
+    height: 56.25vw;
+}
+@media screen and (min-aspect-ratio :16/9){
+    .full-page-video-container > .video-player{
+        height: 100vmin;
+        width: 177.777777vmin;
+    }
+}
+
+.time-selector-row{
+    position: absolute;
+    pointer-events: none;
+    top: 0;
+    width: 100%;
+    display: flex;
+    justify-content: center;
 }
