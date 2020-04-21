@@ -50,6 +50,7 @@ div.state-color-indicator{
 }
 .autocomplete-result{
     cursor: pointer;
+    height: auto;
 }
 
 .autocomplete-result.hovered{
@@ -76,4 +77,12 @@ div.state-color-indicator{
 .state-autocomplete input[type="number"]::-webkit-outer-spin-button,
 .state-autocomplete input[type="number"]::-webkit-inner-spin-button {
     -webkit-appearance: none;
+}
+
+
+.search-icon{
+    position: absolute;
+    right: 10px;
+    top : 10px;
+    color: gray;
 }

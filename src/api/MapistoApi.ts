@@ -240,7 +240,7 @@ function parseState(raw: MapistoStateRaw, precisionLevel: number): MapistoState 
         new Date(raw.validity_start + "Z"),
         new Date(raw.validity_end + "Z"),
         raw.state_id,
-        raw.name,
+        raw.name ? raw.name : '',
         raw.territories ?
             raw.territories.map(territoryRaw => parseTerritory(territoryRaw, precisionLevel)) : undefined,
         raw.color,

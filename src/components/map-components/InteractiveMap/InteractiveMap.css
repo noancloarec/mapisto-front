@@ -10,3 +10,12 @@
 .interactive-map path.selected{
     opacity: .7;
 }
+
+.main-state-search{
+    position: absolute;
+    right: 0;
+    left: 0;
+}
+.main-state-search:focus{
+    right: 45px;
+}

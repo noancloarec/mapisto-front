@@ -16,6 +16,7 @@ interface Props {
     colorEnabled: boolean;
     yearInputsEnabled: boolean;
     canShowStateCreation: boolean;
+    onlySearch: boolean
 }
 interface State {
     searchResults: MapistoState[];
@@ -37,7 +38,8 @@ export class StateAutoComplete extends React.Component<Props, State>{
 
     public static defaultProps = {
         autoFocus: false,
-        canShowStateCreation: false
+        canShowStateCreation: false,
+        onlySearch: false
     };
     constructor(props: Props) {
         super(props);
@@ -46,8 +48,8 @@ export class StateAutoComplete extends React.Component<Props, State>{
             loading: false,
             inputIsFocused: false,
             hoveredIndex: -1,
-            startYearInInput: "" + this.props.mpState.startYear,
-            endYearInInput: "" + this.props.mpState.endYear,
+            startYearInInput: this.props.mpState ? "" + this.props.mpState.startYear : '',
+            endYearInInput: this.props.mpState ? "" + this.props.mpState.endYear : '',
         };
         this.patternChange$ = new Subject<string>();
 
@@ -82,7 +84,7 @@ export class StateAutoComplete extends React.Component<Props, State>{
         return (
             <div className="state-autocomplete">
                 {
-                    this.props.mpState && (
+                    !this.props.onlySearch && (
                         <div>
 
                             <div className="input-group">
@@ -122,13 +124,18 @@ export class StateAutoComplete extends React.Component<Props, State>{
                     )
                 }
                 {
-                    !this.props.mpState && this.renderInputSearch('')
+                    this.props.onlySearch && (
+                        <div>
+                            <i className="fas fa-search search-icon"></i>
+                            {this.renderInputSearch('')}
+                        </div>
+                    )
                 }
                 <div className="loading-icon">
                     <LoadingIcon loading={this.state.loading} thickness="4px" />
                 </div>
                 {
-                    this.state.inputIsFocused &&
+                    (true || this.state.inputIsFocused) &&
                     (
                         <div className="autocomplete-results">
                             {this.renderAutoCompleteResults()}
@@ -201,11 +208,11 @@ export class StateAutoComplete extends React.Component<Props, State>{
     renderExistingStateSearchResult(st: MapistoState) {
         return (
             <div className="row">
-                <div className=" col-1 pl-2 pr-2" >
+                <div className=" col-2 col-md-1 pl-2 pr-2" >
                     <div className="state-color-indicator" style={({ backgroundColor: st.color })}>
                     </div>
                 </div>
-                <div className="autocomplete-state-text col-5">
+                <div className="autocomplete-state-text col-4 col-md-5">
                     {st.name}
                 </div>
                 <div className="col-3 text-muted">

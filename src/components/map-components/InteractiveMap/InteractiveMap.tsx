@@ -10,6 +10,8 @@ import { EditionActionTypes } from 'src/store/edition/types';
 import { MainMapActionTypes } from 'src/store/main-map/types';
 import { withRouter, RouteComponentProps } from 'react-router';
 import { ViewBoxLike } from '@svgdotjs/svg.js';
+import { StateAutoComplete } from 'src/components/form-components/StateAutoComplete';
+import { StateSearch } from 'src/components/form-components/StateSearch';
 
 
 interface DispatchProps {
@@ -27,9 +29,23 @@ export class InteractiveMap extends React.Component<Props, {}>{
     render() {
         return (
             <div className="interactive-map">
+                <div className="main-state-search p-2 d-flex justify-content-end">
+                    <div className="col-12 col-sm-4 mt-5 mt-sm-1">
+                        <StateSearch
+                            onMPStateChange={st => window.location.href = `/movie/${st.stateId}`}
+                        />
+
+                    </div>
+                </div>
                 <TimeNavigableMap
                     svgManager={this.svgManager}
                     yearChange={y => {
+                        const searchParams = new URLSearchParams(this.props.location.search);
+                        searchParams.set('year', `${y}`);
+                        this.props.history.push({
+                            pathname: '/',
+                            search: searchParams.toString()
+                        });
                         this.props.yearChange(y);
                     }
                     }
@@ -45,9 +61,10 @@ export class InteractiveMap extends React.Component<Props, {}>{
         this.props.onSelectTerritory(null);
     }
     yearFromParams() {
-        const year = parseInt(new URLSearchParams(this.props.location.search).get('year'), 10) || Math.floor(Math.random() * 300 + 1700);
+        const year = parseInt(new URLSearchParams(this.props.location.search).get('year'), 10)
+            || Math.floor(Math.random() * 300 + 1700);
         this.props.yearChange(year);
-        return year
+        return year;
     }
 
     vbFromParams(): ViewBoxLike {
