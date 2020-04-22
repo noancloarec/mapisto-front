@@ -16,7 +16,8 @@ interface Props {
     colorEnabled: boolean;
     yearInputsEnabled: boolean;
     canShowStateCreation: boolean;
-    onlySearch: boolean
+    onlySearch: boolean;
+    placeholder: string;
 }
 interface State {
     searchResults: MapistoState[];
@@ -39,7 +40,8 @@ export class StateAutoComplete extends React.Component<Props, State>{
     public static defaultProps = {
         autoFocus: false,
         canShowStateCreation: false,
-        onlySearch: false
+        onlySearch: false,
+        placeholder: ''
     };
     constructor(props: Props) {
         super(props);
@@ -153,6 +155,7 @@ export class StateAutoComplete extends React.Component<Props, State>{
     renderInputSearch(widthClass: string) {
         return (
             <input
+                placeholder={this.props.placeholder}
                 autoFocus={this.props.autoFocus}
                 type="text" className={"form-control " + widthClass}
                 value={this.props.mpState.name}

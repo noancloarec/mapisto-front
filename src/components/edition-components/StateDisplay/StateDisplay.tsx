@@ -6,7 +6,6 @@ import { EditionType } from "src/store/edition/types";
 import { RootState } from "src/store";
 import { MapistoState } from "src/entities/mapistoState";
 import { FocusedOnStateMap } from "src/components/map-components/FocusedOnStateMap/FocusedOnStateMap";
-import { Link } from "react-router-dom";
 
 interface StateProps {
     selectedState: MapistoState;

@@ -1,4 +1,4 @@
-import { ViewBoxLike, Box, Point } from '@svgdotjs/svg.js';
+import { ViewBoxLike, Box } from '@svgdotjs/svg.js';
 import { config } from 'src/config';
 import { SVGManager } from './SVGManager';
 

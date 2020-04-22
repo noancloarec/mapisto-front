@@ -4,11 +4,15 @@ import { StateAutoComplete } from './StateAutoComplete';
 import { dateFromYear } from 'src/utils/date_utils';
 interface Props {
     onMPStateChange: (mpState: MapistoState) => void;
+    placeholder: string;
 }
 interface State {
     innerValue: MapistoState;
 }
 export class StateSearch extends React.Component<Props, State> {
+    public static defaultProps = {
+        placeholder: ''
+    };
     constructor(props: Props) {
         super(props);
         this.state = {
@@ -25,6 +29,7 @@ export class StateSearch extends React.Component<Props, State> {
                     this.props.onMPStateChange(st);
                 }
             }}
+            placeholder={this.props.placeholder}
             colorEnabled={false}
             onlySearch={true}
             mpState={this.state.innerValue}

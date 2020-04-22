@@ -7,8 +7,6 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  Link,
-  useLocation,
   useParams
 } from "react-router-dom";
 import { VideoPlayer } from './components/video-components/video-player/VideoPlayer';

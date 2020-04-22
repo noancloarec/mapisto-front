@@ -34,18 +34,28 @@ export class FocusedOnStateMap extends React.Component<Props, State>{
         };
     }
 
+    shouldComponentUpdate(newProps: Props) {
+        if (newProps.state_id !== this.props.state_id || newProps.year !== this.props.year) {
+            this.reloadMap(newProps.state_id, newProps.year);
+        }
+        return true;
+    }
 
-
-    componentDidMount() {
-        this.loadStateSubscription = MapistoAPI.loadState(this.props.state_id, this.props.year).subscribe(
+    reloadMap(stateId: number, year: number) {
+        this.loadStateSubscription = MapistoAPI.loadState(stateId, year).subscribe(
             state => {
                 this.setState({ viewBoxForState: state.boundingBox }, () => {
-                    const toLoad = enlargeViewBox(fitViewboxToAspectRatio(state.boundingBox, 16 / 9), 1.2)
+                    const toLoad = enlargeViewBox(fitViewboxToAspectRatio(state.boundingBox, 16 / 9), 1.2);
                     this.svgManager.setViewbox(toLoad);
                     this.loadActualMap(getMapPrecision(this.svgManager), toLoad);
                 });
             }
         );
+    }
+
+
+    componentDidMount() {
+        this.reloadMap(this.props.state_id, this.props.year);
     }
     componentWillUnmount() {
         this.loadStateSubscription.unsubscribe();

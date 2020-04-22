@@ -5,9 +5,9 @@ import { MapistoTerritory } from 'src/entities/mapistoTerritory';
 import { MapistoState } from 'src/entities/mapistoState';
 import { selectState, changeEditionType, selectTerritory } from 'src/store/edition/actions';
 import { RootState } from 'src/store';
-import { FocusedOnTerritoryMap } from 'src/components/map-components/FocusedOnTerritoryMap/FocusedOnTerritoryMap';
 import { MapistoAPI } from 'src/api/MapistoApi';
 import { EditionType } from 'src/store/edition/types';
+import { FocusedOnStateMap } from 'src/components/map-components/FocusedOnStateMap/FocusedOnStateMap';
 interface StateProps {
     selectedTerritory: MapistoTerritory;
     year: number;
@@ -93,12 +93,7 @@ class TerritoryPanel extends React.Component<Props, State> {
                     {
                         stateDetails.name ? (
                             <div>
-                                <h1>A part of&nbsp;
-                                <a className="dotted-button"
-                                        href={`/movie/${stateDetails.stateId}`}>
-                                        {stateDetails.name}
-                                    </a>
-                                </h1>
+                                <h1>{stateDetails.name}</h1>
                                 <h2 className="text-center">{stateDetails.startYear} - {stateDetails.endYear}</h2>
                             </div>
                         ) :
@@ -109,11 +104,20 @@ class TerritoryPanel extends React.Component<Props, State> {
                             )
                     }
                     <div className="thumbnail-in-panel">
-                        <FocusedOnTerritoryMap
+                        <FocusedOnStateMap
                             year={this.props.year}
-                            territory={this.props.selectedTerritory}
+                            state_id={stateDetails.stateId}
                         />
                     </div>
+                    {stateDetails.name && (
+                        <h3 className="text-center">
+                            <a className="dotted-button"
+                                href={`/movie/${stateDetails.stateId}`}>
+                                {stateDetails.name} : Every year
+                            </a>
+                        </h3>
+
+                    )}
                 </div>
                 {this.renderActionButtons()}
             </div >

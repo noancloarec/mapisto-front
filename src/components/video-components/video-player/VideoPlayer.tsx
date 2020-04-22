@@ -1,15 +1,14 @@
-import React, { Key, RefObject } from 'react';
+import React, { RefObject } from 'react';
 import { Scene } from 'src/entities/Scene';
 import { MapistoAPI } from 'src/api/MapistoApi';
 import { VideoMap } from 'src/components/map-components/VideoMap/VideoMap';
-import { range, zip, timer, Observable, Subscription, Subject, empty, of } from 'rxjs';
+import { range, zip, timer, Observable, Subscription, Subject, of } from 'rxjs';
 import { TimeSelector } from 'src/components/map-components/TimeNavigableMap/TimeSelector';
 import './VideoPlayer.css';
 import { ControlBar } from '../control-bar/ControlBar';
 import { throttleTime, delay } from 'rxjs/operators';
 import { LoadingIcon } from 'src/components/map-components/TimeNavigableMap/LoadingIcon';
 import { VideoTitle } from '../video-title/VideoTitle';
-import { MapistoState } from 'src/entities/mapistoState';
 
 interface Props {
     stateId: number;
@@ -133,7 +132,7 @@ export class VideoPlayer extends React.Component<Props, State>{
             scenery => this.setState({
                 scenery
             }, () => {
-                this.loadStateName()
+                this.loadStateName();
                 this.setVideoAt(scenery[0].startYear);
                 this.resume();
             })
@@ -169,7 +168,7 @@ export class VideoPlayer extends React.Component<Props, State>{
         } else if (event.key.toLocaleLowerCase() === 'f') {
             this.toggleFullScreen();
         }
-    }).bind(this);
+    });
 
     private pause() {
         this.setState({

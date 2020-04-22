@@ -10,7 +10,6 @@ import { EditionActionTypes } from 'src/store/edition/types';
 import { MainMapActionTypes } from 'src/store/main-map/types';
 import { withRouter, RouteComponentProps } from 'react-router';
 import { ViewBoxLike } from '@svgdotjs/svg.js';
-import { StateAutoComplete } from 'src/components/form-components/StateAutoComplete';
 import { StateSearch } from 'src/components/form-components/StateSearch';
 
 
@@ -32,6 +31,7 @@ export class InteractiveMap extends React.Component<Props, {}>{
                 <div className="main-state-search p-2 d-flex justify-content-end">
                     <div className="col-12 col-sm-4 mt-5 mt-sm-1">
                         <StateSearch
+                            placeholder='Which country do you want to see evolve?'
                             onMPStateChange={st => window.location.href = `/movie/${st.stateId}`}
                         />
 
@@ -52,7 +52,6 @@ export class InteractiveMap extends React.Component<Props, {}>{
         );
     }
     componentDidMount() {
-        this.props.yearChange(this.yearFromParams());
         this.props.onSelectTerritory(null);
     }
     yearFromParams() {
@@ -61,6 +60,7 @@ export class InteractiveMap extends React.Component<Props, {}>{
             year = Math.floor(Math.random() * 300 + 1700);
             this.updateParams(year);
         }
+        console.log('got year from params : ', year)
         this.props.yearChange(year);
         return year;
     }
