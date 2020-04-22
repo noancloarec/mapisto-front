@@ -137,7 +137,7 @@ export class StateAutoComplete extends React.Component<Props, State>{
                     <LoadingIcon loading={this.state.loading} thickness="4px" />
                 </div>
                 {
-                    (true || this.state.inputIsFocused) &&
+                    this.state.inputIsFocused &&
                     (
                         <div className="autocomplete-results">
                             {this.renderAutoCompleteResults()}
