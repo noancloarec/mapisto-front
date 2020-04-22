@@ -94,7 +94,10 @@ class TerritoryPanel extends React.Component<Props, State> {
                         stateDetails.name ? (
                             <div>
                                 <h1>{stateDetails.name}</h1>
-                                <h2 className="text-center">{stateDetails.startYear} - {stateDetails.endYear}</h2>
+                                <h2 className="text-center">
+                                    {stateDetails.startYear} -&nbsp;
+                                    {stateDetails.endYear < 2018 ? stateDetails.endYear : ''}
+                                </h2>
                             </div>
                         ) :
                             (
