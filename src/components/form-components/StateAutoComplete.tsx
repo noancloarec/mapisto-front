@@ -215,7 +215,7 @@ export class StateAutoComplete extends React.Component<Props, State>{
                     <div className="state-color-indicator" style={({ backgroundColor: st.color })}>
                     </div>
                 </div>
-                <div className="autocomplete-state-text col-4 col-md-5">
+                <div className="autocomplete-state-text col-4 col-md-5" translate="no">
                     {st.name}
                 </div>
                 <div className="col-3 text-muted">

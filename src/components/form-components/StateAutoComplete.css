@@ -60,6 +60,7 @@ div.state-color-indicator{
 
 .state-autocomplete > .loading-icon{
     position: absolute;
+    pointer-events: none;
     left: calc(-1.5em - .75rem - 12px);
     width: calc(1.5em + .75rem);
     height: calc(1.5em + .75rem);
