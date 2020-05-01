@@ -100,7 +100,7 @@ export class MapistoMap extends React.Component<Props, {}>{
 
     private initSVG() {
         this.svgManager.initMap(
-            this.containerRef.current, this.props.viewbox /*, vb => this.handleViewBoxChange(vb) */
+            this.containerRef.current, this.props.viewbox
         );
         this.drawTerritories(this.props.mpStates);
         this.drawLand(this.props.lands);
@@ -111,10 +111,6 @@ export class MapistoMap extends React.Component<Props, {}>{
     render() {
         return (
             <div className="map"
-                onKeyDown={event => {
-                    // console.log(this.props.onKeyDown)
-                    // this.props.onKeyDown && this.props.onKeyDown(event)
-                }}
                 ref={this.containerRef}>
             </div>
         );

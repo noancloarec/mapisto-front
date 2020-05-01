@@ -44,6 +44,7 @@ export class VideoPlayer extends React.Component<Props, State>{
         };
         this.videoPlayerRef = React.createRef();
         this.yearOnMapChange$ = new Subject<number>();
+
         this.yearOnMapChange$.pipe(
             throttleTime(300, undefined, { leading: true, trailing: true })
         ).subscribe(y => this.setState({

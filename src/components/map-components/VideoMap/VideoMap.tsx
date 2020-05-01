@@ -22,9 +22,15 @@ export class VideoMap extends React.Component<Props, State>{
             statesToDisplay: this.getCurrentScene().getYear(this.props.year)
         };
     }
+
+    /**
+     * Watch for changes in year (from props)
+     * If the year has changed, updates the states for display
+     * @param newProps
+     */
     shouldComponentUpdate(newProps: Props) {
         if (newProps.year !== this.props.year) {
-            const scene = newProps.scenery.find(s => !s.isOutdated(newProps.year));
+            const scene = this.getCurrentScene(newProps);
             this.setState({
                 statesToDisplay: scene.getYear(newProps.year),
                 currentBbox: scene.bbox,
@@ -40,7 +46,11 @@ export class VideoMap extends React.Component<Props, State>{
             lands={this.state.currentLands} />;
     }
 
-    private getCurrentScene(props = this.props) {
+    /**
+     * Selects in the scenery, the scene that happens in this year
+     * @param props
+     */
+    private getCurrentScene(props = this.props): Scene {
         return props.scenery.find(s => !s.isOutdated(props.year));
     }
 }
