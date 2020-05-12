@@ -7,3 +7,5 @@ RUN npm run build
 
 FROM nginx:1.17.6-alpine
 COPY --from=build_stage /app/build /usr/share/nginx/html
+ADD default.conf etc/nginx/conf.d
+
