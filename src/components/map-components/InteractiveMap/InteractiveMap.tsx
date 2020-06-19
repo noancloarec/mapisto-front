@@ -37,18 +37,7 @@ export class InteractiveMap extends React.Component<Props, {}>{
 
                     </div>
                 </div>
-                <TimeNavigableMap
-                    svgManager={this.svgManager}
-                    yearChange={y => {
-                        this.updateParams(y);
-                        this.props.yearChange(y);
-                    }
-                    }
-                    initialYear={this.yearFromParams()}
-                    initialViewBox={this.vbFromParams()}
-
-                ></TimeNavigableMap>
-            </div>
+            </div >
         );
     }
     componentDidMount() {

@@ -1,10 +1,11 @@
-import { Observable, from } from "rxjs";
+import { Observable, from, of, throwError } from "rxjs";
+import { ajax } from 'rxjs/ajax';
 import { MapistoTerritory } from "src/entities/mapistoTerritory";
 import { MapistoState } from "src/entities/mapistoState";
 import axios from 'axios';
 import { config } from "src/config";
 import { MapistoStateRaw } from "./MapistoStateRaw";
-import { map } from "rxjs/operators";
+import { map, switchMap, tap, catchError } from "rxjs/operators";
 import { MapistoTerritoryRaw } from "./MapistoTerritoryRaw";
 import { Land } from "src/entities/Land";
 import { LandRaw } from "./LandRaw";
@@ -13,16 +14,26 @@ import { ViewBoxLike } from "@svgdotjs/svg.js";
 import { SceneRaw } from "./SceneRaw";
 import { Scene } from "src/entities/Scene";
 import { MapistoPoint } from "src/entities/MapistoPoint";
+import { StateRepresentationRaw } from "./StateRepresentationRaw";
+import { StateRepresentation } from "src/entities/StateRepresentation";
+interface StatesAndTerritories {
+    states: MapistoState[];
+    territories: MapistoTerritory[];
+}
 
+interface StatesAndTerritoriesRaw {
+    states: MapistoStateRaw[];
+    territories: MapistoTerritoryRaw[];
+}
 export class MapistoAPI {
 
-    static loadStates(
+    static loadMap(
         year: number,
         precisionLevel: number,
         bbox: ViewBoxLike
-    ): Observable<MapistoState[]> {
+    ): Observable<StatesAndTerritories> {
         return from(
-            axios.get<MapistoStateRaw[]>(`${config.api_path}/map`, {
+            axios.get<StatesAndTerritoriesRaw>(`${config.api_path}/map`, {
                 params: {
                     date: yearToISOString(year),
                     precision_in_km: precisionLevel,
@@ -33,19 +44,58 @@ export class MapistoAPI {
                 }
             })
         ).pipe(
-            map(res => res.data),
-            map(res => res.map(stateRaw => parseState(stateRaw, precisionLevel)))
+            map(res => parseStatesAndTerritories(res.data, precisionLevel)),
         );
     }
-    static loadState(stateId: number, year: number): Observable<MapistoState> {
+
+    static loadMapForState(stateId: number, year: number, pixelWidth: number)
+        : Observable<StatesAndTerritories & { boundingBox: ViewBoxLike }> {
         return from(
-            axios.get<MapistoStateRaw>(`${config.api_path}/state/${stateId}`, {
+            axios.get<StatesAndTerritoriesRaw & { bounding_box: ViewBoxLike }>(`${config.api_path}/map_for_state/${stateId}`, {
                 params: {
-                    date: yearToISOString(year)
+                    date: yearToISOString(year),
+                    pixel_width: pixelWidth,
                 }
             })
         ).pipe(
-            map(res => parseState(res.data, Math.min(...config.precision_levels))),
+            map(res => (
+                { ...parseStatesAndTerritories(res.data, pixelWidth), boundingBox: res.data.bounding_box }
+            ))
+        );
+    }
+    static loadMapForTerritory(territoryId: number, year: number, pixelWidth: number)
+        : Observable<StatesAndTerritories & { boundingBox: ViewBoxLike }> {
+        return from(
+            axios.get<StatesAndTerritoriesRaw & { bounding_box: ViewBoxLike }>(`${config.api_path}/map_for_territory/${territoryId}`, {
+                params: {
+                    date: yearToISOString(year),
+                    pixel_width: pixelWidth,
+                }
+            })
+        ).pipe(
+            map(res => (
+                { ...parseStatesAndTerritories(res.data, pixelWidth), boundingBox: res.data.bounding_box }
+            ))
+        );
+    }
+
+    static loadState(stateId: number): Observable<MapistoState> {
+        return ajax.getJSON<MapistoStateRaw>(`${config.api_path}/state/${stateId}`)
+            .pipe(
+                map(res => parseState(res)),
+            );
+    }
+
+    static loadTerritory(territoryId: number): Observable<MapistoTerritory> {
+        // Loads the territory
+        return ajax.getJSON<MapistoTerritoryRaw>(`${config.api_path}/territory/${territoryId}`).pipe(
+            switchMap(res =>
+                // Loads the state corresponding to the territory
+                this.loadState(res.state_id).pipe(
+                    // Takes the loaded state and puts it in the territory to return
+                    map(state => parseTerritory(res, 0, state))
+                )
+            )
         );
     }
     static loadLands(
@@ -78,7 +128,7 @@ export class MapistoAPI {
             })
         ).pipe(
             map(res => res.data),
-            map(states => states.map(raw => parseState(raw, null))),
+            map(states => states.map(raw => parseState(raw))),
             map(states => states.sort((a, b) => a.compare(b)))
         );
     }
@@ -95,7 +145,7 @@ export class MapistoAPI {
                     capital_y: capital.y
                 }
             })).pipe(
-                map(res => res.data.map(raw => parseTerritory(raw, null)))
+                map(res => res.data.map(raw => parseTerritory(raw, null, undefined)))
             );
     }
 
@@ -107,7 +157,7 @@ export class MapistoAPI {
                 }
             })
         ).pipe(
-            map(res => parseState(res.data, null))
+            map(res => parseState(res.data))
         );
     }
 
@@ -130,7 +180,7 @@ export class MapistoAPI {
                 }
             }))
             .pipe(
-                map(res => res.data.removed_states.map(r => parseState(r, null)))
+                map(res => res.data.removed_states.map(r => parseState(r)))
             );
     }
 
@@ -154,12 +204,7 @@ export class MapistoAPI {
     static createState(toCreate: MapistoState): Observable<number> {
         return from(
             axios.post<number>(`${config.api_path}/state`,
-                {
-                    name: toCreate.name,
-                    color: toCreate.color,
-                    validity_start: toCreate.validityStart,
-                    validity_end: toCreate.validityEnd
-                }
+                toCreate
             )).pipe(
                 map(res => res.data)
             );
@@ -179,38 +224,29 @@ export class MapistoAPI {
                 }
             }))
             .pipe(
-                map(res => parseTerritory(res.data, null))
+                map(res => parseTerritory(res.data, null, undefined))
             );
 
     }
 
-    static putState(modifiedState: MapistoState): Observable<void> {
+    static putState(modifiedState: MapistoState): Observable<number> {
         return from(
-            axios.put<string>(
-                `${config.api_path}/state`,
-                { state_id: modifiedState.stateId, name: modifiedState.name, color: modifiedState.color },
-                {
-                    params: {
-                        validity_start: modifiedState.validityStart,
-                        validity_end: modifiedState.validityEnd
-                    }
-                })).pipe(
-                    map(_ => {
-                        return;
-                    })
-                );
+            axios.put(`${config.api_path}/state`,
+                stateJSON(modifiedState)
+            )).pipe(
+                catchError(e => throwError(e.response.data)),
+                map(response => modifiedState.stateId)
+            );
     }
-    static searchState(pattern: string, start?: number, end?: number): Observable<MapistoState[]> {
+    static searchState(pattern: string): Observable<MapistoState[]> {
         return from(
             axios.get<MapistoStateRaw[]>(`${config.api_path}/state_search`, {
                 params: {
                     pattern,
-                    start: start ? yearToISOString(start) : '',
-                    end: end ? yearToISOString(end) : ''
                 }
             })
         ).pipe(
-            map(res => res.data.map(s => parseState(s, null)))
+            map(res => res.data.map(s => parseState(s)))
         );
     }
 
@@ -236,21 +272,43 @@ function parseLand(raw: LandRaw, precisionLevel: number): Land {
     };
 }
 
-function parseState(raw: MapistoStateRaw, precisionLevel: number): MapistoState {
+function parseState(raw: MapistoStateRaw): MapistoState {
     return new MapistoState(
         new Date(raw.validity_start + "Z"),
         new Date(raw.validity_end + "Z"),
         raw.state_id,
-        raw.name ? raw.name : '',
-        raw.territories ?
-            raw.territories.map(territoryRaw => parseTerritory(territoryRaw, precisionLevel)) : undefined,
-        raw.color,
+        raw.representations.map(r => parseStateRepresentation(r)),
         raw.bounding_box
     );
-
+}
+function stateJSON(from: MapistoState): MapistoStateRaw {
+    return {
+        bounding_box: from.boundingBox,
+        representations: from.representations.map(r => stateRepresentationJSON(r)),
+        state_id: from.stateId,
+        validity_end: from.validityEnd.toISOString(),
+        validity_start: from.validityStart.toISOString()
+    };
 }
 
-function parseTerritory(raw: MapistoTerritoryRaw, precisionLevel: number): MapistoTerritory {
+function parseStateRepresentation(raw: StateRepresentationRaw): StateRepresentation {
+    return new StateRepresentation(
+        new Date(raw.validity_start + "Z"),
+        new Date(raw.validity_end + "Z"),
+        raw.name,
+        raw.color
+    );
+}
+function stateRepresentationJSON(from: StateRepresentation): StateRepresentationRaw {
+    return {
+        color: from.color,
+        name: from.name,
+        validity_start: from.validityStart.toISOString(),
+        validity_end: from.validityEnd.toISOString(),
+    };
+}
+
+function parseTerritory(raw: MapistoTerritoryRaw, precisionLevel: number, mpState: MapistoState): MapistoTerritory {
     if (!raw.validity_start || !raw.validity_end) {
         console.error("Missing validity on territory");
         console.error(raw);
@@ -262,7 +320,9 @@ function parseTerritory(raw: MapistoTerritoryRaw, precisionLevel: number): Mapis
         raw.territory_id,
         precisionLevel,
         raw.bounding_box,
-        raw.state_id
+        raw.color,
+        raw.name,
+        mpState
     );
     return res;
 }
@@ -271,9 +331,25 @@ function parseScene(raw: SceneRaw): Scene {
     return new Scene(
         new Date(raw.validity_start + "Z"),
         new Date(raw.validity_end + "Z"),
-        raw.states.map(s => parseState(s, null)),
+        raw.states.map(s => parseState(s)),
         raw.bounding_box,
         raw.lands.map(l => parseLand(l, null))
     );
+}
+
+function parseStatesAndTerritories(raw: StatesAndTerritoriesRaw, precisionLevel: number): StatesAndTerritories {
+    const mpStates = raw.states.map(r => parseState(r));
+
+    const res = {
+        states: mpStates,
+        territories: raw.territories.map(
+            t => parseTerritory(t, precisionLevel, mpStates.find(s => s.stateId === t.state_id))
+        )
+    };
+    for (const t of res.territories) {
+        t.mpState.getName(t.validityStart);
+    }
+
+    return res;
 }
 

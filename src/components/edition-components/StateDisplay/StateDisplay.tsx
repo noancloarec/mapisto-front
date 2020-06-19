@@ -6,6 +6,7 @@ import { EditionType } from "src/store/edition/types";
 import { RootState } from "src/store";
 import { MapistoState } from "src/entities/mapistoState";
 import { FocusedOnStateMap } from "src/components/map-components/FocusedOnStateMap/FocusedOnStateMap";
+import { dateFromYear } from "src/utils/date_utils";
 
 interface StateProps {
     selectedState: MapistoState;
@@ -21,14 +22,16 @@ class StateDisplay extends React.Component<Props, {}>{
     render() {
         return (
             <section id="state-display">
-                <h1>{this.props.selectedState.name}</h1>
+                <h1>{this.props.selectedState.getName(dateFromYear(this.props.year))}</h1>
                 <h2 className="text-center">
                     <a className="dotted-button"
                         href={`/movie/${this.props.selectedState.stateId}`}>Play its evolution</a>
                 </h2>
                 <div className="state-display-map-container">
 
-                    <FocusedOnStateMap year={this.props.year} state_id={this.props.selectedState.stateId} />
+                    <FocusedOnStateMap
+                        mpState={this.props.selectedState}
+                    />
                 </div>
                 <div className="m-3 d-flex justify-content-around">
                     <h4>Creation : {this.props.selectedState.startYear}</h4>

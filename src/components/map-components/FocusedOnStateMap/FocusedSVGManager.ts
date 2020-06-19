@@ -38,16 +38,16 @@ export class FocusedSVGManager extends SVGManager {
 
     addState(st: MapistoState) {
         super.addState(st);
-        const territoriesToFocusOn = st.territories.filter(
-            t => this.focusedTerritoriesId.indexOf(t.territoryId) !== -1
-        );
-        if (territoriesToFocusOn.length) {
-            const stateGroup = this.addStateGroup(st.stateId, st.name, st.color, this.focusedTerritoriesContainer);
-            for (const territory of territoriesToFocusOn) {
-                this.addTerritoryToStateGroup(stateGroup, territory);
-            }
-            this.overlayRect.fill(getOverlayColor(st.color));
-        }
+        // const territoriesToFocusOn = st.territories.filter(
+        //     t => this.focusedTerritoriesId.indexOf(t.territoryId) !== -1
+        // );
+        // if (territoriesToFocusOn.length) {
+        //     const stateGroup = this.addStateGroup(st.stateId, st.name, st.color, this.focusedTerritoriesContainer);
+        //     for (const territory of territoriesToFocusOn) {
+        //         this.addTerritoryToStateGroup(stateGroup, territory);
+        //     }
+        //     this.overlayRect.fill(getOverlayColor(st.color));
+        // }
     }
 
 

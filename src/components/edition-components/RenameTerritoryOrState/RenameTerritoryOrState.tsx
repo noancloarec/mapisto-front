@@ -8,6 +8,7 @@ import { FocusedOnTerritoryMap } from 'src/components/map-components/FocusedOnTe
 import { FocusedOnStateMap } from 'src/components/map-components/FocusedOnStateMap/FocusedOnStateMap';
 import { EditionType } from 'src/store/edition/types';
 import './RenameTerritoryOrState.css';
+import { dateFromYear } from 'src/utils/date_utils';
 
 interface StateProps {
     selectedTerritory: MapistoTerritory;
@@ -22,6 +23,7 @@ interface DispatchProps {
 type Props = StateProps & DispatchProps;
 class RenameTerritoryOrState extends React.Component<Props, {}>{
     render() {
+        const name = this.props.selectedState.getName(dateFromYear(this.props.year));
         return (
             <div id="rename-territory-or-state">
                 <h1 >
@@ -30,12 +32,12 @@ class RenameTerritoryOrState extends React.Component<Props, {}>{
                 <div className="row">
                     <div className="col-6">
                         <div>
-                            <FocusedOnTerritoryMap year={this.props.year} territory={this.props.selectedTerritory} />
+                            <FocusedOnTerritoryMap territory={this.props.selectedTerritory} />
                         </div>
                     </div>
                     <div className="col-6">
                         <div>
-                            <FocusedOnStateMap year={this.props.year} state_id={this.props.selectedState.stateId} />
+                            <FocusedOnStateMap mpState={this.props.selectedState} />
                         </div>
                     </div>
                 </div>
@@ -44,7 +46,7 @@ class RenameTerritoryOrState extends React.Component<Props, {}>{
                         <div className="d-flex flex-column justify-content-center">
                             <h4 className="text-center">The territory name is wrong</h4>
                             <small className="form-text text-muted text-center">
-                                It was not part of {this.props.selectedState.name} between &nbsp;
+                                It was not part of {name} between &nbsp;
                             {this.props.selectedTerritory.startYear}
                                 &nbsp;and&nbsp;
                             {this.props.selectedTerritory.endYear}
@@ -56,7 +58,7 @@ class RenameTerritoryOrState extends React.Component<Props, {}>{
                         <div className="d-flex flex-column justify-content-center">
                             <h4 className="text-center">The state is wrong</h4>
                             <small className="form-text text-muted text-center">
-                                {this.props.selectedState.name} is mispelled
+                                {name} is mispelled
                         </small>
                             <small className="form-text text-muted text-center">
                                 Rename it for the period {this.props.selectedState.startYear}

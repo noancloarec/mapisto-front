@@ -132,7 +132,7 @@ class ExtendTerritoryPeriod extends React.Component<Props, State>{
                         (
                             <div className="form-warning">
                                 Cannot extend to {this.state.startYear} :
-                                {this.props.selectedState.name} was created in &nbsp;
+                                its parent state was created in &nbsp;
                                 {this.props.selectedState.startYear}
                             </div>
                         )}
@@ -151,7 +151,7 @@ class ExtendTerritoryPeriod extends React.Component<Props, State>{
                         (
                             <div className="form-warning">
                                 Cannot extend to {this.state.endYear} :
-                                {this.props.selectedState.name} existed until &nbsp;
+                                parent state existed until &nbsp;
                                 {this.props.selectedState.endYear}
                             </div>
                         )}
@@ -211,7 +211,7 @@ class ExtendTerritoryPeriod extends React.Component<Props, State>{
         return maps.map((dMap, i) => (
             <div className="conflicting-territory-view col-4" key={i + offset}>
                 <div>
-                    <FocusedOnTerritoryMap key={i} territory={dMap.territory} year={dMap.year} />
+                    Focused on territory map
                 </div>
                 <div className="text-center">
                     {dMap.year}
@@ -278,14 +278,14 @@ class ExtendTerritoryPeriod extends React.Component<Props, State>{
     private getConflictAtStart(concurrents: MapistoTerritory[]): MapistoTerritory {
         return [...concurrents].reverse().find(t =>
             t.validityEnd <= this.props.selectedTerritory.validityStart &&
-            t.stateId !== this.props.selectedState.stateId
+            t.mpState.stateId !== this.props.selectedState.stateId
         );
     }
 
     private getConflictAtEnd(concurrents: MapistoTerritory[]): MapistoTerritory {
         return concurrents.find(t =>
             t.validityStart >= this.props.selectedTerritory.validityEnd &&
-            t.stateId !== this.props.selectedState.stateId
+            t.mpState.stateId !== this.props.selectedState.stateId
         );
     }
 

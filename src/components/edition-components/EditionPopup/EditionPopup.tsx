@@ -10,14 +10,16 @@ import { RenameTerritoryOrStateConnected } from "../RenameTerritoryOrState/Renam
 import { RenameStateConnected } from "../RenameTerritoryOrState/RenameState";
 import { MapistoState } from "src/entities/mapistoState";
 import { MapistoTerritory } from "src/entities/mapistoTerritory";
-import { ExtendStatePeriodConnected } from "../ExtendStatePeriod/ExtendStatePeriod";
+// import { ExtendStatePeriodConnected } from "../ExtendStatePeriod/ExtendStatePeriod";
 import { ExtendTerritoryPeriodConnected } from "../ExtendTerritoryPeriod/ExtendTerritory";
 import { ReassignTerritoryConnected } from "../ReassignTerritory/ReassignTerritory";
+import { dateFromYear } from "src/utils/date_utils";
 
 interface StateProps {
     editionType: EditionType;
     selectedState: MapistoState;
     selectedTerritory: MapistoTerritory;
+    year: number;
 }
 
 interface DispatchProps {
@@ -36,11 +38,12 @@ type Props = StateProps & DispatchProps;
 class EditionPopup extends React.Component<Props, {}>{
 
     renderEditionComponent() {
+        const name = this.props.selectedState.getName(dateFromYear(this.props.year));
         switch (this.props.editionType) {
             case EditionType.AskRenameOrExtendTerritory:
                 return <ChooseAction
                     choices={[{
-                        text: `This is not ${this.props.selectedState.name}`,
+                        text: `This is not ${name}`,
                         action: this.props.choseRenameStateOrTerritory
                     },
                     {
@@ -53,7 +56,7 @@ class EditionPopup extends React.Component<Props, {}>{
                     //     action: this.props.choseRenameState
                     // },
                     {
-                        text: `${this.props.selectedState.name} existed for longer than ${this.props.selectedState.startYear} \
+                        text: `${name} existed for longer than ${this.props.selectedState.startYear} \
                         - ${this.props.selectedState.endYear}`,
                         action: this.props.choseExtendState
                     }
@@ -65,8 +68,8 @@ class EditionPopup extends React.Component<Props, {}>{
                 return <RenameTerritoryOrStateConnected />;
             case EditionType.RenameState:
                 return <RenameStateConnected />;
-            case EditionType.ExtendStatePeriod:
-                return <ExtendStatePeriodConnected />;
+            // case EditionType.ExtendStatePeriod:
+            //     return <ExtendStatePeriodConnected />;
             case EditionType.ExtendTerritoryPeriod:
                 return <ExtendTerritoryPeriodConnected />;
             case EditionType.RenameTerritory:
@@ -99,7 +102,8 @@ class EditionPopup extends React.Component<Props, {}>{
 const mapStateToProps = (state: RootState): StateProps => ({
     editionType: state.edition.editionType,
     selectedState: state.edition.selectedState,
-    selectedTerritory: state.edition.selectedTerritory
+    selectedTerritory: state.edition.selectedTerritory,
+    year: state.mainMap.currentYear
 });
 const mapDispatchToProps: DispatchProps = {
     cancelEdition: () => changeEditionType(null),

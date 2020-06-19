@@ -1,14 +1,12 @@
-import { MapistoTerritoryRaw } from "./MapistoTerritoryRaw";
 import { MapistoViewBox } from "src/entities/mapistoViewBox";
+import { StateRepresentationRaw } from "./StateRepresentationRaw";
 /**
  * A Mapisto state representation, as returned by the API
  */
 export interface MapistoStateRaw {
     state_id: number;
-    name: string;
-    color: string;
     validity_start: string;
     validity_end: string;
-    territories: MapistoTerritoryRaw[];
     bounding_box: MapistoViewBox;
+    representations: StateRepresentationRaw[]
 }

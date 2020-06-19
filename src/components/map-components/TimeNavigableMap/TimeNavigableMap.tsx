@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { KeyboardEvent } from 'react';
 import { TimeSelector } from './TimeSelector';
 import { NavigableMap } from '../NavigableMap/NavigableMap';
 import './TimeNavigableMap.css';
@@ -7,6 +7,8 @@ import { LoadingIcon } from './LoadingIcon';
 import { Subject } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
 import { ViewBoxLike } from '@svgdotjs/svg.js';
+import { MapistoPoint } from 'src/entities/MapistoPoint';
+import { MapistoTerritory } from 'src/entities/mapistoTerritory';
 
 interface State {
     yearOnSelector: number;
@@ -15,14 +17,16 @@ interface State {
 }
 interface Props {
     initialYear: number;
-    svgManager: TimeNavigableSVGManager;
-    yearChange?: (newYearDisplayed: number) => void;
-    initialViewBox: ViewBoxLike;
+    initialCenter: MapistoPoint;
+    initialWidth: number;
+    onYearChange: (newYear: number) => void;
+    onTerritoryClicked: (territory: MapistoTerritory) => void
 }
 export class TimeNavigableMap extends React.Component<Props, State>{
     private timeChangeSubject$: Subject<number>;
     public static defaultProps = {
-        svgManager: new TimeNavigableSVGManager()
+        yearChange: () => { return; },
+        onTerritoryClicked: () => { return; }
     };
     constructor(props: Props) {
         super(props);
@@ -39,24 +43,8 @@ export class TimeNavigableMap extends React.Component<Props, State>{
             .subscribe((newYear) => {
                 this.setState({
                     yearDisplayed: newYear
-                }, () => this.props.yearChange(newYear));
+                }, () => this.props.onYearChange(newYear));
             });
-    }
-
-    componentDidMount() {
-        this.props.svgManager.attachOnKeyDown((key: KeyboardEvent) => {
-            if (key.key === "ArrowLeft") {
-                this.changeYear(
-
-                    this.state.yearOnSelector - 1
-                );
-            } else if (key.key === "ArrowRight") {
-                this.changeYear(
-
-                    this.state.yearOnSelector + 1
-                );
-            }
-        });
     }
 
     private changeYear(newYear: number) {
@@ -69,13 +57,28 @@ export class TimeNavigableMap extends React.Component<Props, State>{
         }
     }
 
+    private navigateThroughYears(event: KeyboardEvent<HTMLDivElement>) {
+        if (event.key === "ArrowLeft") {
+            this.changeYear(
+                this.state.yearOnSelector - 1
+            );
+        } else if (event.key === "ArrowRight") {
+            this.changeYear(
+                this.state.yearOnSelector + 1
+            );
+        }
+
+    }
+
     render() {
         return <div className="time-navigable-map">
             <NavigableMap
-                svgManager={this.props.svgManager}
                 year={this.state.yearDisplayed}
-                onStatesLoaded={() => this.setState({ loading: false })}
-                initialViewBox={this.props.initialViewBox}
+                onTerritoriesLoaded={() => this.setState({ loading: false })}
+                onKeyDown={event => this.navigateThroughYears(event)}
+                initialCenter={this.props.initialCenter}
+                initialWidth={1000}
+                onTerritoryClicked={this.props.onTerritoryClicked}
             ></NavigableMap>
             <div className="time-selector-row">
                 <TimeSelector

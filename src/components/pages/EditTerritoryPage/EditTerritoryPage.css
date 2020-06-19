@@ -1,0 +1,14 @@
+.edit-state-button{
+    position: absolute;
+    right: 0;
+    top: 3px;
+}
+
+.state-name{
+    position: relative;
+}
+
+.decorated-title{
+    border-top: 2px solid black;
+    text-align: center;
+}

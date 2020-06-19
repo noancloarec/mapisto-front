@@ -70,8 +70,7 @@ class RenameState extends React.Component<Props, State>{
                 <div className="mt-2">
 
                     <FocusedOnStateMap
-                        state_id={this.props.mpState.stateId}
-                        year={this.props.year}
+                        mpState={this.props.mpState}
                     />
                 </div>
 

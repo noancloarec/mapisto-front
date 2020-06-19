@@ -18,7 +18,6 @@ export class Scene extends TimeDefinedEntity {
         return this.mapEvolution.filter(s => !s.isOutdated(year)).map(
             s => {
                 const res = Object.create(s);
-                res.territories = s.territories.filter(t => !t.isOutdated(year));
                 return res;
             }
         );

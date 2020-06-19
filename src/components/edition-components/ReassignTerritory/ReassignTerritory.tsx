@@ -37,7 +37,7 @@ class ReassignTerritory extends React.Component<Props, State>{
             <div className="reassign-territory">
                 <h1>Parent state choice</h1>
                 <div className="reassign-territory-thumbnail">
-                    <FocusedOnTerritoryMap territory={this.props.selectedTerritory} year={this.props.year} />
+                    <FocusedOnTerritoryMap territory={this.props.selectedTerritory} />
                 </div>
                 <div className="d-flex mt-2 justify-content-center">
                     <div className="flex-column col-10">

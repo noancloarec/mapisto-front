@@ -2,6 +2,7 @@ import React from 'react';
 import { MapistoState } from 'src/entities/mapistoState';
 import { StateAutoComplete } from './StateAutoComplete';
 import { dateFromYear } from 'src/utils/date_utils';
+import { StateRepresentation } from 'src/entities/StateRepresentation';
 interface Props {
     onMPStateChange: (mpState: MapistoState) => void;
     placeholder: string;
@@ -16,7 +17,13 @@ export class StateSearch extends React.Component<Props, State> {
     constructor(props: Props) {
         super(props);
         this.state = {
-            innerValue: new MapistoState(dateFromYear(12), dateFromYear(12), null, '', [], null, null)
+            innerValue: new MapistoState(
+                dateFromYear(12),
+                dateFromYear(12),
+                null,
+                [new StateRepresentation(dateFromYear(12), dateFromYear(12), '', '#000000')],
+                null
+            )
         };
     }
     render() {

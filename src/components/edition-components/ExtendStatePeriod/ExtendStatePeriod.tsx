@@ -122,7 +122,8 @@ class ExtendStatePeriod extends React.Component<StateProps & DispatchProps, Stat
     }
 
     private sameName(a: MapistoState, b: MapistoState): boolean {
-        return a.name.toLowerCase() === b.name.toLowerCase();
+        return false;
+        // a.name.toLowerCase() === b.name.toLowerCase();
     }
 
     renderCheckState(st: MapistoState, selected: boolean) {
@@ -133,7 +134,7 @@ class ExtendStatePeriod extends React.Component<StateProps & DispatchProps, Stat
                 onChange={e => this.handleCheck(e, st.stateId)}
             />
             <label className="form-check-label" htmlFor={st.stateId.toString()}>
-                {st.name} ({st.startYear}, {st.endYear})
+                {st.representations.map(r => r.color).join(', ')} ({st.startYear}, {st.endYear})
                 </label>
         </div>;
     }
@@ -146,7 +147,7 @@ class ExtendStatePeriod extends React.Component<StateProps & DispatchProps, Stat
 
             }
             <button type="submit" disabled={!this.state.periodWasAdapted}>
-                Extend {this.props.editedState.name} {
+                Extend {
                     (this.state.periodWasAdapted && <span>from {this.state.startYear} to {this.state.endYear}</span>)}
             </button>
         </form>;
@@ -157,16 +158,8 @@ class ExtendStatePeriod extends React.Component<StateProps & DispatchProps, Stat
             this.state.startYear,
             this.state.endYear,
             this.state.concurrentStates.filter(c => c.selected).map(s => s.state.stateId))
-            .subscribe(() => {
-                this.props.stateWasExtended(new MapistoState(
-                    dateFromYear(this.state.startYear),
-                    dateFromYear(this.state.endYear),
-                    this.props.editedState.stateId,
-                    this.props.editedState.name,
-                    this.props.editedState.territories,
-                    this.props.editedState.color,
-                    this.props.editedState.boundingBox,
-                ));
+            .subscribe(res => {
+                this.props.stateWasExtended(null);
             });
     }
 

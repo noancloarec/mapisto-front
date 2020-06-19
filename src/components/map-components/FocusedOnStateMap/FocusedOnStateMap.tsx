@@ -1,99 +1,98 @@
 import { MapistoState } from "src/entities/mapistoState";
 import { ViewBoxLike } from '@svgdotjs/svg.js';
-import React from "react";
+import React, { RefObject } from "react";
 import { MapistoAPI } from "src/api/MapistoApi";
-import { MapistoMap } from "../MapistoMap/MapistoMap";
-import { FocusedSVGManager } from "./FocusedSVGManager";
 import { Land } from "src/entities/Land";
-import { getMapPrecision, enlargeViewBox, fitViewboxToAspectRatio } from "../MapistoMap/display-utilities";
+import { viewboxAsString } from "../MapistoMap/display-utilities";
 import './FocusedMap.css';
-import { Subscription } from "rxjs";
+import { Subscription, forkJoin, interval } from "rxjs";
+import { TerritoriesGroup } from "../TerritoriesGroup/TerritoriesGroup";
+import { MapistoTerritory } from "src/entities/mapistoTerritory";
+import { LoadingIcon } from "../TimeNavigableMap/LoadingIcon";
+import { TimeSelector } from "../TimeNavigableMap/TimeSelector";
+import { LandsGroup } from "../LandsGroup/LandsGroup";
+import { GifMap } from "../gif-map/GifMap";
 
 interface Props {
-    year: number;
-    state_id: number;
+    mpState: MapistoState;
 }
 interface State {
-    viewBoxForState: ViewBoxLike;
-    statesForDisplay: MapistoState[];
-    lands: Land[];
+    currentMpState: MapistoState;
+
+    mapStates: {
+        year: number;
+        viewbox: ViewBoxLike;
+        territories: MapistoTerritory[];
+        lands: Land[];
+    }[];
 }
 
 export class FocusedOnStateMap extends React.Component<Props, State>{
 
-    svgManager: FocusedSVGManager;
-    loadStateSubscription: Subscription;
+    private mapRef: RefObject<HTMLDivElement>;
 
     constructor(props: Props) {
         super(props);
-        this.svgManager = new FocusedSVGManager();
+        this.mapRef = React.createRef();
         this.state = {
-            viewBoxForState: null,
-            statesForDisplay: [],
-            lands: []
+            currentMpState: undefined,
+            mapStates: [],
         };
     }
 
-    shouldComponentUpdate(newProps: Props) {
-        if (newProps.state_id !== this.props.state_id || newProps.year !== this.props.year) {
-            this.reloadMap(newProps.state_id, newProps.year);
-        }
-        return true;
-    }
-
-    reloadMap(stateId: number, year: number) {
-        this.loadStateSubscription = MapistoAPI.loadState(stateId, year).subscribe(
-            state => {
-                this.setState({ viewBoxForState: state.boundingBox }, () => {
-                    const toLoad = enlargeViewBox(fitViewboxToAspectRatio(state.boundingBox, 16 / 9), 1.2);
-                    this.svgManager.setViewbox(toLoad);
-                    this.loadActualMap(getMapPrecision(this.svgManager), toLoad);
-                });
-            }
-        );
-    }
-
-
     componentDidMount() {
-        this.reloadMap(this.props.state_id, this.props.year);
-    }
-    componentWillUnmount() {
-        this.loadStateSubscription.unsubscribe();
+        this.loadMap();
     }
 
-    loadActualMap(precision: number, toLoad: ViewBoxLike) {
-        MapistoAPI.loadStates(this.props.year, precision, toLoad).subscribe(
-            res => {
-                this.svgManager.setFocusedTerritories(
-                    res.find(mpState => mpState.stateId === this.props.state_id).territories
-                );
-                this.setState({ statesForDisplay: res });
-            }
-        );
-        MapistoAPI.loadLands(precision, toLoad).subscribe(
-            res => {
-                this.setState({
-                    lands: res
-                });
-            }
-        );
+    componentDidUpdate(prevProps: Props) {
+        if (prevProps.mpState.stateId !== this.props.mpState.stateId) {
+            this.loadMap();
+        }
     }
 
     render() {
-        if (this.state.viewBoxForState) {
-            return <MapistoMap
-                mpStates={this.state.statesForDisplay}
-                SVGManager={this.svgManager}
-                lands={this.state.lands}
-                viewbox={this.state.viewBoxForState}
-            />;
-        } else {
+        return <div ref={this.mapRef}>
+            {this.renderMap()}
+        </div>;
+    }
+    renderMap() {
+        if (this.state.currentMpState && this.props.mpState.stateId === this.state.currentMpState.stateId) {
+
             return (
-                <div>
-                    Loading
-            </div>
+                <GifMap maps={this.state.mapStates} />
             );
+        } else {
+            return <LoadingIcon loading={true} />;
         }
+    }
+
+    private loadMap() {
+        const years = this.generateYearsToDisplay(this.props.mpState);
+        const pixelWidth = this.mapRef.current.getBoundingClientRect().width;
+        forkJoin(years.map(y => MapistoAPI.loadMapForState(this.props.mpState.stateId, y, pixelWidth))).subscribe(
+            res => this.setState({
+                mapStates: res.map((mapState, index) => ({
+                    territories: mapState.territories,
+                    viewbox: mapState.boundingBox,
+                    year: years[index],
+                    lands: []
+                })),
+                currentMpState: this.props.mpState
+            })
+        );
+    }
+
+    private generateYearsToDisplay(mpState: MapistoState): number[] {
+        const years = [mpState.startYear];
+        if (mpState.endYear > mpState.startYear + 2) {
+            years.push(Math.round((mpState.endYear - mpState.startYear) / 2) + mpState.startYear);
+        }
+        if (mpState.endYear > mpState.startYear + 1) {
+            years.push(mpState.endYear - 1);
+        }
+
+        return years;
+
     }
 
 }

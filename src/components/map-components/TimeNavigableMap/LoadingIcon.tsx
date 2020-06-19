@@ -16,11 +16,13 @@ export class LoadingIcon extends React.Component<Props, {}> {
             borderColor: this.props.color + ' transparent transparent transparent'
         };
         return (
-            <div className={this.props.loading ? "lds-ring" : ""}>
-                <div style={cssProps}></div>
-                <div style={cssProps}></div>
-                <div style={cssProps}></div>
-                <div style={cssProps}></div>
+            <div className="loading-container">
+                <div className={this.props.loading ? "lds-ring" : ""}>
+                    <div style={cssProps}></div>
+                    <div style={cssProps}></div>
+                    <div style={cssProps}></div>
+                    <div style={cssProps}></div>
+                </div>
             </div>
         );
     }

@@ -150,11 +150,11 @@ export class VideoPlayer extends React.Component<Props, State>{
     }
 
     loadStateName() {
-        MapistoAPI.loadState(this.props.stateId, this.state.scenery[this.state.scenery.length - 1].endYear - 1)
+        MapistoAPI.loadState(this.props.stateId)
             .subscribe(
                 mpState => {
-                    document.title = `${mpState.name} : Every year - Mapisto`;
-                    this.setState({ mpStateName: mpState.name });
+                    document.title = `${mpState.representations[0].color} : Every year - Mapisto`;
+                    this.setState({ mpStateName: mpState.representations[0].color });
                 }
             );
     }

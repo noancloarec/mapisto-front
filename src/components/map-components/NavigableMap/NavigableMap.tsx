@@ -1,112 +1,148 @@
-import React from 'react';
-import { MapistoState } from 'src/entities/mapistoState';
-import { MapistoMap } from 'src/components/map-components/MapistoMap/MapistoMap';
-import { NavigableSVGManager } from './NavigableSVGManager';
+import React, { KeyboardEvent } from 'react';
 import { Land } from 'src/entities/Land';
-import { ViewBoxLike } from '@svgdotjs/svg.js';
+import { ViewBoxLike, Svg } from '@svgdotjs/svg.js';
 import { MapistoAPI } from 'src/api/MapistoApi';
-import { getMapPrecision } from '../MapistoMap/display-utilities';
-import { Subject, Subscription } from 'rxjs';
+import { getMapPrecision, svgCoords, viewboxAsString } from '../MapistoMap/display-utilities';
+import { Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
-import { RootState } from 'src/store';
-import { connect } from 'react-redux';
+import { LandsGroup } from '../LandsGroup/LandsGroup';
+import { NavigationHandler } from './NavigationHandler';
+import { MapistoPoint } from 'src/entities/MapistoPoint';
+import { TerritoriesGroup } from '../TerritoriesGroup/TerritoriesGroup';
+import { dateFromYear, yearToISOString } from 'src/utils/date_utils';
 
-interface OwnProps {
+interface Props {
     year: number;
-    svgManager: NavigableSVGManager;
-    onStatesLoaded: () => void;
-    initialViewBox: ViewBoxLike;
+    initialWidth: number;
+    initialCenter: MapistoPoint;
+    onTerritoriesLoaded: () => void;
+    onKeyDown?: (event: KeyboardEvent<HTMLDivElement>) => void;
+    onTerritoryClicked?: (territory: MapistoTerritory) => void;
 }
 
-interface StateProps {
-    mapVersion: string;
-}
-type Props = StateProps & OwnProps;
 interface State {
-    mpStates: MapistoState[];
+    territories: MapistoTerritory[];
     lands: Land[];
     viewbox: ViewBoxLike;
+    yearOnDisplay: number; // Different than props.year while props.year is still loading
+    territoryBeingPressed: MapistoTerritory;
 }
-class NavigableMapUnconnected extends React.Component<Props, State>{
-    scheduleRefresh$: Subject<ViewBoxLike>;
-    public static defaultProps = {
-        svgManager: new NavigableSVGManager()
-    };
+export class NavigableMap extends React.Component<Props, State>{
+    navigationHandler: NavigationHandler;
     private mapSubscription: Subscription;
-
+    private mapContainer: React.RefObject<HTMLDivElement>;
+    public static defaultProps = {
+        onTerritoriesLoaded: () => { return; }
+    };
     constructor(props: Props) {
         super(props);
         this.state = {
-            mpStates: [],
+            territories: [],
             lands: [],
-            viewbox: this.props.initialViewBox
+            viewbox: { x: 0, y: 0, width: 0, height: 0 },
+            yearOnDisplay: this.props.year,
+            territoryBeingPressed: undefined
         };
-        this.scheduleRefresh$ = new Subject<ViewBoxLike>();
-        this.scheduleRefresh$.pipe(
-            debounceTime(300)
-        ).subscribe(vb => this.loadMap(vb));
-
-        this.props.svgManager.attachOnZoomOrPan(vb => {
-            this.setState({ viewbox: vb });
-            this.scheduleRefresh$.next(vb);
-        });
+        this.mapContainer = React.createRef();
     }
 
 
     render() {
         return (
-            <MapistoMap
-                SVGManager={this.props.svgManager}
-                lands={this.state.lands}
-                mpStates={this.state.mpStates}
-                viewbox={this.state.viewbox}
+            <div
+                className="map"
+                tabIndex={0}
+                ref={this.mapContainer}
+                onKeyDown={this.props.onKeyDown}
+                onClick={(ev) => console.log(svgCoords(ev.clientX, ev.clientY, this.mapContainer.current))}
+                onMouseUp={() =>
+                    this.state.territoryBeingPressed && this.props.onTerritoryClicked(this.state.territoryBeingPressed)
+                }
+                onMouseMove={() => this.setState({ territoryBeingPressed: undefined })}
             >
-
-            </MapistoMap>
+                <svg viewBox={viewboxAsString(this.state.viewbox)}>
+                    <rect x={-1000} y={-1000} width={4260} height={3500}
+                        onClick={() => this.props.onTerritoryClicked(undefined)}
+                        fill="transparent"
+                    ></rect>
+                    <LandsGroup lands={this.state.lands} />
+                    <TerritoriesGroup
+                        onTerritoryPressed={t => this.setState({ territoryBeingPressed: t })}
+                        territories={this.state.territories}
+                        year={this.state.yearOnDisplay}
+                        strokeWidth={this.state.viewbox.width ** .5 / 30} />
+                </svg>
+            </div>
         );
     }
 
     componentDidMount() {
-        this.scheduleRefresh$.next(this.props.svgManager.getViewBox());
+        const initialViewBox = this.computeFirstViewbox();
+        this.setState({ viewbox: initialViewBox });
+        this.navigationHandler = new NavigationHandler(initialViewBox, this.mapContainer.current);
+        this.navigationHandler.onViewboxChange().subscribe(vb =>
+            this.setState({
+                viewbox: vb
+            })
+        );
+        this.navigationHandler.onViewboxChange().pipe(
+            debounceTime(500)
+        ).subscribe(vb => this.loadMap(vb, this.props.year));
+        this.loadMap(initialViewBox, this.props.year);
+
     }
 
-    shouldComponentUpdate(nextProps: Props, nextState: State) {
-        if (nextProps.year !== this.props.year) {
-            this.loadStates(
-                nextProps.year,
-                this.props.svgManager.getViewBox(),
-                getMapPrecision(this.props.svgManager)
-            );
-        }
-        if (nextProps.mapVersion !== this.props.mapVersion) {
-            this.loadStates(
-                nextProps.year, this.props.svgManager.getViewBox(), getMapPrecision(this.props.svgManager), true
-            );
-        }
-        return nextState !== this.state;
+    componentWillUnmount() {
+        this.navigationHandler.removeListeners();
     }
 
+    shouldComponentUpdate(newProps: Props) {
+        if (newProps.year !== this.props.year) {
+            this.loadMap(this.state.viewbox, newProps.year);
+            return false;
+        } else {
+            return true;
+        }
+    }
 
+    /**
+     * Computes the initial viewbox according to the maps proportion
+     */
+    private computeFirstViewbox(): ViewBoxLike {
+        const boundingRect = this.mapContainer.current.getBoundingClientRect();
+        const ratio = boundingRect.width / boundingRect.height;
+        const vbHeight = this.props.initialWidth / ratio;
+        return {
+            x: this.props.initialCenter.x - this.props.initialWidth / 2,
+            y: this.props.initialCenter.y - vbHeight / 2,
+            width: this.props.initialWidth,
+            height: vbHeight
+        };
+    }
 
-
-    private loadMap(vb: ViewBoxLike) {
-        const precision = getMapPrecision(this.props.svgManager);
-        this.loadStates(this.props.year, vb, precision);
+    private loadMap(vb: ViewBoxLike, year: number) {
+        const pxWidth = this.mapContainer.current.getBoundingClientRect().width;
+        const precision = getMapPrecision(vb.width / pxWidth);
+        this.loadTerritories(year, vb, precision);
         this.loadLands(vb, precision);
     }
 
 
 
-    private loadStates(year: number, vb: ViewBoxLike, precision: number, eraseCache = false) {
+    private loadTerritories(year: number, vb: ViewBoxLike, precision: number) {
         if (this.mapSubscription) {
             this.mapSubscription.unsubscribe();
         }
-        this.mapSubscription = MapistoAPI.loadStates(year, precision, vb)
+        console.log('load ', yearToISOString(year))
+        this.mapSubscription = MapistoAPI.loadMap(year, precision, vb)
             .subscribe(
                 res => {
-                    const newStates = eraseCache ? res : this.reduceStates(this.state.mpStates, res);
-                    this.setState({ mpStates: newStates }, () => this.props.onStatesLoaded());
+                    this.props.onTerritoriesLoaded();
+                    this.setState({
+                        territories: this.reduceTerritories(this.state.territories, res.territories, year),
+                        yearOnDisplay: year
+                    });
                 }
             );
     }
@@ -114,81 +150,28 @@ class NavigableMapUnconnected extends React.Component<Props, State>{
     private loadLands(vb: ViewBoxLike, precision: number) {
         MapistoAPI.loadLands(precision, vb).subscribe(
             res => {
-
-                const newLands = this.reduceLands(this.state.lands, res);
                 this.setState({
-                    lands: newLands
+                    lands: this.reduceLands(this.state.lands, res)
                 });
-            }
-        );
+            });
     }
 
-    private reduceStates(
-        baseStates: MapistoState[],
-        newStates: MapistoState[]):
-        MapistoState[] {
 
-
-        const knownStates = baseStates.filter(s => !s.isOutdated(this.props.year));
-        for (const knownState of knownStates) {
-            const newState = newStates.find(n => n.stateId === knownState.stateId);
-            knownState.territories = this.reduceTerritories(
-                knownState.territories, newState ? newState.territories : []
-            );
-            if (newState) {
-                knownState.name = newState.name;
-            }
-        }
-        const unknownYetStates = newStates.filter(
-            n => knownStates.findIndex(known => known.stateId === n.stateId) === -1
-        );
-        return [...knownStates, ...unknownYetStates];
-
+    private reduceLands(existingLands: Land[], newLands: Land[]) {
+        const landsNotUpdated = existingLands.filter(l => newLands.find(n => n.land_id === l.land_id) === undefined);
+        return newLands.concat(landsNotUpdated);
     }
-
     private reduceTerritories(
-        baseTerritories: MapistoTerritory[],
-        newTerritories: MapistoTerritory[]): MapistoTerritory[] {
-
-        const territoriesMorePrecise = baseTerritories.filter(t => !t.isOutdated(this.props.year));
-        // console.log(`After remove outdated from ${this.props.year} : `, territoriesMorePrecise)
-        for (let i = 0; i < territoriesMorePrecise.length; i++) {
-            const baseTerritory = territoriesMorePrecise[i];
-            const newTerritory = newTerritories.find(t => t.territoryId === baseTerritory.territoryId);
-            if (newTerritory) {
-                territoriesMorePrecise[i].validityStart = newTerritory.validityStart;
-                territoriesMorePrecise[i].validityEnd = newTerritory.validityEnd;
-                if (newTerritory.precisionLevel < baseTerritory.precisionLevel) {
-                    territoriesMorePrecise[i] = newTerritory;
-                }
-            }
-        }
-        const unknownYetTerritories = newTerritories.filter(
-            t => baseTerritories.findIndex(baseT => baseT.territoryId === t.territoryId) === -1
+        existingTerritories: MapistoTerritory[],
+        newTerritories: MapistoTerritory[],
+        year: number
+    ) {
+        const date = dateFromYear(year);
+        console.log('sorted all so they are between ', date, 'and next year, (year=', year, ')')
+        const territoriesNotUpdated = existingTerritories.filter(
+            t => t.validAt(date) && newTerritories.find(n => n.territoryId === t.territoryId) === undefined
         );
-
-        return [...territoriesMorePrecise, ...unknownYetTerritories];
+        return newTerritories.concat(territoriesNotUpdated);
     }
-
-    private reduceLands(oldLands: Land[], newLands: Land[]): Land[] {
-        const landsMorePrecise = [...oldLands];
-        for (let i = 0; i < landsMorePrecise.length; i++) {
-            const baseLand = landsMorePrecise[i];
-            const newLand = newLands.find(land => land.land_id === baseLand.land_id);
-            if (newLand && newLand.precision_level < baseLand.precision_level) {
-                landsMorePrecise[i] = newLand;
-            }
-        }
-        const unknownYetLands = newLands.filter(
-            land => oldLands.findIndex(baseLand => baseLand.land_id === land.land_id) === -1
-        );
-        return [...landsMorePrecise, ...unknownYetLands];
-
-    }
-
 }
 
-const mapStateToProps = (state: RootState): StateProps => ({
-    mapVersion: state.edition.mapVersion
-});
-export const NavigableMap = connect(mapStateToProps)(NavigableMapUnconnected);

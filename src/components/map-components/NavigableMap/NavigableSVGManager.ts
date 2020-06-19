@@ -138,4 +138,6 @@ export class NavigableSVGManager extends SVGManager {
             this.onZoomOrPan(newVB);
         }
     }
+
+
 }

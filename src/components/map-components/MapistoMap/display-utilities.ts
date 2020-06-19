@@ -73,8 +73,8 @@ export function computeTerritoryNameSize(bbox: Box, svgWidth: number) {
     return Math.max(Math.min(bbox.width, bbox.height) / 20, svgWidth / 100);
 }
 
-export function getMapPrecision(svgManager: SVGManager) {
-    return getClosestPrecision(getKilometersPerPixel(svgManager) * .7);
+export function getMapPrecision(pointsPerPixel: number) {
+    return getClosestPrecision(getKilometersPerPixel(pointsPerPixel) * .7);
 }
 
 /**
@@ -92,11 +92,11 @@ function getClosestPrecision(kmPerPX: number): number {
 /**
  * Computes the number of kilometers represented in 1 pixel on the map.
  */
-function getKilometersPerPixel(svgManager: SVGManager): number {
+function getKilometersPerPixel(pointsPerPixel: number): number {
     // the svg has a point-based coordinate system
     const kmPerPoint = 40000 / 2269;
 
-    return kmPerPoint * svgManager.pointsPerPixel();
+    return kmPerPoint * pointsPerPixel;
 }
 
 
@@ -126,4 +126,13 @@ export function fitViewboxToAspectRatio(vb: ViewBoxLike, aspectRatio: number): V
     } else {
         return vb;
     }
+}
+
+
+
+export function viewboxAsString(vb: ViewBoxLike): string {
+    if (!vb) {
+        return "0 0 0 0";
+    }
+    return `${vb.x} ${vb.y} ${vb.width} ${vb.height}`;
 }

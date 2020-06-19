@@ -1,0 +1,22 @@
+.play-pause-overlay{
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 2;
+}
+
+.play-pause-overlay:hover{
+    opacity: .5;
+    background-color: black;
+}
+
+.play-pause-overlay .pause-icon{
+    visibility: hidden;
+}
+
+.play-pause-overlay:hover .pause-icon{
+    visibility:visible;
+}
+

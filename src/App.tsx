@@ -1,8 +1,5 @@
 import React from 'react';
 import './App.css';
-import { InteractiveMapConnected } from './components/map-components/InteractiveMap/InteractiveMap';
-import { TerritoryPanelConnected } from './components/edition-components/TerritoryPanel/TerritoryPanel';
-import { EditionPopupConnected } from './components/edition-components/EditionPopup/EditionPopup';
 import {
   BrowserRouter as Router,
   Switch,
@@ -10,34 +7,31 @@ import {
   useParams
 } from "react-router-dom";
 import { VideoPlayer } from './components/video-components/video-player/VideoPlayer';
+import { HomePage } from './components/pages/HomePage/HomePage';
+import { EditTerritoryPage } from './components/pages/EditTerritoryPage/EditTerritoryPage';
+import { EditStatePage } from './components/pages/EditStatePage/EditStatePage';
 
 const App: React.FC = () => {
   return (
     <Router>
       <Switch>
         <Route exact path="/">
-          <div>
-            <section id="main-map">
-              <InteractiveMapConnected></InteractiveMapConnected>
-            </section>
-            <section id="territory-panel-section">
-              <TerritoryPanelConnected />
-            </section>
-            <section id="editing-panel-section">
-              <EditionPopupConnected />
-            </section>
-            <section>
-
-            </section>
-          </div>
+          <HomePage />
+        </Route>
+        <Route path='/edit_territory/:territory_id'>
+          <EditTerritoryPage />
+        </Route>
+        <Route path='/edit_state/:state_id'>
+          <EditStatePage />
         </Route>
         <Route path="/movie/:state_id">
           <VideoPage />
         </Route>
 
 
+
       </Switch>
-    </Router>
+    </Router >
   );
 };
 

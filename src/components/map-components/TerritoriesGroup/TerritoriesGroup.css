@@ -1,0 +1,13 @@
+.territories-group > path{
+    stroke : black;
+    opacity : 1;
+}
+
+.territories-group > path:hover:not(.selected){
+    opacity: .8;
+    transition: opacity ease-in .1s;
+}
+
+.territories-group > path.selected{
+    opacity: .7;
+}

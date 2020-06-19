@@ -10,4 +10,6 @@ export interface MapistoTerritoryRaw {
     territory_id: number;
     bounding_box: MapistoViewBox;
     state_id?: number;
+    color: string;
+    name: string;
 }

@@ -1,6 +1,5 @@
 import React from 'react';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
-import { FocusedOnTerritoryMap } from '../FocusedOnTerritoryMap/FocusedOnTerritoryMap';
 import { SelectCapitalSVGManager } from './SelectCapitalSVGManager';
 import { MapistoPoint } from 'src/entities/MapistoPoint';
 interface Props {
@@ -17,9 +16,6 @@ export class SelectCapitalMap extends React.Component<Props, {}>{
         this.svgManager.onSelectCapital = this.props.onCapitalChange;
     }
     render() {
-        return <FocusedOnTerritoryMap
-            territory={this.props.territory}
-            year={this.props.year}
-            svgManager={this.svgManager} />;
+        return <p>SET capital</p>;
     }
 }

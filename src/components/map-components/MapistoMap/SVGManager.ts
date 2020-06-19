@@ -86,10 +86,6 @@ export class SVGManager {
     }
 
     addState(mp: MapistoState) {
-        const group = this.addStateGroup(mp.stateId, mp.name, mp.color);
-        for (const terr of mp.territories) {
-            this.addTerritoryToStateGroup(group, terr);
-        }
         this.scheduleNameRefresh$.next();
     }
 
