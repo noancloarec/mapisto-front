@@ -38,16 +38,20 @@ class EditStatePageUnrouted extends React.Component<Props, State>{
                     mpState && (
                         <div >
                             <FocusedOnStateMap mpState={mpState} />
-                            <Form onSubmitCapture={() => this.saveModification()}>
-                                <StateInput value={this.state.modifiedMpState} onChange={st => this.setState({
-                                    modifiedMpState: st
-                                })} />
-                                <div className="text-danger">{this.state.errorMessage}</div>
-                                <Button type="primary" htmlType="submit" loading={this.state.loading}
-                                    danger={!!this.state.errorMessage} >
-                                    Save changes
+                            <div className="m-4 row justify-content-center">
+
+                                <Form className="col-12 col-sm-6"
+                                    onSubmitCapture={() => this.saveModification()}>
+                                    <StateInput value={this.state.modifiedMpState} onChange={st => this.setState({
+                                        modifiedMpState: st
+                                    })} />
+                                    <div className="text-danger">{this.state.errorMessage}</div>
+                                    <Button type="primary" htmlType="submit" loading={this.state.loading}
+                                        danger={!!this.state.errorMessage} >
+                                        Save changes
                                 </Button>
-                            </Form>
+                                </Form>
+                            </div>
 
                         </div>
                     )
@@ -64,11 +68,12 @@ class EditStatePageUnrouted extends React.Component<Props, State>{
     saveModification() {
         this.setState({ errorMessage: '', loading: true });
         MapistoAPI.putState(this.state.modifiedMpState).pipe(
-            catchError(e => { this.setState({ errorMessage: e, loading: false }); return of() }),
+            catchError(e => { this.setState({ errorMessage: e, loading: false }); return of(); }),
             delay(500),
         ).subscribe(() => {
             this.setState({
                 loading: false,
+                mpState: this.state.modifiedMpState
             });
         });
     }

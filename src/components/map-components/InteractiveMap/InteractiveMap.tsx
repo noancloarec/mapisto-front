@@ -10,7 +10,6 @@ import { EditionActionTypes } from 'src/store/edition/types';
 import { MainMapActionTypes } from 'src/store/main-map/types';
 import { withRouter, RouteComponentProps } from 'react-router';
 import { ViewBoxLike } from '@svgdotjs/svg.js';
-import { StateSearch } from 'src/components/form-components/StateSearch';
 
 
 interface DispatchProps {
@@ -30,10 +29,6 @@ export class InteractiveMap extends React.Component<Props, {}>{
             <div className="interactive-map">
                 <div className="main-state-search p-2 d-flex justify-content-end">
                     <div className="col-12 col-sm-4 mt-5 mt-sm-1">
-                        <StateSearch
-                            placeholder='Which country do you want to see evolve?'
-                            onMPStateChange={st => window.location.href = `/movie/${st.stateId}`}
-                        />
 
                     </div>
                 </div>

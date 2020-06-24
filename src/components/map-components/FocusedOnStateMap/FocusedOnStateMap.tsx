@@ -3,14 +3,10 @@ import { ViewBoxLike } from '@svgdotjs/svg.js';
 import React, { RefObject } from "react";
 import { MapistoAPI } from "src/api/MapistoApi";
 import { Land } from "src/entities/Land";
-import { viewboxAsString } from "../MapistoMap/display-utilities";
 import './FocusedMap.css';
-import { Subscription, forkJoin, interval } from "rxjs";
-import { TerritoriesGroup } from "../TerritoriesGroup/TerritoriesGroup";
+import { forkJoin } from "rxjs";
 import { MapistoTerritory } from "src/entities/mapistoTerritory";
 import { LoadingIcon } from "../TimeNavigableMap/LoadingIcon";
-import { TimeSelector } from "../TimeNavigableMap/TimeSelector";
-import { LandsGroup } from "../LandsGroup/LandsGroup";
 import { GifMap } from "../gif-map/GifMap";
 
 interface Props {
@@ -45,7 +41,7 @@ export class FocusedOnStateMap extends React.Component<Props, State>{
     }
 
     componentDidUpdate(prevProps: Props) {
-        if (prevProps.mpState.stateId !== this.props.mpState.stateId) {
+        if (prevProps.mpState !== this.props.mpState) {
             this.loadMap();
         }
     }
@@ -69,17 +65,18 @@ export class FocusedOnStateMap extends React.Component<Props, State>{
     private loadMap() {
         const years = this.generateYearsToDisplay(this.props.mpState);
         const pixelWidth = this.mapRef.current.getBoundingClientRect().width;
-        forkJoin(years.map(y => MapistoAPI.loadMapForState(this.props.mpState.stateId, y, pixelWidth))).subscribe(
-            res => this.setState({
-                mapStates: res.map((mapState, index) => ({
-                    territories: mapState.territories,
-                    viewbox: mapState.boundingBox,
-                    year: years[index],
-                    lands: []
-                })),
-                currentMpState: this.props.mpState
-            })
-        );
+        forkJoin(years.map(y => MapistoAPI.loadMapForState(this.props.mpState.stateId, y, pixelWidth))).
+            subscribe(
+                res => this.setState({
+                    mapStates: res.map((mapState, index) => ({
+                        territories: mapState.territories,
+                        viewbox: mapState.boundingBox,
+                        year: years[index],
+                        lands: []
+                    })),
+                    currentMpState: this.props.mpState
+                })
+            );
     }
 
     private generateYearsToDisplay(mpState: MapistoState): number[] {
@@ -90,9 +87,7 @@ export class FocusedOnStateMap extends React.Component<Props, State>{
         if (mpState.endYear > mpState.startYear + 1) {
             years.push(mpState.endYear - 1);
         }
-
         return years;
-
     }
 
 }

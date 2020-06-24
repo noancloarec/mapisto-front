@@ -60,7 +60,15 @@ export class MapistoAPI {
         ).pipe(
             map(res => (
                 { ...parseStatesAndTerritories(res.data, pixelWidth), boundingBox: res.data.bounding_box }
-            ))
+            )),
+            catchError(e => {
+                console.warn(e);
+                return of({
+                    states: [],
+                    territories: [],
+                    boundingBox: { x: 0, y: 0, width: 16, height: 9 }
+                });
+            }),
         );
     }
     static loadMapForTerritory(territoryId: number, year: number, pixelWidth: number)

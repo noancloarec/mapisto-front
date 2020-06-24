@@ -7,12 +7,9 @@ import { RootState } from "src/store";
 import { ChooseAction } from "../ChooseAction/ChooseAction";
 import { StateDisplayConnected } from "../StateDisplay/StateDisplay";
 import { RenameTerritoryOrStateConnected } from "../RenameTerritoryOrState/RenameTerritoryOrState";
-import { RenameStateConnected } from "../RenameTerritoryOrState/RenameState";
 import { MapistoState } from "src/entities/mapistoState";
 import { MapistoTerritory } from "src/entities/mapistoTerritory";
-// import { ExtendStatePeriodConnected } from "../ExtendStatePeriod/ExtendStatePeriod";
 import { ExtendTerritoryPeriodConnected } from "../ExtendTerritoryPeriod/ExtendTerritory";
-import { ReassignTerritoryConnected } from "../ReassignTerritory/ReassignTerritory";
 import { dateFromYear } from "src/utils/date_utils";
 
 interface StateProps {
@@ -66,14 +63,10 @@ class EditionPopup extends React.Component<Props, {}>{
                 return <StateDisplayConnected />;
             case EditionType.RenameStateOrTerritory:
                 return <RenameTerritoryOrStateConnected />;
-            case EditionType.RenameState:
-                return <RenameStateConnected />;
             // case EditionType.ExtendStatePeriod:
             //     return <ExtendStatePeriodConnected />;
             case EditionType.ExtendTerritoryPeriod:
                 return <ExtendTerritoryPeriodConnected />;
-            case EditionType.RenameTerritory:
-                return <ReassignTerritoryConnected />;
             default:
                 return <p>Rien trouve</p>;
         }
