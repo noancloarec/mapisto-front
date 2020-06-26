@@ -4,7 +4,7 @@ export const Header = React.memo(() => {
     return (
         <header>
             <Link to='/'>
-                <h1>
+                <h1 className="text-center">
                     Mapisto
             </h1>
             </Link>

@@ -51,7 +51,10 @@ class HomePageUnrouted extends React.PureComponent<Props, State> {
     yearFromParams() {
         let year = parseInt(new URLSearchParams(this.props.location.search).get('year'), 10);
         if (!year) {
-            year = Math.floor(Math.random() * 300 + 1700);
+            year = +localStorage.getItem('year_on_main_map');
+            if (!year) {
+                year = Math.floor(Math.random() * 300 + 1700);
+            }
             this.updateParams(year);
         }
         return year;
@@ -60,6 +63,7 @@ class HomePageUnrouted extends React.PureComponent<Props, State> {
     private updateParams(year: number) {
         const searchParams = new URLSearchParams(this.props.location.search);
         searchParams.set('year', `${year}`);
+        localStorage.setItem('year_on_main_map', '' + year);
         this.props.history.push({
             pathname: '/',
             search: searchParams.toString()
