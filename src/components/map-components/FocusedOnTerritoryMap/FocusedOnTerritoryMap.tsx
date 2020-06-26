@@ -12,7 +12,7 @@ interface Props {
 interface State {
     maps: {
         territories: MapistoTerritory[],
-        year: number
+        date: Date
     }[];
     currentMapIndex: number;
     playing: boolean;
@@ -67,11 +67,11 @@ export class FocusedOnTerritoryMap extends React.Component<Props, State>{
         forkJoin(years.map(y =>
             MapistoAPI.loadMapForTerritory(this.props.territory.territoryId, y, pixelWidth))).subscribe(
                 res => this.setState({
-                    maps: res.map((map, index) => ({
+                    maps: res.map(map => ({
                         territories: map.territories,
                         viewbox: map.boundingBox,
-                        year: years[index],
-                        lands: []
+                        lands: [],
+                        date: map.date
                     })),
                     viewbox: res[0].boundingBox
                 })

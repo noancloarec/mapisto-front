@@ -11,7 +11,7 @@ import { PlayPauseOverlay } from './PlayPauseOverlay';
 interface Props {
     maps: {
         territories: MapistoTerritory[],
-        year: number,
+        date: Date,
         viewbox: ViewBoxLike
     }[];
 }
@@ -40,13 +40,13 @@ export class GifMap extends React.Component<Props, State>{
                 <div className="year-display">
                     <div className="row">
                         <div className="col-4 col-lg-2 year-box">
-                            {this.getCurrentMap().year}
+                            {(this.getCurrentMap().date.getUTCFullYear())}
                         </div>
                     </div>
                 </div>
                 <svg viewBox={viewboxAsString(this.getCurrentMap().viewbox)}>
                     <TerritoriesGroup
-                        year={this.getCurrentMap().year}
+                        year={this.getCurrentMap().date.getUTCFullYear()}
                         territories={this.getCurrentMap().territories}
                         strokeWidth={this.getCurrentMap().viewbox.width ** .5 / 30}
                     />

@@ -16,14 +16,18 @@ import { Scene } from "src/entities/Scene";
 import { MapistoPoint } from "src/entities/MapistoPoint";
 import { StateRepresentationRaw } from "./StateRepresentationRaw";
 import { StateRepresentation } from "src/entities/StateRepresentation";
-interface StatesAndTerritories {
+interface MapData {
     states: MapistoState[];
     territories: MapistoTerritory[];
+    boundingBox?: ViewBoxLike;
+    date: Date;
 }
 
-interface StatesAndTerritoriesRaw {
+interface MapDataRaw {
     states: MapistoStateRaw[];
     territories: MapistoTerritoryRaw[];
+    bounding_box?: ViewBoxLike;
+    date: string;
 }
 export class MapistoAPI {
 
@@ -31,9 +35,9 @@ export class MapistoAPI {
         year: number,
         precisionLevel: number,
         bbox: ViewBoxLike
-    ): Observable<StatesAndTerritories> {
+    ): Observable<MapData> {
         return from(
-            axios.get<StatesAndTerritoriesRaw>(`${config.api_path}/map`, {
+            axios.get<MapDataRaw>(`${config.api_path}/map`, {
                 params: {
                     date: yearToISOString(year),
                     precision_in_km: precisionLevel,
@@ -48,43 +52,36 @@ export class MapistoAPI {
         );
     }
 
+    static loadGifMapForState(stateId: number, pixelWidth: number): Observable<MapData[]> {
+        return ajax.getJSON<MapDataRaw[]>(`${config.api_path}/gif_map_for_state/${stateId}?pixel_width=${pixelWidth}`)
+            .pipe(
+                map(res => res.map(mapRaw => parseStatesAndTerritories(mapRaw, pixelWidth))),
+            );
+
+    }
+
     static loadMapForState(stateId: number, year: number, pixelWidth: number)
-        : Observable<StatesAndTerritories & { boundingBox: ViewBoxLike }> {
-        return from(
-            axios.get<StatesAndTerritoriesRaw & { bounding_box: ViewBoxLike }>(`${config.api_path}/map_for_state/${stateId}`, {
-                params: {
-                    date: yearToISOString(year),
-                    pixel_width: pixelWidth,
-                }
-            })
-        ).pipe(
-            map(res => (
-                { ...parseStatesAndTerritories(res.data, pixelWidth), boundingBox: res.data.bounding_box }
-            )),
-            catchError(e => {
-                console.warn(e);
-                return of({
-                    states: [],
-                    territories: [],
-                    boundingBox: { x: 0, y: 0, width: 16, height: 9 }
-                });
-            }),
-        );
+        : Observable<MapData> {
+        return ajax.getJSON<MapDataRaw>(`${config.api_path}/map_for_state/${stateId}?date=${yearToISOString(year)}&pixel_width=${pixelWidth}`)
+            .pipe(
+                map(res => parseStatesAndTerritories(res, pixelWidth)),
+                catchError(e => {
+                    console.warn(e);
+                    return of({
+                        states: [],
+                        territories: [],
+                        boundingBox: { x: 0, y: 0, width: 16, height: 9 },
+                        date: new Date()
+                    });
+                })
+            );
     }
     static loadMapForTerritory(territoryId: number, year: number, pixelWidth: number)
-        : Observable<StatesAndTerritories & { boundingBox: ViewBoxLike }> {
-        return from(
-            axios.get<StatesAndTerritoriesRaw & { bounding_box: ViewBoxLike }>(`${config.api_path}/map_for_territory/${territoryId}`, {
-                params: {
-                    date: yearToISOString(year),
-                    pixel_width: pixelWidth,
-                }
-            })
-        ).pipe(
-            map(res => (
-                { ...parseStatesAndTerritories(res.data, pixelWidth), boundingBox: res.data.bounding_box }
-            ))
-        );
+        : Observable<MapData> {
+        return ajax.getJSON<MapDataRaw>(`${config.api_path}/map_for_territory/${territoryId}?date=${yearToISOString(year)}&pixel_width=${pixelWidth}`)
+            .pipe(
+                map(res => parseStatesAndTerritories(res, pixelWidth))
+            );
     }
 
     static loadState(stateId: number): Observable<MapistoState> {
@@ -350,14 +347,16 @@ function parseScene(raw: SceneRaw): Scene {
     );
 }
 
-function parseStatesAndTerritories(raw: StatesAndTerritoriesRaw, precisionLevel: number): StatesAndTerritories {
+function parseStatesAndTerritories(raw: MapDataRaw, precisionLevel: number): MapData {
     const mpStates = raw.states.map(r => parseState(r));
 
-    const res = {
+    const res: MapData = {
         states: mpStates,
         territories: raw.territories.map(
             t => parseTerritory(t, precisionLevel, mpStates.find(s => s.stateId === t.state_id))
-        )
+        ),
+        boundingBox: raw.bounding_box,
+        date: new Date(raw.date + 'Z')
     };
     for (const t of res.territories) {
         t.mpState.getName(t.validityStart);

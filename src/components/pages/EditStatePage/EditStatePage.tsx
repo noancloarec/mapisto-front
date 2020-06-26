@@ -31,7 +31,7 @@ class EditStatePageUnrouted extends React.Component<Props, State>{
     render() {
         const mpState = this.state.mpState;
         return (
-            <body>
+            <div>
                 <Header />
 
                 <div className="container">
@@ -91,7 +91,7 @@ class EditStatePageUnrouted extends React.Component<Props, State>{
 
                     </div>
                 </div >
-            </body>
+            </div>
         );
     }
 

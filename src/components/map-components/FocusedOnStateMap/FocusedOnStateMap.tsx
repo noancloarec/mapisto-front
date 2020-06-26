@@ -8,6 +8,7 @@ import { forkJoin } from "rxjs";
 import { MapistoTerritory } from "src/entities/mapistoTerritory";
 import { LoadingIcon } from "../TimeNavigableMap/LoadingIcon";
 import { GifMap } from "../gif-map/GifMap";
+import { map } from "rxjs/operators";
 
 interface Props {
     mpState: MapistoState;
@@ -16,7 +17,7 @@ interface State {
     currentMpState: MapistoState;
 
     mapStates: {
-        year: number;
+        date: Date;
         viewbox: ViewBoxLike;
         territories: MapistoTerritory[];
         lands: Land[];
@@ -63,31 +64,18 @@ export class FocusedOnStateMap extends React.Component<Props, State>{
     }
 
     private loadMap() {
-        const years = this.generateYearsToDisplay(this.props.mpState);
         const pixelWidth = this.mapRef.current.getBoundingClientRect().width;
-        forkJoin(years.map(y => MapistoAPI.loadMapForState(this.props.mpState.stateId, y, pixelWidth))).
-            subscribe(
-                res => this.setState({
-                    mapStates: res.map((mapState, index) => ({
-                        territories: mapState.territories,
-                        viewbox: mapState.boundingBox,
-                        year: years[index],
-                        lands: []
-                    })),
-                    currentMpState: this.props.mpState
-                })
-            );
+        MapistoAPI.loadGifMapForState(this.props.mpState.stateId, pixelWidth).subscribe(
+            res => this.setState({
+                mapStates: res.map(map => ({
+                    date: map.date,
+                    viewbox: map.boundingBox,
+                    territories: map.territories,
+                    lands: [],
+                }))
+                ,
+                currentMpState: this.props.mpState
+            })
+        );
     }
-
-    private generateYearsToDisplay(mpState: MapistoState): number[] {
-        const years = [mpState.startYear];
-        if (mpState.endYear > mpState.startYear + 2) {
-            years.push(Math.round((mpState.endYear - mpState.startYear) / 2) + mpState.startYear);
-        }
-        if (mpState.endYear > mpState.startYear + 1) {
-            years.push(mpState.endYear - 1);
-        }
-        return years;
-    }
-
 }

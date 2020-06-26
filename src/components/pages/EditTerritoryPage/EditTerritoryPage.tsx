@@ -27,7 +27,7 @@ class EditTerritoryPageUnrouted extends React.Component<Props, State> {
     render() {
         const territory = this.state.territory;
         return (
-            <body>
+            <div>
                 <Header />
                 <div className="container">
                     {
@@ -94,7 +94,7 @@ class EditTerritoryPageUnrouted extends React.Component<Props, State> {
 
                     </div>
                 </div>
-            </body>
+            </div>
         );
     }
 
