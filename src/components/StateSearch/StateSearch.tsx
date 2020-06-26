@@ -9,8 +9,9 @@ const { Option } = AutoComplete;
 
 interface Props {
     limitedToTerritory?: MapistoTerritory;
-    className: string;
+    className?: string;
     onSelectedState?: (selected: MapistoState) => void;
+    hiddenStatesId: number[];
 }
 interface State {
     searchResults: MapistoState[];
@@ -18,6 +19,9 @@ interface State {
 }
 export class StateSearch extends React.Component<Props, State> {
     private pattern$: Subject<string>;
+    public static defaultProps = {
+        hiddenStatesId: [] as number[]
+    };
     constructor(props: Props) {
         super(props);
         this.pattern$ = new Subject<string>();
@@ -41,13 +45,15 @@ export class StateSearch extends React.Component<Props, State> {
             });
             return;
         }
+        const isHidden = (mpState: MapistoState) => !!this.props.hiddenStatesId.find(st => st === mpState.stateId)
         MapistoAPI.searchState(pattern).subscribe(
-            res => this.setState({ searchResults: res })
+            res => this.setState({ searchResults: res.filter(s => !isHidden(s)) })
         );
     }
 
     selectState(stateId: number) {
         const mpState = this.state.searchResults.find(s => s.stateId === stateId);
+        console.log('select state ', stateId, mpState);
         if (this.props.onSelectedState) {
             this.props.onSelectedState(mpState);
         }
@@ -78,8 +84,8 @@ export class StateSearch extends React.Component<Props, State> {
             >
                 <div className="row">
                     <div className=" col-2 col-md-1 pl-2 pr-2" >
-                        <div className="state-color-indicator"
-                            style={({ backgroundColor: mpState.getColor(mpState.validityStart) })}>
+                        <div
+                            style={({ backgroundColor: mpState.getColor(), width: '100%', height: '100%' })}>
                         </div>
                     </div>
                     <div className="autocomplete-state-text col-4 col-md-5" translate="no">

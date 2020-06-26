@@ -4,7 +4,8 @@ import {
   BrowserRouter as Router,
   Switch,
   Route,
-  useParams
+  useParams,
+  Link
 } from "react-router-dom";
 import { VideoPlayer } from './components/video-components/video-player/VideoPlayer';
 import { HomePage } from './components/pages/HomePage/HomePage';
@@ -27,9 +28,6 @@ const App: React.FC = () => {
         <Route path="/movie/:state_id">
           <VideoPage />
         </Route>
-
-
-
       </Switch>
     </Router >
   );

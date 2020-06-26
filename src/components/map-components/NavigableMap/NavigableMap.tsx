@@ -134,7 +134,6 @@ export class NavigableMap extends React.Component<Props, State>{
         if (this.mapSubscription) {
             this.mapSubscription.unsubscribe();
         }
-        console.log('load ', yearToISOString(year))
         this.mapSubscription = MapistoAPI.loadMap(year, precision, vb)
             .subscribe(
                 res => {

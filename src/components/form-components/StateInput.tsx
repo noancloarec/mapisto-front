@@ -21,7 +21,7 @@ export class StateInput extends React.Component<Props, State> {
         super(props);
         this.state = {
             innerValue: props.value,
-            stateStillAlive: props.value.validityStart > new Date()
+            stateStillAlive: props.value.validityEnd > new Date()
         };
     }
 
@@ -43,7 +43,7 @@ export class StateInput extends React.Component<Props, State> {
                                 onChange={m => this.handleEndChange(m.toDate())} />
                         )
                     }
-                    <Checkbox onChange={this.toggleStateStillAlive} value={this.state.stateStillAlive}>
+                    <Checkbox onChange={this.toggleStateStillAlive} checked={this.state.stateStillAlive}>
                         The sovereign state still exists
                         </Checkbox>
                 </Form.Item>
@@ -192,7 +192,17 @@ export class StateInput extends React.Component<Props, State> {
     }
 
     shouldComponentUpdate(newProps: Props, newState: State) {
+        console.log('should component update returns ',
+            (newState !== this.state) || (newProps.value && newProps.value.stateId !== this.props.value.stateId));
         return (newState !== this.state) || (newProps.value && newProps.value.stateId !== this.props.value.stateId);
+    }
+
+    componentDidUpdate(prevProps: Props) {
+        if (prevProps.value.stateId !== this.props.value.stateId) {
+            this.setState({
+                innerValue: this.props.value
+            });
+        }
     }
 
 }

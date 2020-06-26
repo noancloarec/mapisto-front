@@ -4,6 +4,8 @@ import { MapistoTerritory } from 'src/entities/mapistoTerritory';
 import { MapistoState } from 'src/entities/mapistoState';
 import { FocusedOnStateMap } from 'src/components/map-components/FocusedOnStateMap/FocusedOnStateMap';
 import { dateFromYear } from 'src/utils/date_utils';
+import { Button } from 'antd';
+import { Link } from 'react-router-dom';
 
 type Props = {
     selectedTerritory: MapistoTerritory;
@@ -24,25 +26,13 @@ export const TerritoryPanel: React.FC<Props> = (props: Props) => {
 };
 
 const renderActionButtons = (territory: MapistoTerritory) => {
-    const reportErrorButton = (
-        <button className="btn btn-outline-danger"
-            onClick={
-                () => console.log("this.props.startTerritoryEdition()")
-            }
-        >Report an error</button>
-    );
-    const fillNameButton = (
-        <a className="btn btn-success"
-            href={`/edit_territory/${territory.territoryId}`}>
-            Fill in the name
-            </a>
-
-    );
     const name = territory.mpState.getName(territory.validityStart);
     return (
         <div className="action-buttons d-flex justify-content-center">
-            {name ? reportErrorButton : fillNameButton}
-        </div>
+            <Link to={`/edit_territory/${territory.territoryId}`}>
+                <Button>Edit</Button>
+            </Link>
+        </div >
     );
 };
 

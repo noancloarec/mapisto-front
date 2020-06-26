@@ -19,7 +19,7 @@ export class MapistoState extends TimeDefinedEntity {
         this.representations = representations;
     }
 
-    getName(date: Date) {
+    getName(date = this.validityStart) {
         const rep = this.representations.find(r => r.validAt(date));
         if (!rep) {
             console.error("Cannot find name of state at ", date.toISOString(), this);
@@ -32,7 +32,7 @@ export class MapistoState extends TimeDefinedEntity {
         return this.representations.find(r => r.color.toLocaleLowerCase() === name.toLocaleLowerCase()) !== undefined;
     }
 
-    getColor(date: Date) {
+    getColor(date = this.validityStart) {
         const rep = this.representations.find(r => r.validAt(date));
         if (!rep) {
             console.log('no representation found for', this, 'at', date);

@@ -200,9 +200,9 @@ export class MapistoAPI {
         );
     }
 
-    static mergeStates(toBeAbsorbedId: number, toAbsordID: number): Observable<number> {
+    static mergeStates(stateId: number, sovereignStateId: number): Observable<number> {
         return from(
-            axios.put<number>(`${config.api_path}/state/${toAbsordID}/absorb/${toBeAbsorbedId}`)
+            axios.put<number>(`${config.api_path}/merge_state/${stateId}/into/${sovereignStateId}`)
         ).pipe(
             map(res => res.data)
         );
@@ -237,13 +237,18 @@ export class MapistoAPI {
 
     }
 
-    static putState(modifiedState: MapistoState): Observable<number> {
+    static putState(modifiedState: MapistoState, absorbConflicts = false): Observable<number> {
         return from(
             axios.put(`${config.api_path}/state`,
-                stateJSON(modifiedState)
+                stateJSON(modifiedState),
+                {
+                    params: {
+                        absorb_conflicts: absorbConflicts
+                    }
+                }
             )).pipe(
                 catchError(e => throwError(e.response.data)),
-                map(response => modifiedState.stateId)
+                map(() => modifiedState.stateId)
             );
     }
     static searchState(pattern: string): Observable<MapistoState[]> {
