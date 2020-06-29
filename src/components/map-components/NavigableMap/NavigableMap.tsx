@@ -11,6 +11,7 @@ import { NavigationHandler } from './NavigationHandler';
 import { MapistoPoint } from 'src/entities/MapistoPoint';
 import { TerritoriesGroup } from '../TerritoriesGroup/TerritoriesGroup';
 import { dateFromYear, yearToISOString } from 'src/utils/date_utils';
+import { NamesGroup } from '../NamesGroup/NamesGroup';
 
 interface Props {
     year: number;
@@ -72,6 +73,11 @@ export class NavigableMap extends React.Component<Props, State>{
                         territories={this.state.territories}
                         date={dateFromYear(this.state.yearOnDisplay)}
                         strokeWidth={this.state.viewbox.width ** .5 / 30} />
+                    <NamesGroup
+                        territories={this.state.territories}
+                        date={dateFromYear(this.state.yearOnDisplay)}
+                        viewbox={this.state.viewbox}
+                    />
                 </svg>
             </div>
         );

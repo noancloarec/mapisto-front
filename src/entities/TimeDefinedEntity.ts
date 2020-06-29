@@ -19,7 +19,7 @@ export class TimeDefinedEntity {
     }
 
     overLapsWith(other: TimeDefinedEntity) {
-        return this.validityStart < other.validityEnd && this.validityEnd > other.validityEnd;
+        return this.validityStart < other.validityEnd && this.validityEnd > other.validityStart;
     }
 
     isOutdated(year: number): boolean {

@@ -32,6 +32,12 @@ const renderActionButtons = (territory: MapistoTerritory) => {
             <Link to={`/edit_territory/${territory.territoryId}`}>
                 <Button>Edit</Button>
             </Link>
+            {!territory.mpState.representations.find(r => !!r.name) &&
+                <Link to={`/edit_state/${territory.mpState.stateId}`}>
+                    <Button>Link to a state</Button>
+                </Link>
+
+            }
         </div >
     );
 };
