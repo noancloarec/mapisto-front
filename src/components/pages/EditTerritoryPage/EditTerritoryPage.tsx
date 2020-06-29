@@ -3,25 +3,38 @@ import { withRouter, RouteComponentProps } from 'react-router';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
 import { MapistoAPI } from 'src/api/MapistoApi';
 import { FocusedOnStateMap } from 'src/components/map-components/FocusedOnStateMap/FocusedOnStateMap';
-import { Button, Tooltip } from 'antd';
-import { SearchOutlined, EditOutlined, BackwardOutlined, LeftOutlined } from '@ant-design/icons';
-import './EditTerritoryPage.css'
+import { Button, Tooltip, Dropdown, Menu, Input } from 'antd';
+import { SearchOutlined, EditOutlined, BackwardOutlined, LeftOutlined, SaveOutlined } from '@ant-design/icons';
+import './EditTerritoryPage.css';
 import { FocusedOnTerritoryMap } from 'src/components/map-components/FocusedOnTerritoryMap/FocusedOnTerritoryMap';
 import { StateSearch } from 'src/components/StateSearch/StateSearch';
 import { Link } from 'react-router-dom';
+import moment from 'moment';
+
 import { Header } from 'src/components/Header/Header';
+import Form from 'antd/lib/form/Form';
+import { MapistoState } from 'src/entities/mapistoState';
+import { TerritoryInput } from 'src/components/form-components/TerritoryInput';
 
 
 type Props = RouteComponentProps<{ territory_id: string }>;
 interface State {
     territory: MapistoTerritory;
+    modifiedTerritory: MapistoTerritory;
+    submitTerritoryLoading: boolean;
+    showChangeTerritoryState: boolean;
+    selectedState: MapistoState;
 }
 class EditTerritoryPageUnrouted extends React.Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
         this.state = {
-            territory: undefined
+            territory: undefined,
+            modifiedTerritory: undefined,
+            showChangeTerritoryState: false,
+            selectedState: undefined,
+            submitTerritoryLoading: false
         };
     }
     render() {
@@ -35,6 +48,26 @@ class EditTerritoryPageUnrouted extends React.Component<Props, State> {
                             <div className="row d-flex">
                                 <div className="col-6">
                                     <h2 className="text-center">
+                                        Territory
+                                </h2>
+                                    <h3 className="text-center">{moment(territory.validityStart).format('YYYY-MM-DD')}
+                                        &nbsp;to&nbsp;
+                                     {moment(territory.validityEnd).format('YYYY-MM-DD')}</h3>
+                                    <FocusedOnTerritoryMap territory={territory} />
+                                    <Form onSubmitCapture={this.submitTerritory} className="mt-4">
+                                        <TerritoryInput
+                                            value={this.state.modifiedTerritory}
+                                            onChange={t => this.setState({ modifiedTerritory: t })}
+                                        />
+                                        <Button htmlType="submit" type="primary" loading={this.state.submitTerritoryLoading}
+                                            className="mt-2" icon={<SaveOutlined />}>
+                                            Save modifications
+                                        </Button>
+                                    </Form>
+
+                                </div>
+                                <div className="col-6">
+                                    <h2 className="text-center">
                                         Sovereign State
                                 </h2>
                                     <div className="state-name">
@@ -45,51 +78,36 @@ class EditTerritoryPageUnrouted extends React.Component<Props, State> {
                                                 'Name unknown'
                                             }
                                         </h3>
-                                        <Tooltip className="edit-state-button" title="Edit">
-                                            <Link to={`/edit_state/${territory.mpState.stateId}`}>
-                                                <Button
-                                                    shape="circle" icon={<EditOutlined />} />
-                                            </Link>
-                                        </Tooltip>
+                                        <Dropdown.Button
+                                            className='edit-state-button'
+                                            icon={<EditOutlined />} trigger={['click']} overlay={
+                                                <Menu>
+                                                    <Menu.Item onClick={() => this.setState({
+                                                        showChangeTerritoryState: true
+                                                    })}>
+                                                        Change the territory's sovereign state
+                                                    </Menu.Item>
+                                                    <Menu.Item  >
+                                                        <Link to={`/edit_state/${territory.mpState.stateId}`}>
+                                                            Edit state
+                                                    </Link>
+                                                    </Menu.Item>
+                                                </Menu>
+
+                                            } />
 
                                     </div>
                                     <FocusedOnStateMap mpState={this.state.territory.mpState} />
-                                    <h2 className="mt-3 decorated-title">
-                                        Or
-                                </h2>
-                                    <p>
-                                        The territory belongs to another sovereign state
-                                </p>
-                                    <div>
-
-                                        <StateSearch className="col-12" limitedToTerritory={territory} />
-                                    </div>
-
-                                </div>
-                                <div className="col-6">
-                                    <h2 className="text-center">
-                                        Territory
-                                </h2>
-                                    <h3 className="text-center">
-                                        {territory.name ?
-                                            territory.name
-                                            :
-                                            (
-                                                territory.mpState.getName(territory.validityStart) ?
-                                                    territory.mpState.getName(territory.validityStart)
-                                                    :
-                                                    'Name unknown'
-                                            )
-                                        }
-                                    </h3>
-                                    <FocusedOnTerritoryMap territory={territory} />
+                                    {
+                                        this.state.showChangeTerritoryState && this.renderChangeTerritoryBelonging()
+                                    }
 
                                 </div>
 
                             </div>
                         )
                     }
-                    <div className="m-2 d-flex justify-content-center">
+                    <div className="m-4 d-flex justify-content-center">
                         <Button type="primary" icon={<LeftOutlined />} href="/"> Back to map</Button>
 
                     </div>
@@ -102,9 +120,58 @@ class EditTerritoryPageUnrouted extends React.Component<Props, State> {
         this.loadTerritory(this.getTerritoryId());
     }
 
+    renderChangeTerritoryBelonging() {
+        return (<div>
+
+            <h2 className="mt-3 decorated-title">Or</h2>
+            <p>The territory belongs to another sovereign state</p>
+            <div>
+                <StateSearch
+                    className="col-12" limitedToTerritory={this.state.territory}
+                    onSelectedState={st => this.setState({
+                        selectedState: st
+                    })} />
+                <Button
+                    className="mt-1"
+                    type="primary" icon={<SaveOutlined />} onClick={this.reassignTerritory}>
+                    Change the sovereign state
+                    </Button>
+            </div>
+        </div>
+        );
+    }
+
+    reassignTerritory = () => {
+        const t: MapistoTerritory = Object.create(this.state.territory);
+        t.mpState = this.state.selectedState;
+        MapistoAPI.editTerritory(t).subscribe(newTerritory => this.setState({
+            territory: newTerritory,
+            modifiedTerritory: newTerritory
+        }));
+    }
+
     private loadTerritory(territoryId: number) {
         MapistoAPI.loadTerritory(territoryId).subscribe(
-            t => this.setState({ territory: t })
+            t => this.setState({
+                territory: t,
+                modifiedTerritory: t,
+                selectedState: t.mpState
+            })
+        );
+    }
+
+    submitTerritory = () => {
+        this.setState({
+            submitTerritoryLoading: true
+        })
+        MapistoAPI.editTerritory(this.state.modifiedTerritory).subscribe(
+            t => this.setState({
+                territory: t,
+                modifiedTerritory: t,
+                selectedState: t.mpState,
+                submitTerritoryLoading: false
+
+            })
         );
     }
     private getTerritoryId() {

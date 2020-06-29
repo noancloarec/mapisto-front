@@ -5,25 +5,22 @@ import { ViewBoxLike } from '@svgdotjs/svg.js';
 import { LoadingIcon } from '../TimeNavigableMap/LoadingIcon';
 import { forkJoin, Subscription, interval } from 'rxjs';
 import { GifMap } from '../gif-map/GifMap';
+import { MapData } from 'src/api/MapData';
 
 interface Props {
     territory: MapistoTerritory;
 }
 interface State {
-    maps: {
-        territories: MapistoTerritory[],
-        date: Date
-    }[];
+    maps: MapData[];
     currentMapIndex: number;
     playing: boolean;
     viewbox: ViewBoxLike;
 }
 export class FocusedOnTerritoryMap extends React.Component<Props, State>{
     private mapRef: React.RefObject<HTMLDivElement>;
-    private timerSubscription: Subscription;
+    private loadMapSubscripton: Subscription;
     constructor(props: Props) {
         super(props);
-        this.timerSubscription = new Subscription();
         this.mapRef = React.createRef<HTMLDivElement>();
         this.state = {
             playing: false,
@@ -42,6 +39,10 @@ export class FocusedOnTerritoryMap extends React.Component<Props, State>{
         if (prevProps.territory.territoryId !== this.props.territory.territoryId) {
             this.loadMap();
         }
+    }
+
+    componentWillUnmount() {
+        this.loadMapSubscripton.unsubscribe();
     }
 
     render() {
@@ -64,15 +65,10 @@ export class FocusedOnTerritoryMap extends React.Component<Props, State>{
     private loadMap() {
         const years = this.generateYearsToDisplay(this.props.territory);
         const pixelWidth = this.mapRef.current.getBoundingClientRect().width;
-        forkJoin(years.map(y =>
+        this.loadMapSubscripton = forkJoin(years.map(y =>
             MapistoAPI.loadMapForTerritory(this.props.territory.territoryId, y, pixelWidth))).subscribe(
                 res => this.setState({
-                    maps: res.map(map => ({
-                        territories: map.territories,
-                        viewbox: map.boundingBox,
-                        lands: [],
-                        date: map.date
-                    })),
+                    maps: res,
                     viewbox: res[0].boundingBox
                 })
             );

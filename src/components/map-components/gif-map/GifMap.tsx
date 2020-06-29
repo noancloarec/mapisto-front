@@ -7,13 +7,10 @@ import { TerritoriesGroup } from '../TerritoriesGroup/TerritoriesGroup';
 import { LandsGroup } from '../LandsGroup/LandsGroup';
 import { Subscription, interval } from 'rxjs';
 import { PlayPauseOverlay } from './PlayPauseOverlay';
+import { MapData } from 'src/api/MapData';
 
 interface Props {
-    maps: {
-        territories: MapistoTerritory[],
-        date: Date,
-        viewbox: ViewBoxLike
-    }[];
+    maps: MapData[];
 }
 interface State {
     currentMapIndex: number;
@@ -34,6 +31,8 @@ export class GifMap extends React.Component<Props, State>{
     }
 
     render() {
+        console.log(this.getCurrentMap());
+
         return (
             <div className="map">
                 <PlayPauseOverlay playing={this.state.playing} onChange={() => this.playOrPause()} />
@@ -44,11 +43,11 @@ export class GifMap extends React.Component<Props, State>{
                         </div>
                     </div>
                 </div>
-                <svg viewBox={viewboxAsString(this.getCurrentMap().viewbox)}>
+                <svg viewBox={viewboxAsString(this.getCurrentMap().boundingBox)}>
                     <TerritoriesGroup
-                        year={this.getCurrentMap().date.getUTCFullYear()}
+                        date={this.getCurrentMap().date}
                         territories={this.getCurrentMap().territories}
-                        strokeWidth={this.getCurrentMap().viewbox.width ** .5 / 30}
+                        strokeWidth={this.getCurrentMap().boundingBox.width ** .5 / 30}
                     />
                     <LandsGroup lands={[]} />
                 </svg>

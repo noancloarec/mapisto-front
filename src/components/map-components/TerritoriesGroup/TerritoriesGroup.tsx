@@ -4,7 +4,7 @@ import { dateFromYear } from 'src/utils/date_utils';
 import './TerritoriesGroup.css';
 interface Props {
     territories: MapistoTerritory[];
-    year: number;
+    date: Date;
     strokeWidth: number;
     onTerritoryPressed?: (territory: MapistoTerritory) => void;
 }
@@ -12,18 +12,17 @@ const TerritoriesGroupUnpure: React.FunctionComponent<Props> = (props: Props) =>
     return (
         <g className="territories-group" strokeWidth={props.strokeWidth}>
             <p>{props.strokeWidth}</p>
-            {renderTerritories(props.territories, props.year, props.onTerritoryPressed)}
+            {renderTerritories(props.territories, props.date, props.onTerritoryPressed)}
         </g>
     );
 };
 
 const renderTerritories = (
     territories: MapistoTerritory[],
-    year: number,
+    date: Date,
     onTerritoryPressed: (t: MapistoTerritory) => void
 ) => {
     const res = [];
-    const date = dateFromYear(year);
     for (const territory of territories) {
         res.push(
             <path

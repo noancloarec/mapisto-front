@@ -4,11 +4,12 @@ import React, { RefObject } from "react";
 import { MapistoAPI } from "src/api/MapistoApi";
 import { Land } from "src/entities/Land";
 import './FocusedMap.css';
-import { forkJoin } from "rxjs";
+import { forkJoin, Subscription } from "rxjs";
 import { MapistoTerritory } from "src/entities/mapistoTerritory";
 import { LoadingIcon } from "../TimeNavigableMap/LoadingIcon";
 import { GifMap } from "../gif-map/GifMap";
 import { map } from "rxjs/operators";
+import { MapData } from "src/api/MapData";
 
 interface Props {
     mpState: MapistoState;
@@ -16,17 +17,13 @@ interface Props {
 interface State {
     currentMpState: MapistoState;
 
-    mapStates: {
-        date: Date;
-        viewbox: ViewBoxLike;
-        territories: MapistoTerritory[];
-        lands: Land[];
-    }[];
+    mapStates: MapData[];
 }
 
 export class FocusedOnStateMap extends React.Component<Props, State>{
 
     private mapRef: RefObject<HTMLDivElement>;
+    private mapSubscription: Subscription;
 
     constructor(props: Props) {
         super(props);
@@ -45,6 +42,9 @@ export class FocusedOnStateMap extends React.Component<Props, State>{
         if (prevProps.mpState !== this.props.mpState) {
             this.loadMap();
         }
+    }
+    componentWillUnmount() {
+        this.mapSubscription.unsubscribe();
     }
 
     render() {
@@ -65,15 +65,9 @@ export class FocusedOnStateMap extends React.Component<Props, State>{
 
     private loadMap() {
         const pixelWidth = this.mapRef.current.getBoundingClientRect().width;
-        MapistoAPI.loadGifMapForState(this.props.mpState.stateId, pixelWidth).subscribe(
+        this.mapSubscription = MapistoAPI.loadGifMapForState(this.props.mpState.stateId, pixelWidth).subscribe(
             res => this.setState({
-                mapStates: res.map(map => ({
-                    date: map.date,
-                    viewbox: map.boundingBox,
-                    territories: map.territories,
-                    lands: [],
-                }))
-                ,
+                mapStates: res,
                 currentMpState: this.props.mpState
             })
         );

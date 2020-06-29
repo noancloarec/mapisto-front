@@ -45,7 +45,7 @@ export class StateSearch extends React.Component<Props, State> {
             });
             return;
         }
-        const isHidden = (mpState: MapistoState) => !!this.props.hiddenStatesId.find(st => st === mpState.stateId)
+        const isHidden = (mpState: MapistoState) => !!this.props.hiddenStatesId.find(st => st === mpState.stateId);
         MapistoAPI.searchState(pattern).subscribe(
             res => this.setState({ searchResults: res.filter(s => !isHidden(s)) })
         );
@@ -78,27 +78,37 @@ export class StateSearch extends React.Component<Props, State> {
 
 
     renderStateOptions() {
-        return this.state.searchResults.map(mpState => (
-            <Option key={mpState.stateId} value={"" + mpState.stateId}
-                disabled={this.props.limitedToTerritory && !mpState.overLapsWith(this.props.limitedToTerritory)}
-            >
-                <div className="row">
-                    <div className=" col-2 col-md-1 pl-2 pr-2" >
-                        <div
-                            style={({ backgroundColor: mpState.getColor(), width: '100%', height: '100%' })}>
+        return this.state.searchResults.map(mpState => {
+            let name = mpState.getName();
+            if (this.props.limitedToTerritory && mpState.getName(this.props.limitedToTerritory.validityStart)) {
+                name = mpState.getName(this.props.limitedToTerritory.validityStart)
+            } else if (this.props.limitedToTerritory && mpState.getName(this.props.limitedToTerritory.validityEnd)) {
+                name = mpState.getName(this.props.limitedToTerritory.validityEnd)
+            }
+
+            return (
+                <Option key={mpState.stateId} value={"" + mpState.stateId}
+                    disabled={this.props.limitedToTerritory && !mpState.overLapsWith(this.props.limitedToTerritory)}
+                >
+                    <div className="row">
+                        <div className=" col-2 col-md-1 pl-2 pr-2" >
+                            <div
+                                style={({ backgroundColor: mpState.getColor(), width: '100%', height: '100%' })}>
+                            </div>
+                        </div>
+                        <div className="autocomplete-state-text col-4 col-md-5" translate="no">
+                            {name}
+                        </div>
+                        <div className="col-3 text-muted">
+                            {mpState.startYear}
+                        </div>
+                        <div className="col-3 text-muted">
+                            {mpState.endYear}
                         </div>
                     </div>
-                    <div className="autocomplete-state-text col-4 col-md-5" translate="no">
-                        {mpState.getName(mpState.validityStart)}
-                    </div>
-                    <div className="col-3 text-muted">
-                        {mpState.startYear}
-                    </div>
-                    <div className="col-3 text-muted">
-                        {mpState.endYear}
-                    </div>
-                </div>
-            </Option >
-        ));
+                </Option >
+            );
+        }
+        );
     }
 }
