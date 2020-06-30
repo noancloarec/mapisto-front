@@ -33,3 +33,7 @@ p.loading-progress{
 .video-player.hide-cursor{
     cursor: none;
 }
+
+p.error-video{
+    color : white
+}

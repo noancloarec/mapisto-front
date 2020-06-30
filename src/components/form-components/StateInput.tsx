@@ -200,7 +200,8 @@ export class StateInput extends React.Component<Props, State> {
     componentDidUpdate(prevProps: Props) {
         if (prevProps.value.stateId !== this.props.value.stateId) {
             this.setState({
-                innerValue: this.props.value
+                innerValue: this.props.value,
+                stateStillAlive: this.props.value.validityEnd > new Date()
             });
         }
     }

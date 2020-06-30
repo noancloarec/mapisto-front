@@ -258,13 +258,14 @@ export class MapistoAPI {
         );
     }
 
-    static getVideo(stateId: number, onProgress?: (progress: number) => void): Observable<Scene[]> {
+    static getVideo(stateId: number, pixelWidth: number, onProgress?: (progress: number) => void): Observable<Scene[]> {
         return from(
-            axios.get<SceneRaw[]>(`${config.api_path}/movie/${stateId}`,
-                onProgress ? {
-                    onDownloadProgress: event => onProgress(event.loaded / event.total)
-                } : {}
-            )
+            axios.get<SceneRaw[]>(`${config.api_path}/state/${stateId}/movie`, {
+                params: {
+                    pixel_width: pixelWidth
+                },
+                onDownloadProgress: onProgress ? event => onProgress(event.loaded / event.total) : undefined
+            })
         ).pipe(
             map(res => res.data.map(s => parseScene(s))),
         );
@@ -349,12 +350,14 @@ function territoryJSON(from: MapistoTerritory): MapistoTerritoryRaw {
 }
 
 function parseScene(raw: SceneRaw): Scene {
+    const states = raw.states.map(s => parseState(s));
+    console.log(raw)
     return new Scene(
         new Date(raw.validity_start + "Z"),
         new Date(raw.validity_end + "Z"),
-        raw.states.map(s => parseState(s)),
+        raw.territories.map(t => parseTerritory(t, null, states.find(st => st.stateId === t.state_id))),
         raw.bounding_box,
-        raw.lands.map(l => parseLand(l, null))
+        raw.lands.map(l => parseLand(l, undefined))
     );
 }
 

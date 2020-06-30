@@ -24,8 +24,8 @@ class HomePageUnrouted extends React.PureComponent<Props, State> {
                 <section id="main-map">
                     <TimeNavigableMap
                         initialYear={this.state.year}
-                        initialCenter={{ x: 1000, y: 300 }}
-                        initialWidth={1000}
+                        initialCenter={this.centerFromParams()}
+                        initialWidth={this.widthFromParams()}
                         onTerritoryClicked={t => this.setState({ selectedTerritory: t })}
                         onYearChange={year => this.updateParams(year)}
                     />
@@ -46,6 +46,27 @@ class HomePageUnrouted extends React.PureComponent<Props, State> {
             </div>
 
         );
+    }
+
+    centerFromParams() {
+        const centerX = +new URLSearchParams(this.props.location.search).get('center_x');
+        const centerY = +new URLSearchParams(this.props.location.search).get('center_y');
+        if (centerY && centerX) {
+            return {
+                x: centerX,
+                y: centerY
+            };
+        } else {
+            return {
+                x: 1000,
+                y: 300
+            };
+        }
+    }
+
+    widthFromParams(): number {
+        const width = +new URLSearchParams(this.props.location.search).get('width');
+        return width ? width : 1000;
     }
 
     yearFromParams() {

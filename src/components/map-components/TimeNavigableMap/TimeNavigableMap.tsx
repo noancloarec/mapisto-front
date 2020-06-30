@@ -77,7 +77,7 @@ export class TimeNavigableMap extends React.Component<Props, State>{
                 onTerritoriesLoaded={() => this.setState({ loading: false })}
                 onKeyDown={event => this.navigateThroughYears(event)}
                 initialCenter={this.props.initialCenter}
-                initialWidth={1000}
+                initialWidth={this.props.initialWidth}
                 onTerritoryClicked={this.props.onTerritoryClicked}
             ></NavigableMap>
             <div className="time-selector-row">

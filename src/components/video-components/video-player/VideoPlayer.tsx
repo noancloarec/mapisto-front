@@ -6,7 +6,7 @@ import { range, zip, timer, Observable, Subscription, Subject, of } from 'rxjs';
 import { TimeSelector } from 'src/components/map-components/TimeNavigableMap/TimeSelector';
 import './VideoPlayer.css';
 import { ControlBar } from '../control-bar/ControlBar';
-import { throttleTime, delay } from 'rxjs/operators';
+import { throttleTime, delay, catchError } from 'rxjs/operators';
 import { LoadingIcon } from 'src/components/map-components/TimeNavigableMap/LoadingIcon';
 import { VideoTitle } from '../video-title/VideoTitle';
 
@@ -22,6 +22,7 @@ interface State {
     videoIsFullScreen: boolean;
     loadingProgress: number;
     controlBarHidden: boolean;
+    errorMessage: string;
 }
 export class VideoPlayer extends React.Component<Props, State>{
     private yearEmitter$: Observable<number>;
@@ -40,7 +41,8 @@ export class VideoPlayer extends React.Component<Props, State>{
             videoIsFullScreen: false,
             loadingProgress: 0,
             controlBarHidden: true,
-            mpStateName: ""
+            mpStateName: "",
+            errorMessage: ""
         };
         this.videoPlayerRef = React.createRef();
         this.yearOnMapChange$ = new Subject<number>();
@@ -57,7 +59,7 @@ export class VideoPlayer extends React.Component<Props, State>{
             <div className="full-page-video-container d-flex justify-content-center"
                 ref={this.videoPlayerRef}>
                 {
-                    this.state.scenery ?
+                    this.state.scenery && this.state.yearOnMap ?
                         this.renderReadyPlayer()
                         :
                         this.renderLoadingPlayer()
@@ -69,18 +71,31 @@ export class VideoPlayer extends React.Component<Props, State>{
 
     renderLoadingPlayer() {
         return <div className="video-player d-flex justify-content-center" >
-            <div className="d-flex flex-column justify-content-center">
-                <div className="video-loading-container">
-                    <LoadingIcon loading={true} color="white"></LoadingIcon>
-                </div>
-                <p className="loading-progress">{this.state.loadingProgress}%</p>
-            </div>
+            {
+                this.state.errorMessage ?
+                    <p className="d-flex flex-column justify-content-center error-video" >{this.state.errorMessage}</p>
+                    :
+                    <div className="d-flex flex-column justify-content-center">
+                        <div className="video-loading-container">
+                            <LoadingIcon loading={true} color="white"></LoadingIcon>
+                        </div>
+
+                        <p className="loading-progress">{this.state.loadingProgress}%</p>
+                    </div>
+            }
         </div>;
 
     }
 
     renderReadyPlayer() {
         const scene = this.getCurrentScene();
+        if (!scene) {
+            console.error('could not find scene in scenery in ', this.state.currentYear)
+            console.log('scenery ', this.state.scenery)
+        }
+        console.log(scene)
+        const centerX = scene.bbox.x + scene.bbox.width / 2
+        const centerY = scene.bbox.y + scene.bbox.height / 2
         return (
             <div className={"video-player " + (this.state.controlBarHidden ? ' hide-cursor' : '')}
                 onMouseMove={() => this.makeControlBarAppear()}
@@ -89,7 +104,7 @@ export class VideoPlayer extends React.Component<Props, State>{
                 <div className="video-time-display">
                     <a
                         className="time-link"
-                        href={`/?year=${this.state.currentYear}&x=${scene.bbox.x}&y=${scene.bbox.y}&width=${scene.bbox.width}&height=${scene.bbox.height}`}
+                        href={`/?year=${this.state.currentYear}&center_x=${centerX}&center_y=${centerY}&width=${scene.bbox.width}`}
                     >                        <TimeSelector year={this.state.currentYear} />
                     </a>
                 </div>
@@ -127,17 +142,32 @@ export class VideoPlayer extends React.Component<Props, State>{
 
     componentDidMount() {
         this.videoSubscription = MapistoAPI.getVideo(
-            this.props.stateId,
+            this.props.stateId, this.videoPlayerRef.current.getBoundingClientRect().width,
             progress => this.setState({ loadingProgress: Math.ceil(100 * progress) })
-        ).subscribe(
-            scenery => this.setState({
-                scenery
-            }, () => {
-                this.loadStateName();
-                this.setVideoAt(scenery[0].startYear);
-                this.resume();
+        ).pipe(
+            catchError(e => {
+                console.error(e);
+                this.setState({
+                    errorMessage: "Could not load video"
+                });
+                return of([] as Scene[]);
             })
-        );
+        )
+            .subscribe(
+                scenery => scenery.length && this.setState({
+                    scenery
+                }, () => {
+                    const representations = scenery[0].territories.
+                        find(t => t.mpState.stateId === this.props.stateId)
+                        .mpState.representations;
+                    const stateName = representations[representations.length - 1].name;
+                    this.setState({
+                        mpStateName: stateName
+                    });
+                    this.setVideoAt(scenery[0].startYear);
+                    this.resume();
+                })
+            );
         window.addEventListener('keydown', this.handleKeyPress);
     }
 
@@ -147,16 +177,6 @@ export class VideoPlayer extends React.Component<Props, State>{
             this.yearSubscription.unsubscribe();
         }
         this.videoSubscription.unsubscribe();
-    }
-
-    loadStateName() {
-        MapistoAPI.loadState(this.props.stateId)
-            .subscribe(
-                mpState => {
-                    document.title = `${mpState.representations[0].color} : Every year - Mapisto`;
-                    this.setState({ mpStateName: mpState.representations[0].color });
-                }
-            );
     }
 
     private handleKeyPress = ((event: KeyboardEvent) => {

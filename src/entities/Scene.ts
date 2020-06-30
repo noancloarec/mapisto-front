@@ -2,24 +2,25 @@ import { TimeDefinedEntity } from "./TimeDefinedEntity";
 import { MapistoState } from "./mapistoState";
 import { ViewBoxLike } from '@svgdotjs/svg.js';
 import { Land } from "./Land";
+import { MapistoTerritory } from "./mapistoTerritory";
 
 export class Scene extends TimeDefinedEntity {
-    mapEvolution: MapistoState[];
+    territories: MapistoTerritory[];
     bbox: ViewBoxLike;
     lands: Land[];
-    constructor(start: Date, end: Date, mapEvolution: MapistoState[], bbox: ViewBoxLike, lands: Land[]) {
+    constructor(
+        start: Date,
+        end: Date,
+        territories: MapistoTerritory[],
+        bbox: ViewBoxLike,
+        lands: Land[]) {
         super(start, end);
-        this.mapEvolution = mapEvolution;
+        this.territories = territories;
         this.bbox = bbox;
         this.lands = lands;
     }
 
-    getYear(year: number): MapistoState[] {
-        return this.mapEvolution.filter(s => !s.isOutdated(year)).map(
-            s => {
-                const res = Object.create(s);
-                return res;
-            }
-        );
+    getYear(year: number): MapistoTerritory[] {
+        return this.territories.filter(t => !t.isOutdated(year));
     }
 }
