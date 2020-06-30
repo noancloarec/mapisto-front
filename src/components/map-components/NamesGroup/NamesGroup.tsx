@@ -3,6 +3,7 @@ import { MapistoTerritory } from 'src/entities/mapistoTerritory';
 import { ViewBoxLike } from '@svgdotjs/svg.js';
 import { intersect } from 'src/utils/svg_geometry';
 import './NamesGroup.css';
+import { getLabelColor } from 'src/utils/color_harmony';
 interface Props {
     territories: MapistoTerritory[];
     viewbox: ViewBoxLike;
@@ -45,6 +46,7 @@ export class NamesGroup extends React.Component<Props, State>{
                 y={t.boundingBox.y + t.boundingBox.height / 2 + i * this.props.viewbox.width / 80}
                 textAnchor="middle"
                 fontSize={this.props.viewbox.width / 80}
+                fill={getLabelColor(t.color ? t.color : t.mpState.getColor(this.props.date))}
             >
                 {s}
             </text>

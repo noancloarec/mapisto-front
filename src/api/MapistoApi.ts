@@ -351,7 +351,6 @@ function territoryJSON(from: MapistoTerritory): MapistoTerritoryRaw {
 
 function parseScene(raw: SceneRaw): Scene {
     const states = raw.states.map(s => parseState(s));
-    console.log(raw)
     return new Scene(
         new Date(raw.validity_start + "Z"),
         new Date(raw.validity_end + "Z"),
