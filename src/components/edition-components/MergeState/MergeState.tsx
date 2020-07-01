@@ -4,17 +4,22 @@ import { StateSearch } from 'src/components/StateSearch/StateSearch';
 import { Link } from 'react-router-dom';
 import { Button } from 'antd';
 import { MapistoAPI } from 'src/api/MapistoApi';
+import { MapistoError } from 'src/api/MapistoError';
+import { switchMap } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
 
 interface Props {
     stateToBeAbsorbed: MapistoState;
     onStatesMerged: (intoId: number) => void;
     className?: string;
+    onTerritoriesReassigned: (intoId: number) => void;
 }
 
 interface State {
     parentMpState: MapistoState;
     childOverflows: boolean;
     loading: boolean;
+    territoriesImpacted: number[];
 }
 export class MergeState extends React.Component<Props, State> {
     constructor(props: Props) {
@@ -22,7 +27,8 @@ export class MergeState extends React.Component<Props, State> {
         this.state = {
             parentMpState: undefined,
             childOverflows: false,
-            loading: false
+            loading: false,
+            territoriesImpacted: []
         };
     }
     render() {
@@ -33,12 +39,9 @@ export class MergeState extends React.Component<Props, State> {
                 <StateSearch
                     className="col-12"
                     onSelectedState={st => this.setState({
-                        parentMpState: st,
-                        childOverflows:
-                            st.validityStart > childmpState.validityStart ||
-                            st.validityEnd < childmpState.validityEnd
-
+                        parentMpState: st
                     })}
+                    showNamesAtDate={this.props.stateToBeAbsorbed.validityStart}
                     hiddenStatesId={[childmpState.stateId]}
                 />
                 {
@@ -47,7 +50,13 @@ export class MergeState extends React.Component<Props, State> {
                             Cannot merge state ({childmpState.startYear}, {childmpState.endYear})
                             into {parentMpState.getName()} ({parentMpState.startYear}, {parentMpState.endYear}) :
                     The period overflows
-                            <Link to={`/edit_state/${this.state.parentMpState.stateId}`}>Extend its lifetime</Link>
+                            <Link to={`/edit_state/${this.state.parentMpState.stateId}`}>Extend its lifetime</Link>,
+                            <br />Or maybe you only want to reassign its
+                             territories ({this.state.territoriesImpacted.join(', ')})
+                             on the {parentMpState.getName()} period
+                            <Button onClick={this.reassignTerritories} loading={this.state.loading}>
+                                Reassign the territories
+                            </Button>
                         </p>
                     )
                 }
@@ -64,6 +73,26 @@ export class MergeState extends React.Component<Props, State> {
         );
     }
 
+    reassignTerritories = () => {
+        this.setState({
+            loading: true
+        });
+        forkJoin(this.state.territoriesImpacted.map(id => MapistoAPI.loadTerritory(id).pipe(
+            switchMap(territory => {
+                territory.mpState = this.state.parentMpState;
+                return MapistoAPI.editTerritory(territory);
+
+            })
+        ))).subscribe(
+            () => {
+                this.setState({
+                    loading: false
+                });
+                this.props.onTerritoriesReassigned(this.state.parentMpState.stateId);
+            }
+        );
+    }
+
     doMerge = () => {
         this.setState({
             loading: true
@@ -72,7 +101,15 @@ export class MergeState extends React.Component<Props, State> {
             () => {
                 this.props.onStatesMerged(this.state.parentMpState.stateId);
                 this.setState({ loading: false });
-            }
+            },
+            (error: MapistoError) => {
+                this.setState({
+                    childOverflows: true,
+                    territoriesImpacted: error.data.territories_impacted as number[],
+                    loading: false,
+                });
+
+            },
         );
     }
 
@@ -81,7 +118,7 @@ export class MergeState extends React.Component<Props, State> {
             this.setState({
                 childOverflows: false,
                 parentMpState: undefined
-            })
+            });
         }
     }
 }

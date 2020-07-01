@@ -33,25 +33,39 @@ export class NamesGroup extends React.Component<Props, State>{
         ));
     }
     renderNameOfTerritory(t: MapistoTerritory) {
-        let name = t.name ? t.name : t.mpState.getName(this.props.date);
+        const name = t.name ? t.name : t.mpState.getName(this.props.date);
+        const fillColor = getLabelColor(t.color ? t.color : t.mpState.getColor(this.props.date));
 
-        name = this.wrap(name, 10);
-        if (t.name) {
-            name = `${name}\n(${this.wrap(t.mpState.getName(this.props.date), 10)})`
-        }
-
-        return name.split('\n').map((s, i) => (
+        const mainName = this.wrap(name, 10);
+        const mainNameRes = mainName.split('\n').map((s: string, i: number) => (
             <text key={i}
                 x={t.boundingBox.x + t.boundingBox.width / 2}
                 y={t.boundingBox.y + t.boundingBox.height / 2 + i * this.props.viewbox.width / 80}
                 textAnchor="middle"
                 fontSize={this.props.viewbox.width / 80}
-                fill={getLabelColor(t.color ? t.color : t.mpState.getColor(this.props.date))}
+                fill={fillColor}
             >
                 {s}
             </text>
-        )
-        );
+        ));
+        if (t.name) {
+            const subName = `(${this.wrap(t.mpState.getName(this.props.date), 10)})`;
+            return mainNameRes.concat(subName.split('\n').map((s: string, i: number) => (
+                <text key={i + mainNameRes.length}
+                    x={t.boundingBox.x + t.boundingBox.width / 2}
+                    y={t.boundingBox.y + t.boundingBox.height / 2 +
+                        (i + mainNameRes.length + 1) * this.props.viewbox.width / 130}
+                    textAnchor="middle"
+                    fontSize={this.props.viewbox.width / 130}
+                    fill={fillColor}
+                >
+                    {s}
+                </text>
+
+            )));
+        } else {
+            return mainNameRes;
+        }
     }
 
 

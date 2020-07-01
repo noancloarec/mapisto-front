@@ -18,6 +18,7 @@ import { StateRepresentationRaw } from "./StateRepresentationRaw";
 import { StateRepresentation } from "src/entities/StateRepresentation";
 import { MapData } from "./MapData";
 import { MapDataRaw } from "./MapDataRaw";
+import { MapistoError } from "./MapistoError";
 
 export class MapistoAPI {
 
@@ -43,9 +44,9 @@ export class MapistoAPI {
     }
 
     static loadGifMapForState(stateId: number, pixelWidth: number): Observable<MapData[]> {
-        return ajax.getJSON<MapDataRaw[]>(`${config.api_path}/gif_map_for_state/${stateId}?pixel_width=${pixelWidth}`)
+        return ajax.getJSON<{ maps: MapDataRaw[] }>(`${config.api_path}/gif_map_for_state/${stateId}?pixel_width=${pixelWidth}`)
             .pipe(
-                map(res => res.map(mapRaw => parseMapData(mapRaw, pixelWidth))),
+                map(res => res.maps.map(mapRaw => parseMapData(mapRaw, pixelWidth))),
             );
 
     }
@@ -96,9 +97,9 @@ export class MapistoAPI {
 
     static editTerritory(territory: MapistoTerritory): Observable<MapistoTerritory> {
         return from(
-            axios.put<number>(`${config.api_path}/territory`, territoryJSON(territory))
+            axios.put<{ modified_territory: number }>(`${config.api_path}/territory`, territoryJSON(territory))
         ).pipe(
-            switchMap(territoryId => MapistoAPI.loadTerritory(territoryId.data))
+            switchMap(response => MapistoAPI.loadTerritory(response.data.modified_territory))
         );
     }
     static loadLands(
@@ -106,7 +107,7 @@ export class MapistoAPI {
         bbox: ViewBoxLike
     ): Observable<Land[]> {
         return from(
-            axios.get<LandRaw[]>(`${config.api_path}/land`, {
+            axios.get<{ lands: LandRaw[] }>(`${config.api_path}/land`, {
                 params: {
                     precision_in_km: precisionLevel,
                     min_x: bbox.x,
@@ -117,10 +118,10 @@ export class MapistoAPI {
             })
         ).pipe(
             map(res => res.data),
-            map(lands => lands.map(raw => parseLand(raw, precisionLevel))),
+            map(response => response.lands.map(raw => parseLand(raw, precisionLevel))),
         );
     }
-
+    // TODO remove
     static getConcurrentStates(stateId: number, startYear: number, endYear: number): Observable<MapistoState[]> {
         return from(
             axios.get<MapistoStateRaw[]>(`${config.api_path}/state/${stateId}/concurrent_states`, {
@@ -136,6 +137,7 @@ export class MapistoAPI {
         );
     }
 
+    // TODO remove
     static getConcurrentTerritories(
         territoryId: number, capital: MapistoPoint, startYear: number, endYear: number
     ): Observable<MapistoTerritory[]> {
@@ -152,6 +154,7 @@ export class MapistoAPI {
             );
     }
 
+    // Todo remove
     static getStateFromTerritory(territoryId: number, year: number): Observable<MapistoState> {
         return from(
             axios.get<MapistoStateRaw>(`${config.api_path}/state/from_territory/${territoryId}`, {
@@ -164,6 +167,7 @@ export class MapistoAPI {
         );
     }
 
+    // todo remove
     static extendState(
         stateId: number,
         newStart: number,
@@ -187,6 +191,7 @@ export class MapistoAPI {
             );
     }
 
+    // TODO remove
     static changeTerritoryBelonging(territoryId: number, newStateId: number): Observable<number> {
         return from(
             axios.put<number>(`${config.api_path}/territory/${territoryId}/reassign_to/${newStateId}`)
@@ -195,24 +200,26 @@ export class MapistoAPI {
         );
     }
 
+
     static mergeStates(stateId: number, sovereignStateId: number): Observable<number> {
         return from(
-            axios.put<number>(`${config.api_path}/merge_state/${stateId}/into/${sovereignStateId}`)
+            axios.put<{ merged_into: number }>(`${config.api_path}/merge_state/${stateId}/into/${sovereignStateId}`)
         ).pipe(
-            map(res => res.data)
+            catchError(mapistoErrorHanlder),
+            map(response => response.data.merged_into)
         );
 
     }
 
     static createState(toCreate: MapistoState): Observable<number> {
         return from(
-            axios.post<number>(`${config.api_path}/state`,
-                toCreate
+            axios.post<{ added_state: number }>(`${config.api_path}/state`,
+                stateJSON(toCreate)
             )).pipe(
-                map(res => res.data)
+                map(res => res.data.added_state)
             );
     }
-
+    // todo remove
     static extendTerritory(
         territoryId: number,
         newStart: number,
@@ -232,9 +239,10 @@ export class MapistoAPI {
 
     }
 
+
     static putState(modifiedState: MapistoState, absorbConflicts = false): Observable<number> {
         return from(
-            axios.put(`${config.api_path}/state`,
+            axios.put<{ modified_state: number }>(`${config.api_path}/state`,
                 stateJSON(modifiedState),
                 {
                     params: {
@@ -243,34 +251,43 @@ export class MapistoAPI {
                 }
             )).pipe(
                 catchError(e => throwError(e.response.data)),
-                map(() => modifiedState.stateId)
+                map(response => response.data.modified_state)
             );
     }
+
+
     static searchState(pattern: string): Observable<MapistoState[]> {
         return from(
-            axios.get<MapistoStateRaw[]>(`${config.api_path}/state_search`, {
+            axios.get<{ search_results: MapistoStateRaw[] }>(`${config.api_path}/state_search`, {
                 params: {
                     pattern,
                 }
             })
         ).pipe(
-            map(res => res.data.map(s => parseState(s)))
+            map(res => res.data.search_results.map(s => parseState(s)))
         );
     }
 
     static getVideo(stateId: number, pixelWidth: number, onProgress?: (progress: number) => void): Observable<Scene[]> {
         return from(
-            axios.get<SceneRaw[]>(`${config.api_path}/state/${stateId}/movie`, {
+            axios.get<{ scenes: SceneRaw[] }>(`${config.api_path}/state/${stateId}/movie`, {
                 params: {
                     pixel_width: pixelWidth
                 },
                 onDownloadProgress: onProgress ? event => onProgress(event.loaded / event.total) : undefined
             })
         ).pipe(
-            map(res => res.data.map(s => parseScene(s))),
+            map(res => res.data.scenes.map(s => parseScene(s))),
         );
     }
 }
+
+const mapistoErrorHanlder = (error: any) =>
+    throwError({
+        code: error.response.status,
+        data: error.response.data.data,
+        text: error.response.data.description
+    } as MapistoError);
 
 
 

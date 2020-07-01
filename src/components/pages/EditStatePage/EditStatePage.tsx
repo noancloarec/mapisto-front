@@ -55,7 +55,9 @@ class EditStatePageUnrouted extends React.Component<Props, State>{
                                                     <p className="text-danger">
                                                         {this.state.errorMessage}
                                                     </p>
-                                                    <Button type="ghost" danger onClick={() => this.saveModification(true)}>
+                                                    <Button type="ghost" danger onClick={
+                                                        () => this.saveModification(true)
+                                                    }>
                                                         Force extend
                                                 </Button>
                                                 </div>
@@ -77,7 +79,9 @@ class EditStatePageUnrouted extends React.Component<Props, State>{
                                 </p>
                                         <MergeState className="row"
                                             stateToBeAbsorbed={mpState}
-                                            onStatesMerged={stateId => this.props.history.push(`/edit_state/${stateId}`)}
+                                            onStatesMerged={stateId =>
+                                                this.props.history.push(`/edit_state/${stateId}`)}
+                                            onTerritoriesReassigned={stateId => this.props.history.push(`/edit_state/${stateId}`)}
                                         />
                                     </div>
 

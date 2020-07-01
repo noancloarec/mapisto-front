@@ -12,6 +12,7 @@ interface Props {
     className?: string;
     onSelectedState?: (selected: MapistoState) => void;
     hiddenStatesId: number[];
+    showNamesAtDate?: Date;
 }
 interface State {
     searchResults: MapistoState[];
@@ -58,7 +59,10 @@ export class StateSearch extends React.Component<Props, State> {
             this.props.onSelectedState(mpState);
         }
         this.setState({
-            autoCompleteValue: mpState.getName(mpState.validityStart),
+            autoCompleteValue: this.props.showNamesAtDate && mpState.getName(this.props.showNamesAtDate) ?
+                mpState.getName(this.props.showNamesAtDate)
+                :
+                mpState.getName(),
             searchResults: [mpState]
         });
     }
@@ -79,13 +83,10 @@ export class StateSearch extends React.Component<Props, State> {
 
     renderStateOptions() {
         return this.state.searchResults.map(mpState => {
-            let name = mpState.getName();
-            if (this.props.limitedToTerritory && mpState.getName(this.props.limitedToTerritory.validityStart)) {
-                name = mpState.getName(this.props.limitedToTerritory.validityStart)
-            } else if (this.props.limitedToTerritory && mpState.getName(this.props.limitedToTerritory.validityEnd)) {
-                name = mpState.getName(this.props.limitedToTerritory.validityEnd)
-            }
-
+            const name = this.props.showNamesAtDate && mpState.getName(this.props.showNamesAtDate) ?
+                mpState.getName(this.props.showNamesAtDate)
+                :
+                mpState.getName();
             return (
                 <Option key={mpState.stateId} value={"" + mpState.stateId}
                     disabled={this.props.limitedToTerritory && !mpState.overLapsWith(this.props.limitedToTerritory)}

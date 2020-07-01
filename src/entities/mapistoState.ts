@@ -22,8 +22,8 @@ export class MapistoState extends TimeDefinedEntity {
     getName(date = this.validityStart) {
         const rep = this.representations.find(r => r.validAt(date));
         if (!rep) {
-            console.error("Cannot find name of state at ", date.toISOString(), this);
-            return "Error";
+            //console.error("Cannot find name of state at ", date.toISOString(), this);
+            return "";
         }
         return rep.name;
     }
