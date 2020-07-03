@@ -49,7 +49,7 @@ export class NamesGroup extends React.Component<Props, State>{
             </text>
         ));
         if (t.name) {
-            const subName = `(${this.wrap(t.mpState.getName(this.props.date), 10)})`;
+            const subName = `(${this.wrap(t.mpState.getName(this.props.date), 15)})`;
             return mainNameRes.concat(subName.split('\n').map((s: string, i: number) => (
                 <text key={i + mainNameRes.length}
                     x={t.boundingBox.x + t.boundingBox.width / 2}
@@ -76,7 +76,7 @@ export class NamesGroup extends React.Component<Props, State>{
             territory.boundingBox.width > this.getMinimumWidthForNameDisplay();
     }
     private getMinimumWidthForNameDisplay() {
-        return this.props.viewbox.width / 20;
+        return this.props.viewbox.width / 8;
     }
 
     private isVisible(territory: MapistoTerritory): boolean {

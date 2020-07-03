@@ -8,6 +8,7 @@ import { LandsGroup } from '../LandsGroup/LandsGroup';
 import { Subscription, interval } from 'rxjs';
 import { PlayPauseOverlay } from './PlayPauseOverlay';
 import { MapData } from 'src/api/MapData';
+import { NamesGroup } from '../NamesGroup/NamesGroup';
 
 interface Props {
     maps: MapData[];
@@ -31,7 +32,7 @@ export class GifMap extends React.Component<Props, State>{
     }
 
     render() {
-        console.log(this.getCurrentMap());
+        const currentMap = this.getCurrentMap()
 
         return (
             <div className="map">
@@ -39,17 +40,22 @@ export class GifMap extends React.Component<Props, State>{
                 <div className="year-display">
                     <div className="row">
                         <div className="col-4 col-lg-2 year-box">
-                            {(this.getCurrentMap().date.getUTCFullYear())}
+                            {(currentMap.date.getUTCFullYear())}
                         </div>
                     </div>
                 </div>
-                <svg viewBox={viewboxAsString(this.getCurrentMap().boundingBox)}>
+                <svg viewBox={viewboxAsString(currentMap.boundingBox)}>
                     <TerritoriesGroup
-                        date={this.getCurrentMap().date}
-                        territories={this.getCurrentMap().territories}
-                        strokeWidth={this.getCurrentMap().boundingBox.width ** .5 / 30}
+                        date={currentMap.date}
+                        territories={currentMap.territories}
+                        strokeWidth={currentMap.boundingBox.width ** .5 / 30}
                     />
                     <LandsGroup lands={[]} />
+                    <NamesGroup
+                        territories={currentMap.territories}
+                        date={currentMap.date}
+                        viewbox={currentMap.boundingBox}
+                    />
                 </svg>
             </div>
         );
