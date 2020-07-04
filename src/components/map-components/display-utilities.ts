@@ -1,6 +1,5 @@
 import { ViewBoxLike, Box } from '@svgdotjs/svg.js';
 import { config } from 'src/config';
-import { SVGManager } from './SVGManager';
 
 /**
  * Computes the top-left and right-bottom point of the visible svg

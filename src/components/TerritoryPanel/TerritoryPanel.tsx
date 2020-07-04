@@ -3,7 +3,6 @@ import './TerritoryPanel.css';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
 import { MapistoState } from 'src/entities/mapistoState';
 import { FocusedOnStateMap } from 'src/components/map-components/FocusedOnStateMap/FocusedOnStateMap';
-import { dateFromYear } from 'src/utils/date_utils';
 import { Button } from 'antd';
 import { Link } from 'react-router-dom';
 
@@ -26,7 +25,6 @@ export const TerritoryPanel: React.FC<Props> = (props: Props) => {
 };
 
 const renderActionButtons = (territory: MapistoTerritory) => {
-    const name = territory.mpState.getName(territory.validityStart);
     return (
         <div className="action-buttons d-flex justify-content-center">
             <Link to={`/edit_territory/${territory.territoryId}`}>

@@ -1,8 +1,8 @@
 import React, { KeyboardEvent } from 'react';
 import { Land } from 'src/entities/Land';
-import { ViewBoxLike, Svg } from '@svgdotjs/svg.js';
+import { ViewBoxLike } from '@svgdotjs/svg.js';
 import { MapistoAPI } from 'src/api/MapistoApi';
-import { getMapPrecision, svgCoords, viewboxAsString } from '../MapistoMap/display-utilities';
+import { getMapPrecision, svgCoords, viewboxAsString } from '../display-utilities';
 import { Subscription } from 'rxjs';
 import { debounceTime } from 'rxjs/operators';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
@@ -10,7 +10,7 @@ import { LandsGroup } from '../LandsGroup/LandsGroup';
 import { NavigationHandler } from './NavigationHandler';
 import { MapistoPoint } from 'src/entities/MapistoPoint';
 import { TerritoriesGroup } from '../TerritoriesGroup/TerritoriesGroup';
-import { dateFromYear, yearToISOString } from 'src/utils/date_utils';
+import { dateFromYear } from 'src/utils/date_utils';
 import { NamesGroup } from '../NamesGroup/NamesGroup';
 
 interface Props {

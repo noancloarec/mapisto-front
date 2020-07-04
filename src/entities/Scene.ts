@@ -1,5 +1,4 @@
 import { TimeDefinedEntity } from "./TimeDefinedEntity";
-import { MapistoState } from "./mapistoState";
 import { ViewBoxLike } from '@svgdotjs/svg.js';
 import { Land } from "./Land";
 import { MapistoTerritory } from "./mapistoTerritory";

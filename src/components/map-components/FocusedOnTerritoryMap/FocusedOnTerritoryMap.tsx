@@ -2,8 +2,8 @@ import React from 'react';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
 import { MapistoAPI } from 'src/api/MapistoApi';
 import { ViewBoxLike } from '@svgdotjs/svg.js';
-import { LoadingIcon } from '../TimeNavigableMap/LoadingIcon';
-import { forkJoin, Subscription, interval } from 'rxjs';
+import { LoadingIcon } from '../../loading-icon/LoadingIcon';
+import { forkJoin, Subscription } from 'rxjs';
 import { GifMap } from '../gif-map/GifMap';
 import { MapData } from 'src/api/MapData';
 

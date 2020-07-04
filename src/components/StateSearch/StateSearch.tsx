@@ -1,6 +1,6 @@
 import { MapistoTerritory } from "src/entities/mapistoTerritory";
 import React from 'react';
-import { AutoComplete, Input, Spin, Tooltip } from "antd";
+import { AutoComplete } from "antd";
 import { MapistoState } from "src/entities/mapistoState";
 import { MapistoAPI } from "src/api/MapistoApi";
 import { Subject } from "rxjs";

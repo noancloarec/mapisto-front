@@ -1,8 +1,5 @@
 import React from 'react';
-import { MapistoTerritory } from 'src/entities/mapistoTerritory';
-import { viewboxAsString } from '../MapistoMap/display-utilities';
-import { TimeSelector } from '../TimeNavigableMap/TimeSelector';
-import { ViewBoxLike } from '@svgdotjs/svg.js';
+import { viewboxAsString } from '../display-utilities';
 import { TerritoriesGroup } from '../TerritoriesGroup/TerritoriesGroup';
 import { LandsGroup } from '../LandsGroup/LandsGroup';
 import { Subscription, interval } from 'rxjs';

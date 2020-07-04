@@ -7,7 +7,7 @@ import { TimeSelector } from 'src/components/map-components/TimeNavigableMap/Tim
 import './VideoPlayer.css';
 import { ControlBar } from '../control-bar/ControlBar';
 import { throttleTime, delay, catchError } from 'rxjs/operators';
-import { LoadingIcon } from 'src/components/map-components/TimeNavigableMap/LoadingIcon';
+import { LoadingIcon } from 'src/components/loading-icon/LoadingIcon';
 import { VideoTitle } from '../video-title/VideoTitle';
 
 interface Props {
@@ -90,12 +90,10 @@ export class VideoPlayer extends React.Component<Props, State>{
     renderReadyPlayer() {
         const scene = this.getCurrentScene();
         if (!scene) {
-            console.error('could not find scene in scenery in ', this.state.currentYear)
-            console.log('scenery ', this.state.scenery)
+            console.error('could not find scene in scenery in ', this.state.currentYear);
         }
-        console.log(scene)
-        const centerX = scene.bbox.x + scene.bbox.width / 2
-        const centerY = scene.bbox.y + scene.bbox.height / 2
+        const centerX = scene.bbox.x + scene.bbox.width / 2;
+        const centerY = scene.bbox.y + scene.bbox.height / 2;
         return (
             <div className={"video-player " + (this.state.controlBarHidden ? ' hide-cursor' : '')}
                 onMouseMove={() => this.makeControlBarAppear()}
@@ -157,8 +155,8 @@ export class VideoPlayer extends React.Component<Props, State>{
                 scenery => scenery.length && this.setState({
                     scenery
                 }, () => {
-                    const representations = scenery[0].territories.
-                        find(t => t.mpState.stateId === this.props.stateId)
+                    const representations = scenery[0].territories
+                        .find(t => t.mpState.stateId === this.props.stateId)
                         .mpState.representations;
                     const stateName = representations[representations.length - 1].name;
                     this.setState({

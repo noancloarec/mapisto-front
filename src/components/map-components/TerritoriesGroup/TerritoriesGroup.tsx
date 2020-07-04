@@ -1,6 +1,5 @@
 import React from 'react';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
-import { dateFromYear } from 'src/utils/date_utils';
 import './TerritoriesGroup.css';
 interface Props {
     territories: MapistoTerritory[];

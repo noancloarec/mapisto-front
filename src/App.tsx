@@ -5,7 +5,6 @@ import {
   Switch,
   Route,
   useParams,
-  Link
 } from "react-router-dom";
 import { VideoPlayer } from './components/video-components/video-player/VideoPlayer';
 import { HomePage } from './components/pages/HomePage/HomePage';

@@ -1,7 +1,6 @@
 import { MapistoViewBox } from "./mapistoViewBox";
 import { TimeDefinedEntity } from "./TimeDefinedEntity";
 import { StateRepresentation } from "./StateRepresentation";
-import { MapistoTerritory } from "./mapistoTerritory";
 
 export class MapistoState extends TimeDefinedEntity {
     stateId: number;
@@ -22,7 +21,6 @@ export class MapistoState extends TimeDefinedEntity {
     getName(date = this.validityStart) {
         const rep = this.representations.find(r => r.validAt(date));
         if (!rep) {
-            //console.error("Cannot find name of state at ", date.toISOString(), this);
             return "";
         }
         return rep.name;

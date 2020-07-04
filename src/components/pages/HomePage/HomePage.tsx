@@ -1,7 +1,6 @@
 import React from 'react';
 import { TimeNavigableMap } from 'src/components/map-components/TimeNavigableMap/TimeNavigableMap';
-import { TerritoryPanel } from 'src/components/edition-components/TerritoryPanel/TerritoryPanel';
-import { EditionPopupConnected } from 'src/components/edition-components/EditionPopup/EditionPopup';
+import { TerritoryPanel } from 'src/components/TerritoryPanel/TerritoryPanel';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
 import { RouteComponentProps, withRouter } from 'react-router';
 interface State {
@@ -36,12 +35,6 @@ class HomePageUnrouted extends React.PureComponent<Props, State> {
                         year={this.state.year}
                         onClosePanel={() => this.setState({ selectedTerritory: undefined })}
                     />
-                </section>
-                <section id="editing-panel-section">
-                    <EditionPopupConnected />
-                </section>
-                <section>
-
                 </section>
             </div>
 

@@ -1,11 +1,9 @@
 import React from 'react';
 import { Scene } from 'src/entities/Scene';
-import { MapistoState } from 'src/entities/mapistoState';
-import { MapistoMap } from '../MapistoMap/MapistoMap';
 import { ViewBoxLike } from '@svgdotjs/svg.js';
 import { Land } from 'src/entities/Land';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
-import { viewboxAsString } from '../MapistoMap/display-utilities';
+import { viewboxAsString } from '../display-utilities';
 import { LandsGroup } from '../LandsGroup/LandsGroup';
 import { TerritoriesGroup } from '../TerritoriesGroup/TerritoriesGroup';
 import { dateFromYear } from 'src/utils/date_utils';
@@ -42,7 +40,6 @@ export class VideoMap extends React.Component<Props, State>{
     render = () => {
         const scene = this.getCurrentScene();
         const territories = scene.getYear(this.props.year);
-        console.log(this.props.year)
         return (
 
             <div className="map">

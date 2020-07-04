@@ -1,14 +1,9 @@
 import { MapistoState } from "src/entities/mapistoState";
-import { ViewBoxLike } from '@svgdotjs/svg.js';
 import React, { RefObject } from "react";
 import { MapistoAPI } from "src/api/MapistoApi";
-import { Land } from "src/entities/Land";
-import './FocusedMap.css';
-import { forkJoin, Subscription } from "rxjs";
-import { MapistoTerritory } from "src/entities/mapistoTerritory";
-import { LoadingIcon } from "../TimeNavigableMap/LoadingIcon";
+import { Subscription } from "rxjs";
+import { LoadingIcon } from "../../loading-icon/LoadingIcon";
 import { GifMap } from "../gif-map/GifMap";
-import { map } from "rxjs/operators";
 import { MapData } from "src/api/MapData";
 
 interface Props {

@@ -2,11 +2,9 @@ import React, { KeyboardEvent } from 'react';
 import { TimeSelector } from './TimeSelector';
 import { NavigableMap } from '../NavigableMap/NavigableMap';
 import './TimeNavigableMap.css';
-import { TimeNavigableSVGManager } from './TimeNavigableSVGManager';
-import { LoadingIcon } from './LoadingIcon';
+import { LoadingIcon } from '../../loading-icon/LoadingIcon';
 import { Subject } from 'rxjs';
 import { throttleTime } from 'rxjs/operators';
-import { ViewBoxLike } from '@svgdotjs/svg.js';
 import { MapistoPoint } from 'src/entities/MapistoPoint';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
 
@@ -20,7 +18,7 @@ interface Props {
     initialCenter: MapistoPoint;
     initialWidth: number;
     onYearChange: (newYear: number) => void;
-    onTerritoryClicked: (territory: MapistoTerritory) => void
+    onTerritoryClicked: (territory: MapistoTerritory) => void;
 }
 export class TimeNavigableMap extends React.Component<Props, State>{
     private timeChangeSubject$: Subject<number>;
@@ -67,7 +65,6 @@ export class TimeNavigableMap extends React.Component<Props, State>{
                 this.state.yearOnSelector + 1
             );
         }
-
     }
 
     render() {
@@ -79,16 +76,16 @@ export class TimeNavigableMap extends React.Component<Props, State>{
                 initialCenter={this.props.initialCenter}
                 initialWidth={this.props.initialWidth}
                 onTerritoryClicked={this.props.onTerritoryClicked}
-            ></NavigableMap>
+            />
             <div className="time-selector-row">
                 <TimeSelector
                     year={this.state.yearOnSelector}
                     yearChange={newYear => this.changeYear(newYear)}
-                ></TimeSelector>
+                />
             </div>
             {(this.state.loading &&
                 <div className="loading-box">
-                    <LoadingIcon loading={true}></LoadingIcon>
+                    <LoadingIcon loading={true} />
                 </div>
             )}
         </div>;

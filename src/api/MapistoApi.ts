@@ -5,7 +5,7 @@ import { MapistoState } from "src/entities/mapistoState";
 import axios from 'axios';
 import { config } from "src/config";
 import { MapistoStateRaw } from "./MapistoStateRaw";
-import { map, switchMap, tap, catchError } from "rxjs/operators";
+import { map, switchMap, catchError } from "rxjs/operators";
 import { MapistoTerritoryRaw } from "./MapistoTerritoryRaw";
 import { Land } from "src/entities/Land";
 import { LandRaw } from "./LandRaw";
@@ -13,7 +13,6 @@ import { yearToISOString } from "src/utils/date_utils";
 import { ViewBoxLike } from "@svgdotjs/svg.js";
 import { SceneRaw } from "./SceneRaw";
 import { Scene } from "src/entities/Scene";
-import { MapistoPoint } from "src/entities/MapistoPoint";
 import { StateRepresentationRaw } from "./StateRepresentationRaw";
 import { StateRepresentation } from "src/entities/StateRepresentation";
 import { MapData } from "./MapData";
@@ -121,84 +120,6 @@ export class MapistoAPI {
             map(response => response.lands.map(raw => parseLand(raw, precisionLevel))),
         );
     }
-    // TODO remove
-    static getConcurrentStates(stateId: number, startYear: number, endYear: number): Observable<MapistoState[]> {
-        return from(
-            axios.get<MapistoStateRaw[]>(`${config.api_path}/state/${stateId}/concurrent_states`, {
-                params: {
-                    newStart: yearToISOString(startYear),
-                    newEnd: yearToISOString(endYear)
-                }
-            })
-        ).pipe(
-            map(res => res.data),
-            map(states => states.map(raw => parseState(raw))),
-            map(states => states.sort((a, b) => a.compare(b)))
-        );
-    }
-
-    // TODO remove
-    static getConcurrentTerritories(
-        territoryId: number, capital: MapistoPoint, startYear: number, endYear: number
-    ): Observable<MapistoTerritory[]> {
-        return from(
-            axios.get<MapistoTerritoryRaw[]>(`${config.api_path}/territory/${territoryId}/concurrent_territories`, {
-                params: {
-                    newStart: yearToISOString(startYear),
-                    newEnd: yearToISOString(endYear),
-                    capital_x: capital.x,
-                    capital_y: capital.y
-                }
-            })).pipe(
-                map(res => res.data.map(raw => parseTerritory(raw, null, undefined)))
-            );
-    }
-
-    // Todo remove
-    static getStateFromTerritory(territoryId: number, year: number): Observable<MapistoState> {
-        return from(
-            axios.get<MapistoStateRaw>(`${config.api_path}/state/from_territory/${territoryId}`, {
-                params: {
-                    date: yearToISOString(year)
-                }
-            })
-        ).pipe(
-            map(res => parseState(res.data))
-        );
-    }
-
-    // todo remove
-    static extendState(
-        stateId: number,
-        newStart: number,
-        newEnd: number,
-        statesToReassign: number[]
-    ): Observable<MapistoState[]> {
-        type servResponse =
-            {
-                removed_states: MapistoStateRaw[]
-            };
-
-        return from(
-            axios.put<servResponse>(`${config.api_path}/state/${stateId}/extend`, statesToReassign, {
-                params: {
-                    newStart: yearToISOString(newStart),
-                    newEnd: yearToISOString(newEnd)
-                }
-            }))
-            .pipe(
-                map(res => res.data.removed_states.map(r => parseState(r)))
-            );
-    }
-
-    // TODO remove
-    static changeTerritoryBelonging(territoryId: number, newStateId: number): Observable<number> {
-        return from(
-            axios.put<number>(`${config.api_path}/territory/${territoryId}/reassign_to/${newStateId}`)
-        ).pipe(
-            map(res => res.data)
-        );
-    }
 
 
     static mergeStates(stateId: number, sovereignStateId: number): Observable<number> {
@@ -219,26 +140,6 @@ export class MapistoAPI {
                 map(res => res.data.added_state)
             );
     }
-    // todo remove
-    static extendTerritory(
-        territoryId: number,
-        newStart: number,
-        newEnd: number,
-        territoryIdsToDelete: number[]
-    ): Observable<MapistoTerritory> {
-        return from(
-            axios.put<MapistoTerritoryRaw>(`${config.api_path}/territory/${territoryId}/extend`, territoryIdsToDelete, {
-                params: {
-                    newStart: yearToISOString(newStart),
-                    newEnd: yearToISOString(newEnd)
-                }
-            }))
-            .pipe(
-                map(res => parseTerritory(res.data, null, undefined))
-            );
-
-    }
-
 
     static putState(modifiedState: MapistoState, absorbConflicts = false): Observable<number> {
         return from(
