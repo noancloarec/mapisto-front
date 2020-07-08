@@ -4,7 +4,7 @@ import { MapistoAPI } from "src/api/MapistoApi";
 import { Subscription } from "rxjs";
 import { LoadingIcon } from "../../loading-icon/LoadingIcon";
 import { GifMap } from "../gif-map/GifMap";
-import { MapData } from "src/api/MapData";
+import { MapDataWithLands } from "src/api/MapDataWithLands";
 
 interface Props {
     mpState: MapistoState;
@@ -12,7 +12,7 @@ interface Props {
 interface State {
     currentMpState: MapistoState;
 
-    mapStates: MapData[];
+    mapStates: MapDataWithLands[];
 }
 
 export class FocusedOnStateMap extends React.Component<Props, State>{
