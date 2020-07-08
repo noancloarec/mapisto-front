@@ -72,7 +72,7 @@ export class NavigableMap extends React.Component<Props, State>{
                         onTerritoryPressed={t => this.setState({ territoryBeingPressed: t })}
                         territories={this.state.territories}
                         date={dateFromYear(this.state.yearOnDisplay)}
-                        strokeWidth={this.state.viewbox.width ** .5 / 30} />
+                        strokeWidth={this.state.viewbox.width ** .5 / 60} />
                     <NamesGroup
                         territories={this.state.territories}
                         date={dateFromYear(this.state.yearOnDisplay)}
