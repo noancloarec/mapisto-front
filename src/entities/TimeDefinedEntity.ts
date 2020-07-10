@@ -4,14 +4,11 @@ export class TimeDefinedEntity {
     validityStart: Date;
     validityEnd: Date;
     get startYear(): number {
-        if (this.validityStart.getUTCDate() === 1 && this.validityStart.getUTCMonth() === 0) {
-            return this.validityStart.getUTCFullYear() - 1;
-        } else {
             return this.validityStart.getUTCFullYear();
-        }
+        
     }
     get endYear(): number {
-        return this.validityEnd.getUTCFullYear() - 1;
+        return this.validityEnd.getUTCFullYear() ;
     }
     constructor(validityStart: Date, validityEnd: Date) {
         this.validityStart = validityStart;
