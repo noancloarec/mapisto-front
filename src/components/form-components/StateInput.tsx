@@ -1,7 +1,7 @@
 import React from 'react';
 import { MapistoState } from "src/entities/mapistoState";
 import { Form, DatePicker, Input, Checkbox, Dropdown, Menu } from 'antd';
-import moment from 'moment';
+import moment, { Moment } from 'moment';
 import { ArrowUpOutlined, ArrowDownOutlined, DeleteOutlined } from '@ant-design/icons';
 import { StateRepresentation } from 'src/entities/StateRepresentation';
 interface Props {
@@ -30,8 +30,8 @@ export class StateInput extends React.Component<Props, State> {
         return (
             <div>
                 <Form.Item label="Start" >
-                    <DatePicker value={moment(innerValue.validityStart)} className="col-12"
-                        onChange={m => this.handleStartChange(m.toDate())} />
+                    <DatePicker value={moment(innerValue.validityStart.toISOString())} className="col-12"
+                        onChange={(_, dateString) => this.handleStartChange(dateString)} />
                 </Form.Item>
                 <div>
                     {this.renderRepresentations()}
@@ -40,7 +40,7 @@ export class StateInput extends React.Component<Props, State> {
                     {
                         !this.state.stateStillAlive && (
                             <DatePicker value={moment(innerValue.validityEnd)} className="col-12"
-                                onChange={m => this.handleEndChange(m.toDate())} />
+                                onChange={(_, dateString) => this.handleEndChange(dateString)} />
                         )
                     }
                     <Checkbox onChange={this.toggleStateStillAlive} checked={this.state.stateStillAlive}>
@@ -71,7 +71,9 @@ export class StateInput extends React.Component<Props, State> {
                         index < this.state.innerValue.representations.length - 1 && (
                             <Form.Item label="Name changed in">
                                 <DatePicker value={moment(r.validityEnd)} className="col-12"
-                                    onChange={m => this.handleRepresentationEndChange(m.toDate(), index)} />
+                                    onChange={
+                                        (_, dateString) => this.handleRepresentationEndChange(dateString, index)
+                                    } />
                             </Form.Item>
                         )
                     }
@@ -152,22 +154,33 @@ export class StateInput extends React.Component<Props, State> {
         });
     }
 
-    handleRepresentationEndChange(d: Date, index: number) {
+    handleRepresentationEndChange(dateString: string, index: number) {
+        const d = this.dateStringToDate(dateString);
         const s: MapistoState = Object.create(this.state.innerValue);
         s.representations[index].validityEnd = d;
         s.representations[index + 1].validityStart = d;
         this.valueChanged(s);
     }
 
-    handleStartChange(d: Date) {
+    private dateStringToDate(dString: string): Date {
+        return new Date(dString + "T00:00:00.000Z");
+    }
+
+    handleStartChange = (dateString: string) => {
+        /*
+        Strange processing because ant design messes with timezones,
+        see https://github.com/ant-design/ant-design/issues/17434
+        */
+        const d = this.dateStringToDate(dateString);
         const s = Object.create(this.state.innerValue);
         s.validityStart = d;
         s.representations[0].validityStart = d;
         this.valueChanged(s);
     }
 
-    handleEndChange(d: Date) {
+    handleEndChange(dateString: string) {
         const s = Object.create(this.state.innerValue);
+        const d = this.dateStringToDate(dateString);
         s.validityEnd = d;
         s.representations[s.representations.length - 1].validityEnd = d;
         this.valueChanged(s);
@@ -192,8 +205,6 @@ export class StateInput extends React.Component<Props, State> {
     }
 
     shouldComponentUpdate(newProps: Props, newState: State) {
-        console.log('should component update returns ',
-            (newState !== this.state) || (newProps.value && newProps.value.stateId !== this.props.value.stateId));
         return (newState !== this.state) || (newProps.value && newProps.value.stateId !== this.props.value.stateId);
     }
 
