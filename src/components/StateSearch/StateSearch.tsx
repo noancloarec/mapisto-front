@@ -109,7 +109,7 @@ export class StateSearch extends React.Component<Props, State> {
                             {mpState.startYear}
                         </div>
                         <div className="col-3 text-muted">
-                            {mpState.endYear}
+                            {mpState.endYear<2020?mpState.endYear:'Today'}
                         </div>
                     </div>
                 </Option >
