@@ -18,6 +18,8 @@ import { StateRepresentation } from "src/entities/StateRepresentation";
 import { MapData } from "./MapData";
 import { MapDataRaw } from "./MapDataRaw";
 import { MapistoError } from "./MapistoError";
+import { MapDataWithLandsRaw } from "./MapDataWithLandsRaw";
+import { MapDataWithLands } from "./MapDataWithLands";
 
 export class MapistoAPI {
 
@@ -42,10 +44,10 @@ export class MapistoAPI {
         );
     }
 
-    static loadGifMapForState(stateId: number, pixelWidth: number): Observable<MapData[]> {
-        return ajax.getJSON<{ maps: MapDataRaw[] }>(`${config.api_path}/gif_map_for_state/${stateId}?pixel_width=${pixelWidth}`)
+    static loadGifMapForState(stateId: number, pixelWidth: number): Observable<MapDataWithLands[]> {
+        return ajax.getJSON<{ maps: MapDataWithLandsRaw[] }>(`${config.api_path}/gif_map_for_state/${stateId}?pixel_width=${pixelWidth}`)
             .pipe(
-                map(res => res.maps.map(mapRaw => parseMapData(mapRaw, pixelWidth))),
+                map(res => res.maps.map(mapRaw => parseMapDataWithLands(mapRaw, pixelWidth))),
             );
 
     }
@@ -61,16 +63,17 @@ export class MapistoAPI {
                         states: [],
                         territories: [],
                         boundingBox: { x: 0, y: 0, width: 16, height: 9 },
-                        date: new Date()
+                        date: new Date(),
+                        lands : []
                     });
                 })
             );
     }
     static loadMapForTerritory(territoryId: number, year: number, pixelWidth: number)
-        : Observable<MapData> {
-        return ajax.getJSON<MapDataRaw>(`${config.api_path}/map_for_territory/${territoryId}?date=${yearToISOString(year)}&pixel_width=${pixelWidth}`)
+        : Observable<MapDataWithLands> {
+        return ajax.getJSON<MapDataWithLandsRaw>(`${config.api_path}/map_for_territory/${territoryId}?date=${yearToISOString(year)}&pixel_width=${pixelWidth}`)
             .pipe(
-                map(res => parseMapData(res, pixelWidth))
+                map(res => parseMapDataWithLands(res, pixelWidth))
             );
     }
 
@@ -101,6 +104,15 @@ export class MapistoAPI {
             switchMap(response => MapistoAPI.loadTerritory(response.data.modified_territory))
         );
     }
+
+    static deleteTerritory(territoryID: number): Observable<number> {
+        return from(
+            axios.delete<{ deleted_territory: number }>(`${config.api_path}/territory/${territoryID}`)
+        ).pipe(
+            map(r => r.data.deleted_territory)
+        );
+    }
+
     static loadLands(
         precisionLevel: number,
         bbox: ViewBoxLike
@@ -309,5 +321,13 @@ function parseMapData(raw: MapDataRaw, precisionLevel: number): MapData {
     }
 
     return res;
+}
+
+function parseMapDataWithLands(raw : MapDataWithLandsRaw, precisionLevel : number) : MapDataWithLands{
+    return {
+        ...parseMapData(raw, precisionLevel),
+        lands : raw.lands.map(l => parseLand(l, precisionLevel)),
+    }
+
 }
 

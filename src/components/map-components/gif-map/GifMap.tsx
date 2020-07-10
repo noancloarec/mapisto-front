@@ -4,11 +4,12 @@ import { TerritoriesGroup } from '../TerritoriesGroup/TerritoriesGroup';
 import { LandsGroup } from '../LandsGroup/LandsGroup';
 import { Subscription, interval } from 'rxjs';
 import { PlayPauseOverlay } from './PlayPauseOverlay';
-import { MapData } from 'src/api/MapData';
 import { NamesGroup } from '../NamesGroup/NamesGroup';
+import { MapDataWithLands } from 'src/api/MapDataWithLands';
 
 interface Props {
-    maps: MapData[];
+    maps: MapDataWithLands[];
+    autoPlay : boolean
 }
 interface State {
     currentMapIndex: number;
@@ -16,6 +17,9 @@ interface State {
 }
 export class GifMap extends React.Component<Props, State>{
     private timerSubscription: Subscription;
+    public static defaultProps = {
+        autoPlay : true
+    }
     constructor(props: Props) {
         super(props);
         this.timerSubscription = new Subscription();
@@ -23,9 +27,17 @@ export class GifMap extends React.Component<Props, State>{
             playing: false,
             currentMapIndex: 0,
         };
+
     }
     componentWillUnmount() {
         this.timerSubscription.unsubscribe();
+    }
+
+    componentDidMount(){
+        if (this.props.autoPlay){
+            this.playOrPause()
+        }
+
     }
 
     render() {
@@ -42,12 +54,12 @@ export class GifMap extends React.Component<Props, State>{
                     </div>
                 </div>
                 <svg viewBox={viewboxAsString(currentMap.boundingBox)}>
+                    <LandsGroup lands={currentMap.lands} />
                     <TerritoriesGroup
                         date={currentMap.date}
                         territories={currentMap.territories}
                         strokeWidth={currentMap.boundingBox.width ** .5 / 30}
                     />
-                    <LandsGroup lands={[]} />
                     <NamesGroup
                         territories={currentMap.territories}
                         date={currentMap.date}
@@ -58,6 +70,7 @@ export class GifMap extends React.Component<Props, State>{
         );
     }
     playOrPause(): void {
+        console.log('trigger play')
         if (this.state.playing) {
             this.timerSubscription.unsubscribe();
         } else {

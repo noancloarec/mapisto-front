@@ -18,8 +18,12 @@ export class MapistoState extends TimeDefinedEntity {
         this.representations = representations;
     }
 
+    getRepresentation(date = this.validityStart){
+        return this.representations.find(r => r.validAt(date))
+    }
+
     getName(date = this.validityStart) {
-        const rep = this.representations.find(r => r.validAt(date));
+        const rep = this.getRepresentation(date)
         if (!rep) {
             return "";
         }
@@ -31,12 +35,11 @@ export class MapistoState extends TimeDefinedEntity {
     }
 
     getColor(date = this.validityStart) {
-        const rep = this.representations.find(r => r.validAt(date));
+        const rep = this.getRepresentation(date)
         if (!rep) {
-            console.log('no representation found for', this, 'at', date);
             return 'black';
         }
-        return this.representations.find(r => r.validAt(date)).color;
+        return rep.color;
     }
 }
 

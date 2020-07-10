@@ -5,13 +5,13 @@ import { ViewBoxLike } from '@svgdotjs/svg.js';
 import { LoadingIcon } from '../../loading-icon/LoadingIcon';
 import { forkJoin, Subscription } from 'rxjs';
 import { GifMap } from '../gif-map/GifMap';
-import { MapData } from 'src/api/MapData';
+import { MapDataWithLands } from 'src/api/MapDataWithLands';
 
 interface Props {
     territory: MapistoTerritory;
 }
 interface State {
-    maps: MapData[];
+    maps: MapDataWithLands[];
     currentMapIndex: number;
     playing: boolean;
     viewbox: ViewBoxLike;

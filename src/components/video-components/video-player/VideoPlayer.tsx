@@ -113,7 +113,7 @@ export class VideoPlayer extends React.Component<Props, State>{
                     paused={this.state.paused}
                     onPause={() => this.state.paused ? this.resume() : this.pause()}
                     start={this.state.scenery[0].startYear}
-                    end={this.state.scenery[this.state.scenery.length - 1].endYear}
+                    end={this.state.scenery[this.state.scenery.length - 1].endYear-1}
                     toggleFullScreen={() => this.toggleFullScreen()}
                     videoIsFullScreen={this.state.videoIsFullScreen}
                     hidden={this.state.controlBarHidden}
@@ -232,7 +232,7 @@ export class VideoPlayer extends React.Component<Props, State>{
     }
 
     private initYearEmitter(startYear: number) {
-        const end = this.state.scenery[this.state.scenery.length - 1].endYear;
+        const end = this.state.scenery[this.state.scenery.length - 1].endYear -1;
         this.yearEmitter$ = zip(
             range(startYear, end - startYear),
             timer(0, 300),

@@ -83,10 +83,15 @@ export class StateSearch extends React.Component<Props, State> {
 
     renderStateOptions() {
         return this.state.searchResults.map(mpState => {
-            const name = this.props.showNamesAtDate && mpState.getName(this.props.showNamesAtDate) ?
-                mpState.getName(this.props.showNamesAtDate)
-                :
-                mpState.getName();
+            let color = mpState.getColor();
+            let name = mpState.getName();
+            if(this.props.showNamesAtDate){
+                const rep = mpState.getRepresentation(this.props.showNamesAtDate);
+                if(rep){
+                    name = rep.name;
+                    color = rep.color
+                }
+            }
             return (
                 <Option key={mpState.stateId} value={"" + mpState.stateId}
                     disabled={this.props.limitedToTerritory && !mpState.overLapsWith(this.props.limitedToTerritory)}
@@ -94,7 +99,7 @@ export class StateSearch extends React.Component<Props, State> {
                     <div className="row">
                         <div className=" col-2 col-md-1 pl-2 pr-2" >
                             <div
-                                style={({ backgroundColor: mpState.getColor(), width: '100%', height: '100%' })}>
+                                style={({ backgroundColor: color, width: '100%', height: '100%' })}>
                             </div>
                         </div>
                         <div className="autocomplete-state-text col-4 col-md-5" translate="no">
@@ -104,7 +109,7 @@ export class StateSearch extends React.Component<Props, State> {
                             {mpState.startYear}
                         </div>
                         <div className="col-3 text-muted">
-                            {mpState.endYear}
+                            {mpState.endYear<2020?mpState.endYear:'Today'}
                         </div>
                     </div>
                 </Option >

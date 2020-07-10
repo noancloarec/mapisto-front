@@ -43,7 +43,7 @@ export class TerritoryInput extends React.Component<Props, State> {
                 {
                     this.state.colorDiffers && (
                         <Form.Item label="Color" >
-                            <Input type="color" value={innerValue.color} />
+                            <Input type="color" value={innerValue.color} onChange={e => this.handleColorChange(e.target.value)}/>
                         </Form.Item>
                     )
                 }
