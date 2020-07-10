@@ -209,13 +209,22 @@ function parseState(raw: MapistoStateRaw): MapistoState {
     );
 }
 function stateJSON(from: MapistoState): MapistoStateRaw {
-    return {
+    const res = {
         bounding_box: from.boundingBox,
         representations: from.representations.map(r => stateRepresentationJSON(r)),
         state_id: from.stateId,
         validity_end: from.validityEnd.toISOString(),
         validity_start: from.validityStart.toISOString()
     };
+
+    if (!res.validity_start.endsWith('T00:00:00.000Z')) {
+        throw Error(`Error validity start ends with a specific time of the day : ${res.validity_start}`);
+    }
+    if (!res.validity_end.endsWith('T00:00:00.000Z')) {
+        throw Error(`Error validity end ends with a specific time of the day : ${res.validity_end}`);
+    }
+
+    return res;
 }
 
 function parseStateRepresentation(raw: StateRepresentationRaw): StateRepresentation {
@@ -227,12 +236,19 @@ function parseStateRepresentation(raw: StateRepresentationRaw): StateRepresentat
     );
 }
 function stateRepresentationJSON(from: StateRepresentation): StateRepresentationRaw {
-    return {
+    const res = {
         color: from.color,
         name: from.name,
         validity_start: from.validityStart.toISOString(),
         validity_end: from.validityEnd.toISOString(),
     };
+    if (!res.validity_start.endsWith('T00:00:00.000Z')) {
+        throw Error(`Error validity start ends with a specific time of the day : ${res.validity_start}`);
+    }
+    if (!res.validity_end.endsWith('T00:00:00.000Z')) {
+        throw Error(`Error validity end ends with a specific time of the day : ${res.validity_end}`);
+    }
+    return res;
 }
 
 function parseTerritory(raw: MapistoTerritoryRaw, precisionLevel: number, mpState: MapistoState): MapistoTerritory {
