@@ -64,6 +64,7 @@ class EditTerritoryPageUnrouted extends React.Component<Props, State> {
                                             Save modifications
                                         </Button>
                                     </Form>
+                                    <Button className="mt-5" type="primary" danger onClick={this.removeTerritory} >Remove the territory</Button>
 
                                 </div>
                                 <div className="col-6">
@@ -139,6 +140,12 @@ class EditTerritoryPageUnrouted extends React.Component<Props, State> {
             </div>
         </div>
         );
+    }
+
+    removeTerritory = () => {
+        MapistoAPI.deleteTerritory(this.state.territory.territoryId).subscribe(
+            () => this.props.history.goBack()
+        )
     }
 
     reassignTerritory = () => {
