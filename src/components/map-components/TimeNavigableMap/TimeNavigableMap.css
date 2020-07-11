@@ -16,3 +16,8 @@
     width: 64px;
     height: 64px;
 }
+
+.time-navigable-map .territories-group > path:hover:not(.selected){
+    opacity: .8;
+    transition: opacity ease-in .1s;
+}

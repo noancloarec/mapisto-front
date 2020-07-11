@@ -9,9 +9,11 @@ import { ControlBar } from '../control-bar/ControlBar';
 import { throttleTime, delay, catchError } from 'rxjs/operators';
 import { LoadingIcon } from 'src/components/loading-icon/LoadingIcon';
 import { VideoTitle } from '../video-title/VideoTitle';
+import { Link } from 'react-router-dom';
 
 interface Props {
     stateId: number;
+    onSceneryLoaded?: (scenery: Scene[]) => void;
 }
 interface State {
     scenery: Scene[];
@@ -100,11 +102,11 @@ export class VideoPlayer extends React.Component<Props, State>{
                 onClick={() => this.makeControlBarAppear()}>
                 <VideoTitle hidden={this.state.controlBarHidden} title={this.state.mpStateName + ' : Every year'} />
                 <div className="video-time-display">
-                    <a
+                    <Link
                         className="time-link"
-                        href={`/?year=${this.state.currentYear}&center_x=${centerX}&center_y=${centerY}&width=${scene.bbox.width}`}
+                        to={`/?year=${this.state.currentYear}&center_x=${centerX}&center_y=${centerY}&width=${scene.bbox.width}`}
                     >                        <TimeSelector year={this.state.currentYear} />
-                    </a>
+                    </Link>
                 </div>
                 <VideoMap scenery={this.state.scenery} year={this.state.yearOnMap} />
                 <ControlBar
@@ -113,7 +115,7 @@ export class VideoPlayer extends React.Component<Props, State>{
                     paused={this.state.paused}
                     onPause={() => this.state.paused ? this.resume() : this.pause()}
                     start={this.state.scenery[0].startYear}
-                    end={this.state.scenery[this.state.scenery.length - 1].endYear-1}
+                    end={this.state.scenery[this.state.scenery.length - 1].endYear - 1}
                     toggleFullScreen={() => this.toggleFullScreen()}
                     videoIsFullScreen={this.state.videoIsFullScreen}
                     hidden={this.state.controlBarHidden}
@@ -155,6 +157,8 @@ export class VideoPlayer extends React.Component<Props, State>{
                 scenery => scenery.length && this.setState({
                     scenery
                 }, () => {
+                    if (this.props.onSceneryLoaded)
+                        this.props.onSceneryLoaded(scenery);
                     const representations = scenery[0].territories
                         .find(t => t.mpState.stateId === this.props.stateId)
                         .mpState.representations;
@@ -232,7 +236,7 @@ export class VideoPlayer extends React.Component<Props, State>{
     }
 
     private initYearEmitter(startYear: number) {
-        const end = this.state.scenery[this.state.scenery.length - 1].endYear -1;
+        const end = this.state.scenery[this.state.scenery.length - 1].endYear - 1;
         this.yearEmitter$ = zip(
             range(startYear, end - startYear),
             timer(0, 300),

@@ -72,12 +72,11 @@ const renderTerritoryDetails = (territory: MapistoTerritory, onClosePanel: () =>
                     />
                 </div>
                 {territory.mpState.getName(territory.validityStart) && (
-                    <h3 className="text-center">
-                        <a className="dotted-button"
-                            href={`/movie/${territory.mpState.stateId}`}>
+                    <Link to={`/movie/${territory.mpState.stateId}`}>
+                        <h3 className="text-center dotted-button">
                             {territory.mpState.getName(territory.validityStart)} : Every year
-                            </a>
-                    </h3>
+                        </h3>
+                    </Link>
 
                 )}
             </div>
@@ -85,27 +84,3 @@ const renderTerritoryDetails = (territory: MapistoTerritory, onClosePanel: () =>
         </div >
     );
 };
-
-
-
-
-/**
- * Maps the redux state to the props of the loading Icon
- * @param state The redux state
- */
-// const mapStateToProps = (state: RootState): StateProps => ({
-//     selectedTerritory: state.edition.selectedTerritory,
-//     year: state.mainMap.currentYear,
-// });
-
-// const mapDispatchToProps: DispatchProps = {
-//     onSelectedStateLoaded: (st: MapistoState) => selectState(st),
-//     startTerritoryEdition: () => changeEditionType(EditionType.AskRenameOrExtendTerritory),
-//     showSelectedState: () => changeEditionType(EditionType.DisplayState),
-//     startStateNaming: () => changeEditionType(EditionType.RenameState),
-//     closePanel: () => selectTerritory(null)
-// };
-// export const TerritoryPanelConnected = connect(
-//     mapStateToProps,
-//     mapDispatchToProps
-// )(TerritoryPanel);

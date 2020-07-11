@@ -1,7 +1,7 @@
 import React from 'react';
 import { MapistoState } from "src/entities/mapistoState";
 import { Form, DatePicker, Input, Checkbox, Dropdown, Menu } from 'antd';
-import moment, { Moment } from 'moment';
+import moment from 'moment';
 import { ArrowUpOutlined, ArrowDownOutlined, DeleteOutlined } from '@ant-design/icons';
 import { StateRepresentation } from 'src/entities/StateRepresentation';
 interface Props {

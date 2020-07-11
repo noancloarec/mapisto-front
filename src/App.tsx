@@ -10,6 +10,7 @@ import { VideoPlayer } from './components/video-components/video-player/VideoPla
 import { HomePage } from './components/pages/HomePage/HomePage';
 import { EditTerritoryPage } from './components/pages/EditTerritoryPage/EditTerritoryPage';
 import { EditStatePage } from './components/pages/EditStatePage/EditStatePage';
+import { Scene } from './entities/Scene';
 
 const App: React.FC = () => {
   return (
@@ -34,8 +35,16 @@ const App: React.FC = () => {
 
 const VideoPage: React.FC = () => {
   const { state_id } = useParams<{ state_id: string }>();
+  const setPageTitle = (scenery: Scene[]) => {
+    // Settings the document title with the last name of the state
+    const state = scenery[0].territories.find(t => t.mpState.stateId === +state_id).mpState;
+    const title = state.representations[state.representations.length - 1].name;
+    document.title = `${title} - Every year`;
+  };
   return (
-    <VideoPlayer stateId={parseInt(state_id, 10)} />
+    <VideoPlayer stateId={parseInt(state_id, 10)}
+      onSceneryLoaded={setPageTitle}
+    />
   );
 };
 
