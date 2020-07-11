@@ -64,14 +64,14 @@ export class MapistoAPI {
                         territories: [],
                         boundingBox: { x: 0, y: 0, width: 16, height: 9 },
                         date: new Date(),
-                        lands : []
+                        lands: []
                     });
                 })
             );
     }
-    static loadMapForTerritory(territoryId: number, year: number, pixelWidth: number)
+    static loadMapForTerritory(territoryId: number, date: Date, pixelWidth: number)
         : Observable<MapDataWithLands> {
-        return ajax.getJSON<MapDataWithLandsRaw>(`${config.api_path}/map_for_territory/${territoryId}?date=${yearToISOString(year)}&pixel_width=${pixelWidth}`)
+        return ajax.getJSON<MapDataWithLandsRaw>(`${config.api_path}/map_for_territory/${territoryId}?date=${date.toISOString()}&pixel_width=${pixelWidth}`)
             .pipe(
                 map(res => parseMapDataWithLands(res, pixelWidth))
             );
@@ -323,10 +323,10 @@ function parseMapData(raw: MapDataRaw, precisionLevel: number): MapData {
     return res;
 }
 
-function parseMapDataWithLands(raw : MapDataWithLandsRaw, precisionLevel : number) : MapDataWithLands{
+function parseMapDataWithLands(raw: MapDataWithLandsRaw, precisionLevel: number): MapDataWithLands {
     return {
         ...parseMapData(raw, precisionLevel),
-        lands : raw.lands.map(l => parseLand(l, precisionLevel)),
+        lands: raw.lands.map(l => parseLand(l, precisionLevel)),
     }
 
 }

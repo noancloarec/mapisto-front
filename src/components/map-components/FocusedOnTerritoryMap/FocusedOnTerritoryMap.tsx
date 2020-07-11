@@ -63,24 +63,17 @@ export class FocusedOnTerritoryMap extends React.Component<Props, State>{
     }
 
     private loadMap() {
-        const years = this.generateYearsToDisplay(this.props.territory);
+        const dates = [this.props.territory.validityStart];
+        if (this.props.territory.endYear > this.props.territory.startYear + 1) {
+            dates.push(this.props.territory.validityEnd);
+        }
         const pixelWidth = this.mapRef.current.getBoundingClientRect().width;
-        this.loadMapSubscripton = forkJoin(years.map(y =>
-            MapistoAPI.loadMapForTerritory(this.props.territory.territoryId, y, pixelWidth))).subscribe(
+        this.loadMapSubscripton = forkJoin(dates.map(d =>
+            MapistoAPI.loadMapForTerritory(this.props.territory.territoryId, d, pixelWidth))).subscribe(
                 res => this.setState({
                     maps: res,
                     viewbox: res[0].boundingBox
                 })
             );
-    }
-
-    private generateYearsToDisplay(territory: MapistoTerritory): number[] {
-        const years = [territory.startYear];
-        if (territory.endYear > territory.startYear + 1) {
-            years.push(territory.endYear - 1);
-        }
-
-        return years;
-
     }
 }
