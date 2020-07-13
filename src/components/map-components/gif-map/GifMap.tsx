@@ -6,10 +6,10 @@ import { Subscription, interval } from 'rxjs';
 import { PlayPauseOverlay } from './PlayPauseOverlay';
 import { NamesGroup } from '../NamesGroup/NamesGroup';
 import { MapDataWithLands } from 'src/api/MapDataWithLands';
-
+import './GifMap.css';
 interface Props {
     maps: MapDataWithLands[];
-    autoPlay : boolean
+    autoPlay: boolean;
 }
 interface State {
     currentMapIndex: number;
@@ -18,7 +18,7 @@ interface State {
 export class GifMap extends React.Component<Props, State>{
     private timerSubscription: Subscription;
     public static defaultProps = {
-        autoPlay : true
+        autoPlay: true
     }
     constructor(props: Props) {
         super(props);
@@ -33,8 +33,8 @@ export class GifMap extends React.Component<Props, State>{
         this.timerSubscription.unsubscribe();
     }
 
-    componentDidMount(){
-        if (this.props.autoPlay){
+    componentDidMount() {
+        if (this.props.autoPlay) {
             this.playOrPause()
         }
 
@@ -47,10 +47,8 @@ export class GifMap extends React.Component<Props, State>{
             <div className="map">
                 <PlayPauseOverlay playing={this.state.playing} onChange={() => this.playOrPause()} />
                 <div className="year-display">
-                    <div className="row">
-                        <div className="col-4 col-lg-2 year-box">
-                            {(currentMap.date.getUTCFullYear())}
-                        </div>
+                    <div className="year-box">
+                        {(currentMap.date.getUTCFullYear())}
                     </div>
                 </div>
                 <svg viewBox={viewboxAsString(currentMap.boundingBox)}>

@@ -83,17 +83,3 @@ svg{
   position: relative;
 }
 
-.year-display{
-  position: absolute;
-  top:5px;
-  left : 20px;
-  right: 20px;
-}
-
-.year-display .year-box{
-  background-color: white ;
-  text-align: center;
-  font-size: 1.4em;
-  color: black;
-  border: 2px solid black;
-}

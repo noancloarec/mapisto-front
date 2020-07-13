@@ -1,0 +1,16 @@
+.year-display{
+    position: absolute;
+    top:5px;
+    left : 5px;
+  }
+
+
+
+  .year-display .year-box{
+    background-color: white ;
+    text-align: center;
+    font-size: 1.4em;
+    color: black;
+    border: 2px solid black;
+    padding: 0px 20px;
+  }
