@@ -5,6 +5,7 @@ import { MapistoState } from 'src/entities/mapistoState';
 import { FocusedOnStateMap } from 'src/components/map-components/FocusedOnStateMap/FocusedOnStateMap';
 import { Button } from 'antd';
 import { Link } from 'react-router-dom';
+import { dateFromYear } from 'src/utils/date_utils';
 
 type Props = {
     selectedTerritory: MapistoTerritory;
@@ -12,14 +13,12 @@ type Props = {
     onClosePanel: () => void;
 };
 
-interface State {
-    selectedState: MapistoState;
-}
-
 export const TerritoryPanel: React.FC<Props> = (props: Props) => {
+    const dateForNameDisplay = dateFromYear(props.year);
     return (
         <div className={"territory-panel " + (props.selectedTerritory ? "opened" : "")}>
-            {props.selectedTerritory && renderTerritoryDetails(props.selectedTerritory, props.onClosePanel)}
+            {props.selectedTerritory &&
+                renderTerritoryDetails(props.selectedTerritory, dateForNameDisplay, props.onClosePanel)}
         </div>
     );
 };
@@ -40,7 +39,8 @@ const renderActionButtons = (territory: MapistoTerritory) => {
     );
 };
 
-const renderTerritoryDetails = (territory: MapistoTerritory, onClosePanel: () => void) => {
+const renderTerritoryDetails = (territory: MapistoTerritory, dateForNameDisplay: Date, onClosePanel: () => void) => {
+    const name = territory.mpState.getName(dateForNameDisplay);
     return (
         <div className="d-flex flex-column justify-content-between">
             <div>
@@ -51,9 +51,9 @@ const renderTerritoryDetails = (territory: MapistoTerritory, onClosePanel: () =>
                 </div>
 
                 {
-                    territory.mpState.getName(territory.validityStart) ? (
+                    name ? (
                         <div>
-                            <h1>{territory.mpState.getName(territory.validityStart)}</h1>
+                            <h1>{name}</h1>
                             <h2 className="text-center">
                                 {territory.mpState.startYear} -&nbsp;
                                     {territory.mpState.endYear < 2018 ? territory.mpState.endYear : ''}
@@ -71,10 +71,10 @@ const renderTerritoryDetails = (territory: MapistoTerritory, onClosePanel: () =>
                         mpState={territory.mpState}
                     />
                 </div>
-                {territory.mpState.getName(territory.validityStart) && (
+                {name && (
                     <Link to={`/movie/${territory.mpState.stateId}`}>
                         <h3 className="text-center dotted-button">
-                            {territory.mpState.getName(territory.validityStart)} : Every year
+                            {name} : Every year
                         </h3>
                     </Link>
 
