@@ -53,18 +53,20 @@ class EditTerritoryPageUnrouted extends React.Component<Props, State> {
                                     <h3 className="text-center">{moment(territory.validityStart).format('YYYY-MM-DD')}
                                         &nbsp;to&nbsp;
                                      {moment(territory.validityEnd).format('YYYY-MM-DD')}</h3>
-                                    <FocusedOnTerritoryMap territory={territory} />
+                                    <FocusedOnTerritoryMap autoPlay={false} territory={territory} />
                                     <Form onSubmitCapture={this.submitTerritory} className="mt-4">
                                         <TerritoryInput
                                             value={this.state.modifiedTerritory}
                                             onChange={t => this.setState({ modifiedTerritory: t })}
                                         />
-                                        <Button htmlType="submit" type="primary" loading={this.state.submitTerritoryLoading}
+                                        <Button htmlType="submit" type="primary"
+                                            loading={this.state.submitTerritoryLoading}
                                             className="mt-2" icon={<SaveOutlined />}>
                                             Save modifications
                                         </Button>
                                     </Form>
-                                    <Button className="mt-5" type="primary" danger onClick={this.removeTerritory} >Remove the territory</Button>
+                                    <Button className="mt-5" type="primary"
+                                        danger onClick={this.removeTerritory} >Remove the territory</Button>
 
                                 </div>
                                 <div className="col-6">
@@ -98,7 +100,7 @@ class EditTerritoryPageUnrouted extends React.Component<Props, State> {
                                             } />
 
                                     </div>
-                                    <FocusedOnStateMap mpState={this.state.territory.mpState} />
+                                    <FocusedOnStateMap autoPlay={false} mpState={this.state.territory.mpState} />
                                     {
                                         this.state.showChangeTerritoryState && this.renderChangeTerritoryBelonging()
                                     }

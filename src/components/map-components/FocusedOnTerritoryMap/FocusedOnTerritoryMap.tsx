@@ -9,6 +9,7 @@ import { MapDataWithLands } from 'src/api/MapDataWithLands';
 
 interface Props {
     territory: MapistoTerritory;
+    autoPlay: boolean;
 }
 interface State {
     maps: MapDataWithLands[];
@@ -19,6 +20,9 @@ interface State {
 export class FocusedOnTerritoryMap extends React.Component<Props, State>{
     private mapRef: React.RefObject<HTMLDivElement>;
     private loadMapSubscripton: Subscription;
+    public static defaultProps = {
+        autoPlay: true
+    };
     constructor(props: Props) {
         super(props);
         this.mapRef = React.createRef<HTMLDivElement>();
@@ -55,7 +59,8 @@ export class FocusedOnTerritoryMap extends React.Component<Props, State>{
         if (this.state.maps.length) {
 
             return (
-                <GifMap maps={this.state.maps.map(m => ({ ...m, viewbox: this.state.viewbox }))} />
+                <GifMap autoPlay={this.props.autoPlay}
+                    maps={this.state.maps} />
             );
         } else {
             return <LoadingIcon loading={true} />;

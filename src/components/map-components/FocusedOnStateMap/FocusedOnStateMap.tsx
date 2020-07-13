@@ -8,6 +8,7 @@ import { MapDataWithLands } from "src/api/MapDataWithLands";
 
 interface Props {
     mpState: MapistoState;
+    autoPlay: boolean;
 }
 interface State {
     currentMpState: MapistoState;
@@ -20,6 +21,9 @@ export class FocusedOnStateMap extends React.Component<Props, State>{
     private mapRef: RefObject<HTMLDivElement>;
     private mapSubscription: Subscription;
 
+    public static defaultProps = {
+        autoPlay: true
+    };
     constructor(props: Props) {
         super(props);
         this.mapRef = React.createRef();
@@ -51,7 +55,7 @@ export class FocusedOnStateMap extends React.Component<Props, State>{
         if (this.state.currentMpState && this.props.mpState.stateId === this.state.currentMpState.stateId) {
 
             return (
-                <GifMap maps={this.state.mapStates} />
+                <GifMap autoPlay={this.props.autoPlay} maps={this.state.mapStates} />
             );
         } else {
             return <LoadingIcon loading={true} />;
