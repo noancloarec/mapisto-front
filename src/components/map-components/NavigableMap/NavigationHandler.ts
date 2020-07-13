@@ -53,6 +53,7 @@ export class NavigationHandler {
 
     public removeListeners() {
         this.sourceElement.removeEventListener('wheel', this.wheelHandler);
+        window.removeEventListener('resize', this.resizeHandler);
         this.ham.destroy();
     }
 
@@ -93,6 +94,17 @@ export class NavigationHandler {
             enable: true
         });
         this.ham.on('pinch', (e: HammerInput) => this.handlePinch(e));
+        window.addEventListener('resize', this.resizeHandler);
+    }
+
+    private resizeHandler = () => {
+        const boundingRect = this.sourceElement.getBoundingClientRect();
+        const ratio = boundingRect.width / boundingRect.height;
+        const newVB: ViewBoxLike = {
+            ... this.viewbox,
+            height: this.viewbox.width / ratio
+        };
+        this.viewBoxChange$.next(newVB);
 
     }
 
