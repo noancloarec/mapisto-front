@@ -40,7 +40,7 @@ const renderActionButtons = (territory: MapistoTerritory) => {
 };
 
 const renderTerritoryDetails = (territory: MapistoTerritory, dateForNameDisplay: Date, onClosePanel: () => void) => {
-    const name = territory.mpState.getName(dateForNameDisplay);
+    const mpStateName = territory.mpState.getName(dateForNameDisplay);
     return (
         <div className="d-flex flex-column justify-content-between">
             <div>
@@ -51,18 +51,23 @@ const renderTerritoryDetails = (territory: MapistoTerritory, dateForNameDisplay:
                 </div>
 
                 {
-                    name ? (
+                    mpStateName ? (
                         <div>
-                            <h1>{name}</h1>
+                            <h1>{territory.name ? territory.name : mpStateName}</h1>
+                            {
+                                territory.name && (
+                                    <h2 className="text-center">({mpStateName})</h2>
+                                )
+                            }
                             <h2 className="text-center">
                                 {territory.mpState.startYear} -&nbsp;
-                                    {territory.mpState.endYear < 2018 ? territory.mpState.endYear : ''}
+                                    {territory.mpState.endYear < 2018 ? territory.mpState.endYear : 'Today'}
                             </h2>
                         </div>
                     ) :
                         (
                             <h1>
-                                We could not figure out what this is yet
+                                Unknown
                                 </h1>
                         )
                 }
@@ -71,10 +76,10 @@ const renderTerritoryDetails = (territory: MapistoTerritory, dateForNameDisplay:
                         mpState={territory.mpState}
                     />
                 </div>
-                {name && (
+                {mpStateName && (
                     <Link to={`/movie/${territory.mpState.stateId}`}>
                         <h3 className="text-center dotted-button">
-                            {name} : Every year
+                            {mpStateName} : Every year
                         </h3>
                     </Link>
 
