@@ -65,7 +65,7 @@ function shouldDisplayName(territory: MapistoTerritory, viewbox: ViewBoxLike, da
         territory.boundingBox.width > getMinimumWidthForNameDisplay(viewbox);
 }
 function getMinimumWidthForNameDisplay(viewbox: ViewBoxLike) {
-    return viewbox.width / 20;
+    return viewbox.width / 8;
 }
 
 function isVisible(territory: MapistoTerritory, viewbox: ViewBoxLike): boolean {
