@@ -1,7 +1,6 @@
 import React from 'react';
 import './TerritoryPanel.css';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
-import { MapistoState } from 'src/entities/mapistoState';
 import { FocusedOnStateMap } from 'src/components/map-components/FocusedOnStateMap/FocusedOnStateMap';
 import { Button } from 'antd';
 import { Link } from 'react-router-dom';

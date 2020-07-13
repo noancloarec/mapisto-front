@@ -24,14 +24,15 @@ export const NamesGroup: React.FC<Props> = (props: Props) => (
 function renderNameOfTerritory(t: MapistoTerritory, viewbox: ViewBoxLike, date: Date) {
     const name = t.name ? t.name : t.mpState.getName(date);
     const fillColor = getLabelColor(t.color ? t.color : t.mpState.getColor(date));
+    const fontSize = Math.sqrt(viewbox.width * viewbox.height) / 60;
 
     const mainName = wrap(name, 10);
     const mainNameRes = mainName.split('\n').map((s: string, i: number) => (
         <text key={i}
             x={t.boundingBox.x + t.boundingBox.width / 2}
-            y={t.boundingBox.y + t.boundingBox.height / 2 + i * viewbox.width / 80}
+            y={t.boundingBox.y + t.boundingBox.height / 2 + i * fontSize}
             textAnchor="middle"
-            fontSize={viewbox.width / 80}
+            fontSize={fontSize}
             fill={fillColor}
         >
             {s}
