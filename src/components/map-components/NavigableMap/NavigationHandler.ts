@@ -74,6 +74,7 @@ export class NavigationHandler {
         const scrollSpeed = 1.1;
         const scale = event.deltaY < 0 ? scrollSpeed : 1 / scrollSpeed;
         this.doZoom(scale, this.viewbox, { x: event.x, y: event.y });
+        event.stopPropagation();
     }
 
     private handlePinch(event: HammerInput) {

@@ -3,7 +3,6 @@ import { Scene } from 'src/entities/Scene';
 import { MapistoAPI } from 'src/api/MapistoApi';
 import { VideoMap } from 'src/components/map-components/VideoMap/VideoMap';
 import { range, zip, timer, Observable, Subscription, Subject, of } from 'rxjs';
-import { TimeSelector } from 'src/components/map-components/TimeNavigableMap/TimeSelector';
 import './VideoPlayer.css';
 import { ControlBar } from '../control-bar/ControlBar';
 import { throttleTime, delay, catchError } from 'rxjs/operators';
