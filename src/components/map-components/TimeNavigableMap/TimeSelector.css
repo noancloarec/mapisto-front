@@ -1,4 +1,14 @@
-.time-select span {
+.time-selector{
+    position: absolute;
+    top : 0;
+    width: 100%;
+    pointer-events: none;
+}
+.time-selector > *{
+    pointer-events: auto;
+}
+
+.time-select > span {
     font-size: 4em;
     cursor: pointer;
     -webkit-touch-callout: none;
@@ -17,11 +27,29 @@
 }
 
 .time-select{
-    pointer-events: auto;
+    pointer-events: none;
     height: 85px;
-
+    position: relative;
 }
-.time-select svg{
+.time-select > *{
+    pointer-events: auto;
+}
+.time-slider{
+    padding: 20px;
+}
+
+.time-slider .ant-slider-track, .time-slider .ant-slider:hover .ant-slider-track{
+     background-color:  #bf2323
+}
+
+.time-slider .ant-slider-handle, .time-slider .ant-slider:hover .ant-slider-handle, .time-slider .ant-slider-dot-active{
+    border-color: #bf2323
+}
+.time-slider .ant-slider-handle:focus{
+    box-shadow: 0 0 0 5px rgba(181, 55, 55, 0.12);
+}
+
+.time-select>svg{
     height: 60%!important;
     margin-top: 17px;
     fill: gray;
@@ -49,7 +77,7 @@
         width: 111px;
     }
 
-    .time-select svg{
+    .time-select>svg{
         height: 49% !important;
         margin-top: 15px;
     }
@@ -71,4 +99,15 @@
 .time-select input:disabled{
     background-color: white;
     color: black;
+}
+
+
+.show-time-slider{
+    position: absolute;
+    right: 25px;
+    height: 100%;
+}
+
+.time-slider{
+    transition: margin-top ease-out .15s;
 }

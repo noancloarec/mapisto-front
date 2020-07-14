@@ -105,7 +105,8 @@ export class VideoPlayer extends React.Component<Props, State>{
                     <Link
                         className="time-link"
                         to={`/?year=${this.state.currentYear}&center_x=${centerX}&center_y=${centerY}&width=${scene.bbox.width}`}
-                    >                        <TimeSelector year={this.state.currentYear} />
+                    >
+                        {/* <TimeSelector year={this.state.currentYear} /> */}
                     </Link>
                 </div>
                 <VideoMap scenery={this.state.scenery} year={this.state.yearOnMap} />

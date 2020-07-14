@@ -101,7 +101,7 @@ export class NavigationHandler {
         const boundingRect = this.sourceElement.getBoundingClientRect();
         const ratio = boundingRect.width / boundingRect.height;
         const newVB: ViewBoxLike = {
-            ... this.viewbox,
+            ...this.viewbox,
             height: this.viewbox.width / ratio
         };
         this.viewBoxChange$.next(newVB);

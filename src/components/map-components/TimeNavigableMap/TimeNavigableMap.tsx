@@ -36,7 +36,7 @@ export class TimeNavigableMap extends React.Component<Props, State>{
         this.timeChangeSubject$ = new Subject<number>();
         this.timeChangeSubject$
             .pipe(
-                throttleTime(800, undefined, { leading: true, trailing: true })
+                throttleTime(600, undefined, { leading: false, trailing: true })
             )
             .subscribe((newYear) => {
                 this.setState({
@@ -77,12 +77,10 @@ export class TimeNavigableMap extends React.Component<Props, State>{
                 initialWidth={this.props.initialWidth}
                 onTerritoryClicked={this.props.onTerritoryClicked}
             />
-            <div className="time-selector-row">
-                <TimeSelector
-                    year={this.state.yearOnSelector}
-                    yearChange={newYear => this.changeYear(newYear)}
-                />
-            </div>
+            <TimeSelector
+                year={this.state.yearOnSelector}
+                yearChange={newYear => this.changeYear(newYear)}
+            />
             {(this.state.loading &&
                 <div className="loading-box">
                     <LoadingIcon loading={true} />
