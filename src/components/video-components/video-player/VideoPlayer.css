@@ -37,3 +37,26 @@ p.loading-progress{
 p.error-video{
     color : white
 }
+
+.year-on-video>.year-box {
+    font-size: 3em;
+    width: 200px;
+    margin: 10px 15px;
+    text-align: center;
+    outline: none;
+    border: 1px solid black;
+    border-radius: 2px;
+    background-color: white;
+    color: black;
+    
+}
+
+
+
+@media (max-height:600px), (max-width:700px){
+    .year-on-video>.year-box{
+        height: 42px;
+        font-size: 1.8em;
+        width: 111px;
+    }
+}
