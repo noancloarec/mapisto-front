@@ -11,7 +11,10 @@ import { NavigationHandler } from './NavigationHandler';
 import { MapistoPoint } from 'src/entities/MapistoPoint';
 import { TerritoriesGroup } from '../TerritoriesGroup/TerritoriesGroup';
 import { dateFromYear } from 'src/utils/date_utils';
+import './NavigableMap.css'
 import { NamesGroup } from '../NamesGroup/NamesGroup';
+import { Button } from 'antd';
+import { PlusOutlined, MinusOutlined } from '@ant-design/icons';
 
 interface Props {
     year: number;
@@ -79,6 +82,10 @@ export class NavigableMap extends React.Component<Props, State>{
                         viewbox={this.state.viewbox}
                     />
                 </svg>
+                <div className="zoom-buttons d-flex flex-column">
+                    <Button size='large' icon={<PlusOutlined />} onClick={() => this.navigationHandler.zoomIn()} />
+                    <Button size='large' icon={<MinusOutlined />} onClick={() => this.navigationHandler.zoomOut()} />
+                </div>
             </div>
         );
     }
@@ -172,11 +179,11 @@ export class NavigableMap extends React.Component<Props, State>{
         year: number
     ) {
         const date = dateFromYear(year);
-        console.log('sorted all so they are between ', date, 'and next year, (year=', year, ')')
         const territoriesNotUpdated = existingTerritories.filter(
             t => t.validAt(date) && newTerritories.find(n => n.territoryId === t.territoryId) === undefined
         );
         return newTerritories.concat(territoriesNotUpdated);
     }
+
 }
 

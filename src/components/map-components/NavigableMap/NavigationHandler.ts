@@ -57,6 +57,19 @@ export class NavigationHandler {
         this.ham.destroy();
     }
 
+    public zoomIn() {
+        this.doZoom(1.2, this.viewbox, this.getBoundingRectCenter());
+    }
+    public zoomOut() {
+        this.doZoom(0.8, this.viewbox, this.getBoundingRectCenter());
+    }
+
+    private getBoundingRectCenter() {
+        const clientRect = this.sourceElement.getBoundingClientRect()
+        return { x: clientRect.width / 2, y: clientRect.height / 2 };
+
+    }
+
     private wheelHandler = (event: WheelEvent) => {
         const scrollSpeed = 1.1;
         const scale = event.deltaY < 0 ? scrollSpeed : 1 / scrollSpeed;
