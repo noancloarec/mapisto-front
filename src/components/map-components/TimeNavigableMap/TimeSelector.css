@@ -110,4 +110,5 @@
 
 .time-slider{
     transition: margin-top ease-out .15s;
+    background-color: rgba(0,0,0,.2);
 }
