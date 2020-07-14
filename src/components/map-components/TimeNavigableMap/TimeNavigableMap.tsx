@@ -81,11 +81,9 @@ export class TimeNavigableMap extends React.Component<Props, State>{
                 year={this.state.yearOnSelector}
                 yearChange={newYear => this.changeYear(newYear)}
             />
-            {(this.state.loading &&
-                <div className="loading-box">
-                    <LoadingIcon loading={true} />
-                </div>
-            )}
+            <div className="time-map-loading">
+                <LoadingIcon loading={this.state.loading} />
+            </div>
         </div>;
     }
 }

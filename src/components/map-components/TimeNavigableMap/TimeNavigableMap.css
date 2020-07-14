@@ -21,3 +21,9 @@
     opacity: .8;
     transition: opacity ease-in .1s;
 }
+
+.time-map-loading{
+    position: absolute;
+    right: 20px;
+    bottom: 20px;
+}

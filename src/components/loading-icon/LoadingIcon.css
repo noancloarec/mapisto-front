@@ -2,9 +2,6 @@
     display: inline-block;
     position: relative;
     position: relative;
-    width: 20%;
-    height: 0;
-    padding-bottom: 20%;
 }
 
 .loading-container{

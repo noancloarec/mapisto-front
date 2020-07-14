@@ -79,7 +79,7 @@ export class VideoPlayer extends React.Component<Props, State>{
                     :
                     <div className="d-flex flex-column justify-content-center">
                         <div className="video-loading-container">
-                            <LoadingIcon loading={true} color="white"></LoadingIcon>
+                            <LoadingIcon loading={true} color="white" size={100}></LoadingIcon>
                         </div>
 
                         <p className="loading-progress">{this.state.loadingProgress}%</p>

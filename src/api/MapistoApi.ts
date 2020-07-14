@@ -187,7 +187,8 @@ export class MapistoAPI {
                 params: {
                     pixel_width: pixelWidth
                 },
-                onDownloadProgress: onProgress ? event => onProgress(event.loaded / event.total) : undefined
+                onDownloadProgress: onProgress ?
+                    event => onProgress(Math.min(1, event.loaded / event.total)) : undefined
             })
         ).pipe(
             map(res => res.data.scenes.map(s => parseScene(s))),
