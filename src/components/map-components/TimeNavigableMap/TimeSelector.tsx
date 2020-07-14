@@ -25,7 +25,7 @@ export class TimeSelector extends Component<Props, State>{
             <div className="time-selector">
                 <div className="time-slider" style={{ marginTop: this.state.showSlider ? '0px' : '-90px' }}>
                     <Slider value={this.props.year} min={1000} max={2020} marks={{ 1000: '1000', 1500: '1500', 2000: '2000' }}
-                        onChange={e => this.props.yearChange(e as number)}
+                        onChange={(e: any) => this.props.yearChange(e as unknown as number)}
                     />
                 </div>
                 <div className="time-select d-flex justify-content-center">
