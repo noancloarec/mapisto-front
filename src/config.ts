@@ -1,8 +1,8 @@
 let apiPath;
 if (process.env.NODE_ENV === 'development') {
-    apiPath = 'http://localhost:8080';
+    apiPath = 'http://localhost:5000';
 } else {
-    apiPath = `https://api.${window.location.host}`;
+    apiPath = `${window.location.protocol}//api.${window.location.host}`;
 }
 export const config = {
     api_path: apiPath,
