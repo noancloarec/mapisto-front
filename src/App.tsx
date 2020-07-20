@@ -11,6 +11,7 @@ import { HomePage } from './components/pages/HomePage/HomePage';
 import { EditTerritoryPage } from './components/pages/EditTerritoryPage/EditTerritoryPage';
 import { EditStatePage } from './components/pages/EditStatePage/EditStatePage';
 import { Scene } from './entities/Scene';
+import { About } from './components/pages/AboutPage/about';
 
 const App: React.FC = () => {
   return (
@@ -18,6 +19,9 @@ const App: React.FC = () => {
       <Switch>
         <Route exact path="/">
           <HomePage />
+        </Route>
+        <Route exact path="/about">
+          <About />
         </Route>
         <Route path='/edit_territory/:territory_id'>
           <EditTerritoryPage />
