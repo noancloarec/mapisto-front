@@ -3,6 +3,7 @@ import { TimeNavigableMap } from 'src/components/map-components/TimeNavigableMap
 import { TerritoryPanel } from 'src/components/TerritoryPanel/TerritoryPanel';
 import { MapistoTerritory } from 'src/entities/mapistoTerritory';
 import { RouteComponentProps, withRouter } from 'react-router';
+import { Link } from 'react-router-dom';
 interface State {
     selectedTerritory: MapistoTerritory;
     year: number;
@@ -36,6 +37,11 @@ class HomePageUnrouted extends React.PureComponent<Props, State> {
                         onClosePanel={() => this.setState({ selectedTerritory: undefined })}
                     />
                 </section>
+                <Link to="/about">
+                    <p className="about-link">
+                        About
+                </p>
+                </Link>
             </div>
 
         );

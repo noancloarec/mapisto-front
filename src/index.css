@@ -83,3 +83,11 @@ svg{
   position: relative;
 }
 
+.about-link{
+  position: fixed;
+  right: 120px;
+  color: #636363;
+  text-decoration: underline;
+  font-size: 1.2em;
+  bottom: 5px;
+}
