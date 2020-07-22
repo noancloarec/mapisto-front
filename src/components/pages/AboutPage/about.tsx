@@ -8,6 +8,7 @@ export const About: React.FC = () => {
             </Link>
             <p>Mapisto is a project aiming to tell History with clarity.</p>
             <p>Any comment, suggestion or question is much appreciated, send an e-mail to <a href="mailto:noan@mapisto.org">noan@mapisto.org</a></p>
+            <p>The software developed for the project is free and open-source. It is available  <a href="https://github.com/cadoman/">on github</a> </p>
         </div>
     );
 };
