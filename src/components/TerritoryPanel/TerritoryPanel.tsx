@@ -84,7 +84,7 @@ const renderTerritoryDetails = (territory: MapistoTerritory, dateForNameDisplay:
 
                 )}
             </div>
-            {renderActionButtons(territory)}
+            {false && renderActionButtons(territory)}
         </div >
     );
 };
